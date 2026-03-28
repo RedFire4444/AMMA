@@ -34,3 +34,7 @@ yarn-error.log*
 
 # Coverage
 coverage/
+
+# Local AI assistant config (never push)
+CLAUDE.md
+.claude/
