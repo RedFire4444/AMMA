@@ -104,7 +104,7 @@ Backend Team works     ──┘
 | F1.19 | Build LoginScreen (phone input, country code, send OTP) | Lavanya | Not Started | F1.12 |
 | F1.20 | Build OTPScreen (6-digit input, auto-verify, resend timer) | Lavanya | Not Started | F1.19 |
 | F1.21 | Integrate react-native-keychain for secure token storage | Prachi | Not Started | F1.18 |
-| F1.22 | Set up GitHub Actions CI workflow (lint, type-check, test) | Vineet | Not Started | F1.3 |
+| F1.22 | Explain the  GitHub Actions CI workflow to team(lint, type-check, test) | Vineet | Not Started | F1.3 |
 | F1.23 | Set up Husky pre-commit hooks | Vineet | Not Started | F1.22 |
 | F1.24 | Write component tests for LoginScreen, OTPScreen | Prachi | Not Started | F1.19, F1.20 |
 
