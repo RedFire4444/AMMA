@@ -3,8 +3,9 @@
 > **Project**: MAM Meditation App
 > **Team Lead**: Navnit
 > **Team**: Prachi Shirode, Aayush Tolmare, Lavanya Veni, Krupal Warale, Vineet Wathurkar
-> **Document Version**: 1.0 | March 2026
+> **Document Version**: 2.0 | April 2026 (Updated after Figma review)
 > **Total Duration**: 18 weeks (4 Phases, 9 Sprints)
+> **Design Updates**: See [DESIGN_UPDATES.md](DESIGN_UPDATES.md) for full changelog from v1.0
 
 ---
 
@@ -39,16 +40,19 @@ A cross-platform mobile application (iOS + Android) for spiritual wellness and m
 
 ### 1.2 Core Features (MVP)
 
-1. **Authentication** - Phone OTP login via Supabase Auth
-2. **Home Feed** - Daily quotes, trending videos, live events banner, streak widget
-3. **Courses & Lessons** - Browse, enroll, video/audio player with progress tracking
+1. **Authentication** - Phone OTP + Email/Password + Google OAuth via Supabase Auth
+2. **Home Feed** - Live events banner, stats pills, trending videos, day journey, daily quote
+3. **Courses & Lessons** - Browse, enroll, video/audio player with progress tracking, reviews
 4. **Meditation Timer** - Timer with ambient sounds, session logging
-5. **Habit Tracking** - Streaks, daily check-ins, journey dashboard
-6. **Content Directory** - Searchable library of videos, audio, articles
-7. **Events** - Listing, registration, live streaming
+5. **My Journey** - Multi-habit tracking (Meditation, Exercise, Cold Shower, Early Wakeup), streaks, heatmaps, vision board, day journey, performance tracker
+6. **Content Directory** - Searchable library (Bhajans, Meditations, Satsangs), bookmarks, view counts, mini player
+7. **Events** - Listing and registration (embedded in Home screen), live streaming
 8. **Payments** - Razorpay (India) + Stripe (international), subscription management
 9. **Admin Panel** - Full CRUD for all content, users, events, analytics dashboard
 10. **Push Notifications** - FCM for reminders, events, new content
+11. **Profile** - 6-card stats grid, user levels, invite a friend, delete account
+
+**Navigation**: My Journey | Courses | **Home (center)** | Directory | Profile
 
 ### 1.3 Design System
 
@@ -579,9 +583,25 @@ Establish the project infrastructure, authentication system, navigation skeleton
    - `calculate_streak(user_uuid)` - Returns current streak count
    - `update_streak_on_checkin()` - Trigger function for habit_logs insert
 
+   **Migration 017 - New tables (post-Figma)**:
+   - `vision_board` - User's inspirational image grid
+   - `day_journey` - Time-based activity templates
+   - `performance_ratings` - Daily productivity self-rating
+   - `bookmarks` - Saved/bookmarked content
+   - `course_reviews` - User reviews on courses
+
+   **Migration 018 - Habit logs expansion**:
+   - Add `habit_type` column to `habit_logs` (meditation, exercise, cold_shower, early_wakeup, custom)
+   - Add `habit_name` column for custom habits
+   - Update unique constraint to `(user_id, log_date, habit_type)`
+
+   **Migration 019 - Users & Courses expansion**:
+   - Add `level` column to `users` (beginner, intermediate, advanced)
+   - Add `language`, `review_count` columns to `courses`
+
 5. Apply migrations: `supabase db push`
-6. Write `seed.sql` with sample data (5 courses, 20 lessons, 30 quotes, 3 events)
-7. Verify all tables, policies, and indexes in Supabase dashboard
+6. Write `seed.sql` with sample data (5 courses, 20 lessons, 30 quotes, 3 events, day journey templates)
+7. Verify all tables (18 total), policies, and indexes in Supabase dashboard
 
 **Test**: Connect to Supabase from a test script, verify CRUD operations on each table, verify RLS blocks unauthorized access
 
@@ -640,9 +660,9 @@ Establish the project infrastructure, authentication system, navigation skeleton
 
 ---
 
-#### 5.1.5 Task: Authentication Flow (OTP Login/Register)
+#### 5.1.5 Task: Authentication Flow (OTP + Email + Google)
 
-**What**: Implement the complete phone OTP authentication flow across backend and mobile.
+**What**: Implement multi-method authentication: Phone OTP (primary), Email/Password, and Google OAuth.
 
 **Backend (auth.routes.ts + auth.controller.ts)**:
 1. `POST /api/auth/request-otp`:
@@ -655,33 +675,55 @@ Establish the project infrastructure, authentication system, navigation skeleton
    - Call Supabase Auth `verifyOtp({ phone, token, type: 'sms' })`
    - Return JWT access token + refresh token
    - Create/update user profile in `users` table if first login
+3. `POST /api/auth/email-login` (NEW):
+   - Validate email + password with Zod
+   - Call Supabase Auth `signInWithPassword({ email, password })`
+   - Return JWT tokens
+4. `POST /api/auth/email-signup` (NEW):
+   - Validate email + password with Zod
+   - Call Supabase Auth `signUp({ email, password })`
+   - Send verification email
+5. **Google OAuth** (NEW):
+   - Handled client-side via Supabase Auth `signInWithOAuth({ provider: 'google' })`
+   - Configure Google OAuth in Supabase Dashboard (Google Cloud Console client ID)
+   - No custom backend endpoint needed — Supabase manages the OAuth flow
 
 **Mobile (auth screens)**:
-1. `LoginScreen.tsx`:
+1. `WelcomeScreen.tsx` (NEW - from Figma):
+   - MAM branding + flower logo
+   - "Begin your journey within"
+   - "Get Started" button → Login screen
+   - "I already have an account" link → Login screen
+2. `LoginScreen.tsx`:
    - Phone number input with country code picker (+91 default)
    - "Send OTP" button
-   - Input validation (10-digit Indian phone number)
+   - "Or use your email instead" link → toggles to email/password form
+   - Google Sign-In button
+   - Input validation (10-digit Indian phone number OR valid email)
    - Loading state during API call
    - Error handling with user-friendly messages
-2. `OTPScreen.tsx`:
+3. `OTPScreen.tsx`:
    - 6-digit OTP input (auto-focus, auto-advance)
    - 30-second resend countdown timer
    - Auto-verify on 6th digit
    - Store JWT securely via react-native-keychain
-3. `auth.service.ts`:
+4. `auth.service.ts`:
    - `requestOTP(phone: string): Promise<void>`
    - `verifyOTP(phone: string, otp: string): Promise<AuthResponse>`
+   - `emailLogin(email: string, password: string): Promise<AuthResponse>` (NEW)
+   - `emailSignup(email: string, password: string): Promise<void>` (NEW)
+   - `googleLogin(): Promise<AuthResponse>` (NEW)
    - Token refresh logic using Supabase client
-4. `authStore.ts` (Zustand):
+5. `authStore.ts` (Zustand):
    - `user: User | null`
    - `isAuthenticated: boolean`
    - `isLoading: boolean`
-   - `login(phone, otp)`, `logout()`, `refreshSession()`
+   - `loginWithOTP(phone, otp)`, `loginWithEmail(email, password)`, `loginWithGoogle()`, `logout()`, `refreshSession()`
 
 **Test**:
-- Unit: Zod validators for phone/OTP format
-- Integration: OTP request/verify API endpoints with test phone numbers
-- Component: LoginScreen renders correctly, OTP input handles 6 digits
+- Unit: Zod validators for phone/OTP/email format
+- Integration: OTP request/verify, email login/signup, Google OAuth redirect
+- Component: LoginScreen renders correctly with all 3 auth methods
 
 ---
 
@@ -694,18 +736,19 @@ Establish the project infrastructure, authentication system, navigation skeleton
 2. Create type-safe navigation types in `navigation/types.ts`
 3. Create navigators:
    - `RootNavigator.tsx`: Checks auth state, shows AuthNavigator or MainTabNavigator
-   - `AuthNavigator.tsx`: Login > OTP > Onboarding (stack)
-   - `MainTabNavigator.tsx`: 5 tabs - Home, Courses, Meditate, Events, Profile
-   - `HomeStack.tsx`: Home > CourseDetail > LessonPlayer
+   - `AuthNavigator.tsx`: Welcome > Login > OTP > Onboarding (stack)
+   - `MainTabNavigator.tsx`: 5 tabs - My Journey, Courses, Home (center), Directory, Profile
+   - `JourneyStack.tsx`: Journey dashboard > MeditationTimer > VisionBoard
    - `CoursesStack.tsx`: CoursesList > CourseDetail > LessonPlayer
-   - `JourneyStack.tsx`: Journey dashboard (single screen initially)
-   - `EventsStack.tsx`: EventsList > EventDetail
-   - `ProfileStack.tsx`: Profile > Settings > Subscription
+   - `HomeStack.tsx`: Home > CourseDetail > EventDetail > ContentPlayer
+   - `DirectoryStack.tsx`: Directory > ContentPlayer
+   - `ProfileStack.tsx`: Profile > Settings > Subscription > EditProfile
 
-4. Tab bar design:
+4. Tab bar design (matching Figma):
    - Custom tab bar component matching design system
-   - Icons: Home, BookOpen, Timer/Lotus, Calendar, User
+   - Icons: Journal/Book, Play, Lotus (center/Home), Grid, User
    - Active color: `#1B4332`, Inactive: `#6B7280`
+   - Home tab is center (larger icon)
    - Background: `#FFFFFF` with subtle top shadow
 
 **Test**: Navigation works between all screens, auth flow redirects correctly, deep linking works
@@ -875,7 +918,7 @@ Write integration tests that verify each policy using different Supabase client 
 - [ ] Home screen displays with mock data sections
 - [ ] User can view and edit their profile
 - [ ] Admin panel scaffold runs with all placeholder pages
-- [ ] All 13 database tables created with RLS policies
+- [ ] All 18 database tables created with RLS policies
 - [ ] CI/CD pipeline runs lint + tests on PR
 - [ ] All unit and integration tests passing
 - [ ] Code coverage >70% for auth module
@@ -902,14 +945,16 @@ Build the primary user-facing features: course browsing and playback, meditation
 - Pull-to-refresh, infinite scroll pagination
 - React Query: `useQuery(['courses', filters], fetchCourses)`
 
-**Course Detail Screen** (`CourseDetailScreen.tsx`):
-- Hero image/video preview
-- Title, instructor name and avatar, difficulty badge
-- Description (expandable)
-- Lesson list with duration per lesson, checkmarks for completed
-- Total duration, total lessons count
-- "Enroll" / "Continue" / "Premium" button based on state
-- Progress bar if enrolled
+**Course Detail Screen** (`CourseDetailScreen.tsx`) — Updated per Figma:
+- Hero image with play button overlay (video preview)
+- Title, instructor avatar + name, difficulty badge
+- Rating + review count + duration (days) + language
+- **Three tabs**: Overview | Curriculum | Reviews
+- Overview: Description + "What you'll learn" bullet list
+- Curriculum: Expandable lesson list with lock icons on unenrolled/premium lessons
+- Reviews: User reviews with star ratings
+- **Sticky footer**: Price label (Free / $XX) + "Enroll Now" button
+- Progress bar if already enrolled
 
 **Lesson Player Screen** (`LessonScreen.tsx`):
 - Full-screen video player (react-native-video) for video lessons
@@ -1068,15 +1113,20 @@ $$ LANGUAGE sql STABLE;
 
 #### 6.5.1 Content Directory
 
-**Directory Screen** (`ContentDirectoryScreen.tsx`):
-- Search bar with debounced full-text search
-- Category tabs: All, Videos, Audio, Articles
-- Tag-based filtering
-- Grid view of content cards with type icon, title, duration, premium badge
-- Tapping opens unified media player
+**Directory Screen** (`ContentDirectoryScreen.tsx`) — Updated per Figma:
+- Search bar with filter icon (advanced filters modal)
+- Category tabs: All, **Bhajans, Meditations, Satsangs**, Discourses, Stories
+- Content list cards with: thumbnail, title, **duration overlay**, **view count**, **bookmark icon**
+- **Persistent mini audio player** at bottom when audio is playing (thumbnail, title, artist, pause/play)
 - Premium content shows lock icon for free users
+- Tapping opens unified media player
 
-**API**: `GET /api/directory?q=search&category=video&tags=meditation&page=1`
+**API**:
+- `GET /api/directory?q=search&category=bhajans&page=1`
+- `POST /api/directory/:id/bookmark` - Bookmark content (NEW)
+- `DELETE /api/directory/:id/bookmark` - Remove bookmark (NEW)
+- `GET /api/directory/bookmarks` - Get user's bookmarks (NEW)
+- `POST /api/directory/:id/view` - Increment view count (NEW)
 
 ---
 
@@ -1411,16 +1461,19 @@ Comprehensive QA, beta testing, bug fixes, app store preparation, and production
 -- 001: Users
 CREATE TABLE public.users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  phone TEXT UNIQUE NOT NULL,
+  phone TEXT UNIQUE,
+  email TEXT UNIQUE,
   name TEXT,
   avatar_url TEXT,
   role TEXT DEFAULT 'user' CHECK (role IN ('user', 'admin', 'super_admin')),
+  level TEXT DEFAULT 'beginner' CHECK (level IN ('beginner', 'intermediate', 'advanced')),
   onboarding_complete BOOLEAN DEFAULT false,
   meditation_goal_minutes INTEGER DEFAULT 10,
   interests TEXT[] DEFAULT '{}',
   notification_enabled BOOLEAN DEFAULT true,
   fcm_token TEXT,
   timezone TEXT DEFAULT 'Asia/Kolkata',
+  auth_provider TEXT DEFAULT 'phone' CHECK (auth_provider IN ('phone', 'email', 'google')),
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
@@ -1434,12 +1487,14 @@ CREATE TABLE public.courses (
   instructor_id UUID REFERENCES public.users(id),
   instructor_name TEXT,
   difficulty TEXT CHECK (difficulty IN ('beginner', 'intermediate', 'advanced')),
-  category TEXT CHECK (category IN ('meditation', 'yoga', 'pranayama', 'chanting', 'mindfulness', 'sleep', 'stress')),
+  category TEXT CHECK (category IN ('meditation', 'yoga', 'pranayama', 'chanting', 'mindfulness', 'sleep', 'stress', 'bhajans', 'satsang')),
   is_premium BOOLEAN DEFAULT false,
   total_duration_seconds INTEGER DEFAULT 0,
   lesson_count INTEGER DEFAULT 0,
   enrollment_count INTEGER DEFAULT 0,
   rating DECIMAL(2,1) DEFAULT 0.0,
+  review_count INTEGER DEFAULT 0,
+  language TEXT DEFAULT 'English',
   sort_order INTEGER DEFAULT 0,
   is_published BOOLEAN DEFAULT false,
   created_at TIMESTAMPTZ DEFAULT now(),
@@ -1487,17 +1542,19 @@ CREATE TABLE public.meditation_sessions (
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
--- 006: Habit Logs
+-- 006: Habit Logs (expanded for multi-habit tracking)
 CREATE TABLE public.habit_logs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   log_date DATE NOT NULL,
-  meditation_done BOOLEAN DEFAULT false,
+  habit_type TEXT DEFAULT 'meditation' CHECK (habit_type IN ('meditation', 'exercise', 'cold_shower', 'early_wakeup', 'custom')),
+  habit_name TEXT,
+  completed BOOLEAN DEFAULT true,
   mood TEXT CHECK (mood IN ('great', 'good', 'okay', 'low', 'bad')),
   streak_count INTEGER DEFAULT 1,
   notes TEXT,
   created_at TIMESTAMPTZ DEFAULT now(),
-  UNIQUE(user_id, log_date)
+  UNIQUE(user_id, log_date, habit_type)
 );
 
 -- 007: Events
@@ -1597,34 +1654,127 @@ CREATE TABLE public.content_directory (
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
+
+-- 014: Vision Board
+CREATE TABLE public.vision_board (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  image_url TEXT NOT NULL,
+  caption TEXT,
+  sort_order INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 015: Day Journey Templates
+CREATE TABLE public.day_journey (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title TEXT NOT NULL,
+  description TEXT,
+  time_slot TEXT CHECK (time_slot IN ('morning', 'afternoon', 'evening', 'night')),
+  start_time TIME,
+  end_time TIME,
+  content_id UUID REFERENCES public.content_directory(id),
+  icon TEXT,
+  sort_order INTEGER DEFAULT 0,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 016: Performance Ratings
+CREATE TABLE public.performance_ratings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  rating_date DATE NOT NULL,
+  productivity_rating INTEGER CHECK (productivity_rating BETWEEN 1 AND 5),
+  created_at TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(user_id, rating_date)
+);
+
+-- 017: Bookmarks
+CREATE TABLE public.bookmarks (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  content_id UUID NOT NULL REFERENCES public.content_directory(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(user_id, content_id)
+);
+
+-- 018: Course Reviews
+CREATE TABLE public.course_reviews (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  course_id UUID NOT NULL REFERENCES public.courses(id) ON DELETE CASCADE,
+  rating INTEGER CHECK (rating BETWEEN 1 AND 5),
+  review_text TEXT,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(user_id, course_id)
+);
 ```
 
 ---
 
 ## 10. API Endpoint Reference
 
-| Method | Endpoint | Description | Auth | Sprint |
-|--------|----------|-------------|------|--------|
-| POST | /api/auth/request-otp | Send OTP to phone | No | 1 |
-| POST | /api/auth/verify-otp | Verify OTP, get JWT | No | 1 |
-| GET | /api/users/me | Get current user profile | Yes | 2 |
-| PATCH | /api/users/me | Update profile | Yes | 2 |
-| GET | /api/home/feed | Home screen data | Yes | 2 |
-| GET | /api/courses | List courses with filters | Yes | 3 |
-| GET | /api/courses/:id | Course detail with lessons | Yes | 3 |
-| POST | /api/courses/:id/enroll | Enroll in course | Yes | 3 |
-| PATCH | /api/enrollments/:id/progress | Update progress | Yes | 3 |
-| POST | /api/sessions | Log meditation session | Yes | 4 |
-| GET | /api/habits/streak | Get streak and stats | Yes | 4 |
-| POST | /api/habits/checkin | Daily check-in | Yes | 4 |
-| GET | /api/directory | Browse content | Yes | 5 |
-| GET | /api/events | List events | Yes | 5 |
-| POST | /api/events/:id/register | Register for event | Yes | 5 |
-| GET | /api/events/:id/stream | Get stream URL | Yes | 5 |
-| POST | /api/payments/create-order | Create Razorpay order | Yes | 6 |
-| POST | /api/payments/verify | Verify payment | Yes | 6 |
-| GET | /api/subscriptions/status | Check subscription | Yes | 6 |
-| GET | /api/notifications | List notifications | Yes | 5 |
+### Authentication (Sprint 1)
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| POST | /api/auth/request-otp | Send OTP to phone | No |
+| POST | /api/auth/verify-otp | Verify OTP, get JWT | No |
+| POST | /api/auth/email-signup | Register with email | No |
+| POST | /api/auth/email-login | Login with email | No |
+| — | Google OAuth | Via Supabase client-side | No |
+
+### Users & Profile (Sprint 2)
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | /api/users/me | Get profile + stats | Yes |
+| PATCH | /api/users/me | Update profile | Yes |
+| DELETE | /api/users/me | Delete account | Yes |
+| POST | /api/users/invite | Generate invite link | Yes |
+| GET | /api/home/feed | Home screen data | Yes |
+
+### Courses (Sprint 3)
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | /api/courses | List with filters | Yes |
+| GET | /api/courses/:id | Detail with lessons | Yes |
+| POST | /api/courses/:id/enroll | Enroll in course | Yes |
+| PATCH | /api/enrollments/:id/progress | Update progress | Yes |
+| GET | /api/courses/:id/reviews | Get reviews | Yes |
+| POST | /api/courses/:id/reviews | Submit review | Yes |
+
+### Meditation & Habits (Sprint 4)
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| POST | /api/sessions | Log meditation session | Yes |
+| GET | /api/habits/all | All habit types + streaks | Yes |
+| POST | /api/habits/log | Log any habit type | Yes |
+| GET | /api/vision-board | Get vision board images | Yes |
+| POST | /api/vision-board | Upload vision board image | Yes |
+| DELETE | /api/vision-board/:id | Remove vision board image | Yes |
+| GET | /api/day-journey | Get day journey schedule | Yes |
+| POST | /api/performance/rate | Submit productivity rating | Yes |
+| GET | /api/performance/weekly | Get weekly performance | Yes |
+
+### Directory & Events (Sprint 5)
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | /api/directory | Browse content | Yes |
+| POST | /api/directory/:id/bookmark | Bookmark content | Yes |
+| DELETE | /api/directory/:id/bookmark | Remove bookmark | Yes |
+| GET | /api/directory/bookmarks | Get bookmarked content | Yes |
+| POST | /api/directory/:id/view | Increment view count | Yes |
+| GET | /api/events | List events | Yes |
+| POST | /api/events/:id/register | Register for event | Yes |
+| GET | /api/events/:id/stream | Get stream URL | Yes |
+| GET | /api/notifications | List notifications | Yes |
+
+### Payments (Sprint 6)
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| POST | /api/payments/create-order | Create Razorpay order | Yes |
+| POST | /api/payments/verify | Verify payment | Yes |
+| GET | /api/subscriptions/status | Check subscription | Yes |
 | POST | /api/admin/* | Admin CRUD endpoints | Admin | 2-7 |
 
 ---

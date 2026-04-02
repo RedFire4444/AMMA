@@ -1,6 +1,8 @@
 # MAM Meditation App - User Flow Diagrams
 
 > These diagrams use Mermaid syntax and render directly on GitHub.
+> **Updated**: 2026-04-02 (post-Figma review — auth methods, tab structure, new features)
+> **Changes**: See [DESIGN_UPDATES.md](DESIGN_UPDATES.md) for full changelog
 
 ---
 
@@ -45,20 +47,22 @@ flowchart TD
     ONBOARD_CHECK -->|Yes| HOME
     ONBOARD_CHECK -->|No| ONBOARDING
 
+    HOME --> TAB_JOURNEY[My Journey Tab]
     HOME --> TAB_COURSES[Courses Tab]
-    HOME --> TAB_MEDITATE[Meditate Tab]
-    HOME --> TAB_EVENTS[Events Tab]
+    HOME --> TAB_DIRECTORY[Directory Tab]
     HOME --> TAB_PROFILE[Profile Tab]
+
+    TAB_JOURNEY --> TIMER[Meditation Timer]
+    TAB_JOURNEY --> VISION[Vision Board]
+    TIMER --> SESSION_COMPLETE[Session Complete]
 
     TAB_COURSES --> COURSE_DETAIL[Course Detail]
     COURSE_DETAIL --> LESSON_PLAYER[Lesson Player]
 
-    TAB_MEDITATE --> TIMER[Meditation Timer]
-    TIMER --> SESSION_COMPLETE[Session Complete]
-    SESSION_COMPLETE --> JOURNEY[Journey Dashboard]
-
-    TAB_EVENTS --> EVENT_DETAIL[Event Detail]
+    HOME --> EVENT_DETAIL[Event Detail]
     EVENT_DETAIL --> LIVE_STREAM[Live Stream]
+
+    TAB_DIRECTORY --> CONTENT_PLAYER[Content Player]
 
     TAB_PROFILE --> SETTINGS[Settings]
     TAB_PROFILE --> SUBSCRIPTION[Subscription]
@@ -80,7 +84,9 @@ flowchart TD
     A([App Launch]) --> B[Splash Screen\n2 seconds]
     B --> C{Check Keychain\nfor JWT}
 
-    C -->|No Token| D[Login Screen]
+    C -->|No Token| WELCOME[Welcome Screen\nBegin your journey within]
+    WELCOME -->|Get Started| D[Login Screen]
+    WELCOME -->|I have an account| D
     C -->|Token Found| E{Validate Token\nwith Supabase}
 
     E -->|Valid| F{onboarding_complete\n== true?}
@@ -89,7 +95,25 @@ flowchart TD
     G -->|Success| F
     G -->|Fail| D
 
-    D --> H[User Enters\nPhone Number\n+91 XXXXXXXXXX]
+    D --> METHOD{Login Method?}
+
+    METHOD -->|Phone OTP| H[User Enters\nPhone Number\n+91 XXXXXXXXXX]
+    METHOD -->|Email| EMAIL_INPUT[User Enters\nEmail + Password]
+    METHOD -->|Google| GOOGLE[Google OAuth\nvia Supabase]
+
+    EMAIL_INPUT --> EMAIL_VALID{Valid Email\n+ Password?}
+    EMAIL_VALID -->|No| EMAIL_ERR[Show Error]
+    EMAIL_ERR --> EMAIL_INPUT
+    EMAIL_VALID -->|Yes| EMAIL_AUTH[POST /api/auth/email-login]
+    EMAIL_AUTH --> EMAIL_RESULT{Auth Success?}
+    EMAIL_RESULT -->|Yes| U
+    EMAIL_RESULT -->|No| EMAIL_ERR2[Invalid Credentials]
+    EMAIL_ERR2 --> EMAIL_INPUT
+
+    GOOGLE --> GOOGLE_RESULT{OAuth Success?}
+    GOOGLE_RESULT -->|Yes| U
+    GOOGLE_RESULT -->|No| D
+
     H --> I{Valid 10-digit\nIndian Number?}
 
     I -->|No| J[Show Error:\nInvalid Phone Number]
@@ -794,48 +818,51 @@ flowchart LR
     end
 
     subgraph Main Tabs
-        HOME[Home]
+        JOURNEY[My Journey]
         COURSES[Courses]
-        MEDITATE[Meditate]
-        EVENTS[Events]
+        HOME[Home - Center]
+        DIRECTORY[Directory]
         PROFILE[Profile]
     end
 
-    subgraph Home Stack
-        HOME --> H_NOTIF[Notifications]
-        HOME --> H_COURSE[Course Detail]
-        HOME --> H_CONTENT[Content Player]
+    subgraph Journey Stack
+        JOURNEY --> J_TIMER[Meditation Timer]
+        JOURNEY --> J_VISION[Vision Board]
+        J_TIMER --> J_COMPLETE[Session Complete]
     end
 
     subgraph Courses Stack
         COURSES --> C_DETAIL[Course Detail]
         C_DETAIL --> C_LESSON[Lesson Player]
+        C_DETAIL --> C_REVIEWS[Reviews]
     end
 
-    subgraph Meditate Stack
-        MEDITATE --> M_TIMER[Timer]
-        M_TIMER --> M_COMPLETE[Session Complete]
-        M_COMPLETE --> M_JOURNEY[Journey]
+    subgraph Home Stack
+        HOME --> H_NOTIF[Notifications]
+        HOME --> H_EVENT[Event Detail]
+        H_EVENT --> H_STREAM[Live Stream]
+        HOME --> H_CONTENT[Content Player]
     end
 
-    subgraph Events Stack
-        EVENTS --> E_DETAIL[Event Detail]
-        E_DETAIL --> E_STREAM[Live Stream]
+    subgraph Directory Stack
+        DIRECTORY --> D_PLAYER[Content Player]
+        DIRECTORY --> D_BOOKMARKS[Bookmarks]
     end
 
     subgraph Profile Stack
         PROFILE --> P_SETTINGS[Settings]
         PROFILE --> P_SUB[Subscription]
+        PROFILE --> P_INVITE[Invite a Friend]
         P_SUB --> P_PAYWALL[Paywall]
         P_PAYWALL --> P_PAYMENT[Razorpay]
     end
 
-    LOGIN --> OTP --> ONBOARD1 --> ONBOARD2 --> ONBOARD3 --> HOME
+    WELCOME --> LOGIN --> OTP --> ONBOARD1 --> ONBOARD2 --> ONBOARD3 --> HOME
 
     style HOME fill:#1B4332,color:#fff
+    style JOURNEY fill:#1B4332,color:#fff
     style COURSES fill:#1B4332,color:#fff
-    style MEDITATE fill:#1B4332,color:#fff
-    style EVENTS fill:#1B4332,color:#fff
+    style DIRECTORY fill:#1B4332,color:#fff
     style PROFILE fill:#1B4332,color:#fff
 ```
 
