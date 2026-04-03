@@ -1,0 +1,150 @@
+﻿npx : FAIL 
+__tests__/App.test.tsx
+At line:1 char:1
++ npx jest 
+__tests__/App.test.tsx 
+2>&1 | Out-File -Encoding 
+utf8 apptes ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~
+    + CategoryInfo        
+      : NotSpecified: (F  
+  AIL __tests__/App.tes   
+ t.tsx:String) [], Rem    
+oteException
+    + FullyQualifiedError 
+   Id : NativeCommandErr  
+  or
+ 
+  ΓùÅ Test suite failed 
+to run
+
+    Jest encountered an 
+unexpected token
+
+    Jest failed to parse 
+a file. This happens e.g. 
+when your code or its 
+dependencies use 
+non-standard JavaScript 
+syntax, or when Jest is 
+not configured to support 
+such syntax.
+
+    Out of the box Jest 
+supports Babel, which 
+will be used to transform 
+your files into valid JS 
+based on your Babel 
+configuration.
+
+    By default 
+"node_modules" folder is 
+ignored by transformers.
+
+    Here's what you can 
+do:
+     ΓÇó If you are 
+trying to use ECMAScript 
+Modules, see https://jestj
+s.io/docs/ecmascript-modul
+es for how to enable it.
+     ΓÇó If you are 
+trying to use TypeScript, 
+see https://jestjs.io/docs
+/getting-started#using-typ
+escript
+     ΓÇó To have some of 
+your "node_modules" files 
+transformed, you can 
+specify a custom 
+"transformIgnorePatterns" 
+in your config.
+     ΓÇó If you need a 
+custom transformation 
+specify a "transform" 
+option in your config.
+     ΓÇó If you simply 
+want to mock your non-JS 
+modules (e.g. binary 
+assets) you can stub them 
+out with the 
+"moduleNameMapper" config 
+option.
+
+    You'll find more 
+details and examples of 
+these config options in 
+the docs:
+    https://jestjs.io/docs
+/configuration
+    For information about 
+custom transformations, 
+see:
+    https://jestjs.io/docs
+/code-transformation
+
+    Details:
+
+    D:\Project-MAM-main\Pr
+oject-MAM-main\mobile\node
+_modules\@react-navigation
+\native\lib\module\index.j
+s:3
+    export { 
+createStaticNavigation } 
+from "./createStaticNaviga
+tion.js";
+    ^^^^^^
+
+    SyntaxError: 
+Unexpected token 'export'
+
+    [0m [90m 1 |[39m 
+[36mimport[39m 
+[33mReact[39m 
+[36mfrom[39m [32m'react
+'[39m[33m;[39m
+    
+[31m[1m>[22m[39m[90m 
+2 |[39m [36mimport[39m 
+{ [33mNavigationContainer
+[39m } [36mfrom[39m [3
+2m'@react-navigation/nativ
+e'[39m[33m;[39m
+     [90m   |[39m 
+[31m[1m^[22m[39m
+     [90m 3 |[39m 
+[36mimport[39m { 
+[33mAuthNavigator[39m } 
+[36mfrom[39m [32m'./Aut
+hNavigator'[39m[33m;[39
+m
+     [90m 4 |[39m 
+[36mimport[39m { [33mMa
+inTabNavigator[39m } 
+[36mfrom[39m [32m'./Mai
+nTabNavigator'[39m[33m;
+[39m
+     [90m 5 |[39m[0m
+
+      at Runtime.createScr
+iptFromCode (node_modules/
+jest-runtime/build/index.j
+s:1505:14)
+      at Object.require (s
+rc/navigation/RootNavigato
+r.tsx:2:1)
+      at Object.require 
+(App.tsx:10:1)
+      at Object.require (_
+_tests__/App.test.tsx:7:1)
+
+Test Suites: 1 failed, 1 
+total
+Tests:       0 total
+Snapshots:   0 total
+Time:        0.521 s
+Ran all test suites 
+matching /__tests__\\App.t
+est.tsx/i.
