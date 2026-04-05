@@ -63,13 +63,9 @@ describe('EventDetailScreen', () => {
 
   it('shows loading indicator initially', () => {
     const props = createProps();
-    const { UNSAFE_queryAllByType } = render(
-      <EventDetailScreen {...(props as any)} />,
-    );
-    // The component shows an ActivityIndicator during loading
-    // We can verify loading state by checking that "Event Details" header is not yet shown
-    // ActivityIndicator is rendered while loading is true
-    expect(true).toBe(true); // Component renders without crashing during loading
+    render(<EventDetailScreen {...(props as any)} />);
+    // Component renders without crashing during loading state
+    expect(true).toBe(true);
   });
 
   it('renders "Event Details" header after data loads', async () => {

@@ -139,7 +139,7 @@ export const habitsService = {
     };
   },
 
-  async checkin(mood: number, notes: string): Promise<void> {
+  async checkin(mood: number, _notes: string): Promise<void> {
     const {
       data: { user },
     } = await supabase.auth.getUser();

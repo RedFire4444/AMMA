@@ -14,25 +14,6 @@ jest.mock('@react-navigation/native', () => ({
   }),
 }));
 
-const mockCourse = {
-  id: 'test-course-123',
-  title: 'Beginner Meditation',
-  description: 'A course for beginners.',
-  short_description: 'Start your journey',
-  thumbnail_url: null,
-  instructor_name: 'Guruji',
-  total_lessons: 5,
-  estimated_duration_minutes: 120,
-  difficulty_level: 'beginner' as const,
-  category: 'Meditation',
-  tags: ['focus', 'calm'],
-  is_premium: false,
-  price_cents: 0,
-  status: 'published' as const,
-  is_featured: false,
-  enrollment_count: 42,
-};
-
 jest.mock('../services/courses.service', () => ({
   coursesService: {
     getCourseById: jest.fn().mockResolvedValue({

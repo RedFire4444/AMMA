@@ -1,5 +1,3 @@
-import React from 'react';
-import { render } from '@testing-library/react-native';
 import { useAuthStore } from '../store/authStore';
 
 // We test the logic of RootNavigator by checking which navigator renders
