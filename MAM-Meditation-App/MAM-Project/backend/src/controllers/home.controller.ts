@@ -28,7 +28,7 @@ export const getHomeFeed = async (req: Request, res: Response): Promise<void> =>
       supabase
         .from('courses')
         .select('*')
-        .eq('is_published', true)
+        .eq('status', 'published')
         .order('enrollment_count', { ascending: false })
         .limit(5),
 

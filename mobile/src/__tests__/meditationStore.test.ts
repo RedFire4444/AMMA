@@ -9,8 +9,8 @@ describe('meditationStore', () => {
     const state = useMeditationStore.getState();
     expect(state.isRunning).toBe(false);
     expect(state.isPaused).toBe(false);
-    expect(state.duration).toBe(600);
-    expect(state.remaining).toBe(600);
+    expect(state.duration).toBe(300);
+    expect(state.remaining).toBe(300);
     expect(state.selectedSound).toBe('silence');
     expect(state.sessionType).toBe('free');
   });
@@ -80,7 +80,7 @@ describe('meditationStore', () => {
     useMeditationStore.getState().reset();
     const state = useMeditationStore.getState();
     expect(state.isRunning).toBe(false);
-    expect(state.duration).toBe(600);
+    expect(state.duration).toBe(300);
     expect(state.selectedSound).toBe('silence');
   });
 });

@@ -118,18 +118,28 @@ export const registerForEvent = async (req: Request, res: Response): Promise<voi
       return;
     }
 
-    // Upsert registration (handles already-registered case)
+    // Check if already registered
+    const { data: existing } = await supabase
+      .from('event_registrations')
+      .select('id')
+      .eq('event_id', eventId)
+      .eq('user_id', userId)
+      .single();
+
+    if (existing) {
+      res.status(200).json(success(existing));
+      return;
+    }
+
+    // Insert new registration
     const { data: registration, error: regError } = await supabase
       .from('event_registrations')
-      .upsert(
-        {
-          event_id: eventId,
-          user_id: userId,
-          status: 'registered',
-          registered_at: new Date().toISOString(),
-        },
-        { onConflict: 'event_id,user_id', ignoreDuplicates: true }
-      )
+      .insert({
+        event_id: eventId,
+        user_id: userId,
+        status: 'registered',
+        registered_at: new Date().toISOString(),
+      })
       .select()
       .single();
 
@@ -138,11 +148,13 @@ export const registerForEvent = async (req: Request, res: Response): Promise<voi
       return;
     }
 
-    // Increment registration_count
-    await supabase
-      .from('events')
-      .update({ registration_count: (event.registration_count ?? 0) + 1 })
-      .eq('id', eventId);
+    // Atomically increment registration_count
+    await supabase.rpc('increment_counter', {
+      p_table: 'events',
+      p_column: 'registration_count',
+      p_id: eventId,
+      p_delta: 1
+    });
 
     res.status(201).json(success(registration));
   } catch (err) {

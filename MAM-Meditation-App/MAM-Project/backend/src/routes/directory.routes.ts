@@ -7,6 +7,8 @@ import {
   trackView,
 } from '../controllers/directory.controller';
 import { authenticateToken } from '../middleware/auth.middleware';
+import { validate } from '../middleware/validator.middleware';
+import { contentIdParamSchema } from '../validators/directory.validator';
 
 const router = Router();
 
@@ -18,12 +20,12 @@ router.get('/', authenticateToken, browseDirectory);
 router.get('/bookmarks', authenticateToken, getBookmarks);
 
 // POST /api/directory/:id/bookmark — bookmark a content item
-router.post('/:id/bookmark', authenticateToken, bookmarkContent);
+router.post('/:id/bookmark', authenticateToken, validate(contentIdParamSchema, 'params'), bookmarkContent);
 
 // DELETE /api/directory/:id/bookmark — remove a bookmark
-router.delete('/:id/bookmark', authenticateToken, removeBookmark);
+router.delete('/:id/bookmark', authenticateToken, validate(contentIdParamSchema, 'params'), removeBookmark);
 
 // POST /api/directory/:id/view — track a content view
-router.post('/:id/view', authenticateToken, trackView);
+router.post('/:id/view', authenticateToken, validate(contentIdParamSchema, 'params'), trackView);
 
 export default router;

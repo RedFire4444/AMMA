@@ -1,5 +1,4 @@
 {
-  "dependencies": {
-    "morgan": "^1.10.1"
-  }
+  "private": true,
+  "description": "MAM Meditation App — monorepo root"
 }

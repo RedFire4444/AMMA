@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
-import { getSession } from '../../services/auth.service';
+import { supabase } from '../../services/supabase';
 
 export function ProtectedRoute() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -8,14 +8,46 @@ export function ProtectedRoute() {
   useEffect(() => {
     async function checkAuth() {
       try {
-        const session = await getSession();
-        setIsAuthenticated(!!session);
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          setIsAuthenticated(false);
+          return;
+        }
+
+        // Verify the user has admin role
+        const { data: profile } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+
+        setIsAuthenticated(profile?.role === 'admin');
       } catch {
         setIsAuthenticated(false);
       }
     }
 
     checkAuth();
+
+    // Listen for auth state changes to keep session fresh
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        if (!session) {
+          setIsAuthenticated(false);
+          return;
+        }
+
+        const { data: profile } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+
+        setIsAuthenticated(profile?.role === 'admin');
+      }
+    );
+
+    return () => subscription.unsubscribe();
   }, []);
 
   if (isAuthenticated === null) {

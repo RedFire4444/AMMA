@@ -116,19 +116,13 @@ export const bookmarkContent = async (req: Request, res: Response): Promise<void
       return;
     }
 
-    // Increment bookmark_count on the content item
-    const { data: currentContent } = await supabase
-      .from('content_directory')
-      .select('bookmark_count')
-      .eq('id', contentId)
-      .single();
-
-    if (currentContent) {
-      await supabase
-        .from('content_directory')
-        .update({ bookmark_count: (currentContent.bookmark_count ?? 0) + 1 })
-        .eq('id', contentId);
-    }
+    // Atomically increment bookmark_count
+    await supabase.rpc('increment_counter', {
+      p_table: 'content_directory',
+      p_column: 'bookmark_count',
+      p_id: contentId,
+      p_delta: 1
+    });
 
     res.status(201).json(success(bookmark));
   } catch (err) {
@@ -177,19 +171,13 @@ export const removeBookmark = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    // Decrement bookmark_count on the content item
-    const { data: currentContent } = await supabase
-      .from('content_directory')
-      .select('bookmark_count')
-      .eq('id', contentId)
-      .single();
-
-    if (currentContent && (currentContent.bookmark_count ?? 0) > 0) {
-      await supabase
-        .from('content_directory')
-        .update({ bookmark_count: (currentContent.bookmark_count ?? 0) - 1 })
-        .eq('id', contentId);
-    }
+    // Atomically decrement bookmark_count
+    await supabase.rpc('increment_counter', {
+      p_table: 'content_directory',
+      p_column: 'bookmark_count',
+      p_id: contentId,
+      p_delta: -1
+    });
 
     res.status(200).json(success({ message: 'Bookmark removed' }));
   } catch (err) {
@@ -278,20 +266,15 @@ export const trackView = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Increment view_count
-    const { data: updated, error: updateError } = await supabase
-      .from('content_directory')
-      .update({ view_count: (content.view_count ?? 0) + 1 })
-      .eq('id', contentId)
-      .select('id, view_count')
-      .single();
+    // Atomically increment view_count
+    await supabase.rpc('increment_counter', {
+      p_table: 'content_directory',
+      p_column: 'view_count',
+      p_id: contentId,
+      p_delta: 1
+    });
 
-    if (updateError) {
-      res.status(500).json(error('UPDATE_FAILED', updateError.message, 500));
-      return;
-    }
-
-    res.status(200).json(success(updated));
+    res.status(200).json(success({ id: content.id, view_count: (content.view_count ?? 0) + 1 }));
   } catch (err) {
     console.error('trackView error:', err);
     res.status(500).json(error('INTERNAL_SERVER_ERROR', 'Failed to track view', 500));

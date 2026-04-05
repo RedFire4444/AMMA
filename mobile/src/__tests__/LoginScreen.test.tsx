@@ -31,7 +31,7 @@ describe('LoginScreen', () => {
 
   it('shows Google Sign-In button', () => {
     const { getByText } = render(<LoginScreen />);
-    expect(getByText('Continue with Google')).toBeTruthy();
+    expect(getByText('Sign in with Google')).toBeTruthy();
   });
 
   it('shows error when phone is empty and Send OTP pressed', () => {
@@ -43,8 +43,8 @@ describe('LoginScreen', () => {
   it('toggles to email mode when link pressed', () => {
     const { getByText, getByPlaceholderText } = render(<LoginScreen />);
     fireEvent.press(getByText('Or use your email instead'));
-    expect(getByPlaceholderText('your@email.com')).toBeTruthy();
-    expect(getByText('Sign In')).toBeTruthy();
+    expect(getByPlaceholderText('you@example.com')).toBeTruthy();
+    expect(getByText('Login')).toBeTruthy();
   });
 
   it('toggles back to phone mode', () => {

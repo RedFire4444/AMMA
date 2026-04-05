@@ -195,19 +195,13 @@ export const enrollCourse = async (req: Request, res: Response): Promise<void> =
       return;
     }
 
-    // Increment enrollment_count on the course
-    const { data: currentCourse } = await supabase
-      .from('courses')
-      .select('enrollment_count')
-      .eq('id', courseId)
-      .single();
-
-    if (currentCourse) {
-      await supabase
-        .from('courses')
-        .update({ enrollment_count: (currentCourse.enrollment_count ?? 0) + 1 })
-        .eq('id', courseId);
-    }
+    // Atomically increment enrollment_count on the course
+    await supabase.rpc('increment_counter', {
+      p_table: 'courses',
+      p_column: 'enrollment_count',
+      p_id: courseId,
+      p_delta: 1
+    });
 
     res.status(201).json(success(enrollment));
   } catch (err) {

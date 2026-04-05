@@ -1,0 +1,48 @@
+name: Admin CI
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'MAM-Meditation-App/MAM-Project/admin/**'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'MAM-Meditation-App/MAM-Project/admin/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [22.x]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: 'MAM-Meditation-App/MAM-Project/admin/package-lock.json'
+
+    - name: Install dependencies
+      working-directory: ./MAM-Meditation-App/MAM-Project/admin
+      run: npm ci
+
+    - name: Run Linter
+      working-directory: ./MAM-Meditation-App/MAM-Project/admin
+      run: npm run lint
+
+    - name: Run Type Check
+      working-directory: ./MAM-Meditation-App/MAM-Project/admin
+      run: npx tsc --noEmit
+
+    - name: Build
+      working-directory: ./MAM-Meditation-App/MAM-Project/admin
+      run: npm run build
+      env:
+        VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+        VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}

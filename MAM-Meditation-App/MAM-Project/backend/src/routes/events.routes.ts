@@ -5,6 +5,8 @@ import {
   getStreamUrl,
 } from '../controllers/events.controller';
 import { authenticateToken } from '../middleware/auth.middleware';
+import { validate } from '../middleware/validator.middleware';
+import { uuidParamSchema } from '../validators/user.validator';
 
 const router = Router();
 
@@ -12,9 +14,9 @@ const router = Router();
 router.get('/', authenticateToken, listEvents);
 
 // POST /api/events/:id/register — register for an event
-router.post('/:id/register', authenticateToken, registerForEvent);
+router.post('/:id/register', authenticateToken, validate(uuidParamSchema, 'params'), registerForEvent);
 
 // GET /api/events/:id/stream — get stream URL (must be registered)
-router.get('/:id/stream', authenticateToken, getStreamUrl);
+router.get('/:id/stream', authenticateToken, validate(uuidParamSchema, 'params'), getStreamUrl);
 
 export default router;

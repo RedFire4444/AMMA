@@ -1,14 +1,14 @@
 -- =====================================================
 -- MAM Meditation App — Seed Data
 -- Development sample data: courses, lessons, quotes, events
--- Run AFTER all migrations (001-016) have been applied
+-- Run AFTER all migrations (001-020) have been applied
 -- =====================================================
 
 -- =====================================================
 -- COURSES (5 sample courses)
 -- =====================================================
 
-INSERT INTO courses (id, title, description, instructor_name, thumbnail_url, category, level, duration_minutes, lesson_count, language, is_premium, is_published)
+INSERT INTO courses (id, title, description, instructor_name, thumbnail_url, category, difficulty_level, estimated_duration_minutes, total_lessons, is_premium, status)
 VALUES
   (
     'a1b2c3d4-0001-0001-0001-000000000001',
@@ -20,9 +20,8 @@ VALUES
     'beginner',
     120,
     8,
-    'en',
     false,
-    true
+    'published'
   ),
   (
     'a1b2c3d4-0002-0002-0002-000000000002',
@@ -34,9 +33,8 @@ VALUES
     'intermediate',
     90,
     6,
-    'en',
     false,
-    true
+    'published'
   ),
   (
     'a1b2c3d4-0003-0003-0003-000000000003',
@@ -48,9 +46,8 @@ VALUES
     'beginner',
     150,
     10,
-    'en',
     true,
-    true
+    'published'
   ),
   (
     'a1b2c3d4-0004-0004-0004-000000000004',
@@ -62,9 +59,8 @@ VALUES
     'beginner',
     200,
     12,
-    'hi',
     true,
-    true
+    'published'
   ),
   (
     'a1b2c3d4-0005-0005-0005-000000000005',
@@ -76,9 +72,8 @@ VALUES
     'advanced',
     300,
     15,
-    'en',
     true,
-    true
+    'published'
   )
 ON CONFLICT (id) DO NOTHING;
 
@@ -87,16 +82,16 @@ ON CONFLICT (id) DO NOTHING;
 -- LESSONS (sample lessons for Course 1 — Foundations)
 -- =====================================================
 
-INSERT INTO lessons (id, course_id, title, description, media_url, media_type, duration_seconds, order_index, is_free_preview)
+INSERT INTO lessons (id, course_id, title, description, audio_url, duration_minutes, lesson_number, is_preview)
 VALUES
-  ('b1b2c3d4-0001-0001-0001-000000000001', 'a1b2c3d4-0001-0001-0001-000000000001', 'What is Meditation?', 'An introduction to the science and philosophy of meditation and its benefits.', 'https://example.com/media/lesson1.mp4', 'video', 480, 1, true),
-  ('b1b2c3d4-0002-0002-0002-000000000001', 'a1b2c3d4-0001-0001-0001-000000000001', 'Finding Your Posture', 'Learn sitting postures, how to use cushions, and how to keep your spine aligned.', 'https://example.com/media/lesson2.mp4', 'video', 540, 2, true),
-  ('b1b2c3d4-0003-0003-0003-000000000001', 'a1b2c3d4-0001-0001-0001-000000000001', 'Basic Breath Awareness', 'Guided session: observe the breath without control. The foundation of all meditation.', 'https://example.com/media/lesson3.mp3', 'audio', 600, 3, false),
-  ('b1b2c3d4-0004-0004-0004-000000000001', 'a1b2c3d4-0001-0001-0001-000000000001', 'Dealing with Thoughts', 'Why thoughts arise during meditation and the correct way to handle them.', 'https://example.com/media/lesson4.mp4', 'video', 420, 4, false),
-  ('b1b2c3d4-0005-0005-0005-000000000001', 'a1b2c3d4-0001-0001-0001-000000000001', '10-Minute Morning Practice', 'A complete guided morning meditation to start every day with clarity and calm.', 'https://example.com/media/lesson5.mp3', 'audio', 600, 5, false),
-  ('b1b2c3d4-0006-0006-0006-000000000001', 'a1b2c3d4-0001-0001-0001-000000000001', 'Loving Kindness (Metta)', 'Learn the Metta meditation — cultivating compassion for yourself and others.', 'https://example.com/media/lesson6.mp3', 'audio', 720, 6, false),
-  ('b1b2c3d4-0007-0007-0007-000000000001', 'a1b2c3d4-0001-0001-0001-000000000001', 'Meditation for Stress', 'A targeted session for releasing stress and anxiety held in the body.', 'https://example.com/media/lesson7.mp3', 'audio', 660, 7, false),
-  ('b1b2c3d4-0008-0008-0008-000000000001', 'a1b2c3d4-0001-0001-0001-000000000001', 'Building Your Daily Habit', 'Strategies, reminders, and accountability techniques to meditate consistently.', 'https://example.com/media/lesson8.mp4', 'video', 480, 8, false)
+  ('b1b2c3d4-0001-0001-0001-000000000001', 'a1b2c3d4-0001-0001-0001-000000000001', 'What is Meditation?', 'An introduction to the science and philosophy of meditation and its benefits.', 'https://example.com/media/lesson1.mp3', 8, 1, true),
+  ('b1b2c3d4-0002-0002-0002-000000000001', 'a1b2c3d4-0001-0001-0001-000000000001', 'Finding Your Posture', 'Learn sitting postures, how to use cushions, and how to keep your spine aligned.', 'https://example.com/media/lesson2.mp3', 9, 2, true),
+  ('b1b2c3d4-0003-0003-0003-000000000001', 'a1b2c3d4-0001-0001-0001-000000000001', 'Basic Breath Awareness', 'Guided session: observe the breath without control. The foundation of all meditation.', 'https://example.com/media/lesson3.mp3', 10, 3, false),
+  ('b1b2c3d4-0004-0004-0004-000000000001', 'a1b2c3d4-0001-0001-0001-000000000001', 'Dealing with Thoughts', 'Why thoughts arise during meditation and the correct way to handle them.', 'https://example.com/media/lesson4.mp3', 7, 4, false),
+  ('b1b2c3d4-0005-0005-0005-000000000001', 'a1b2c3d4-0001-0001-0001-000000000001', '10-Minute Morning Practice', 'A complete guided morning meditation to start every day with clarity and calm.', 'https://example.com/media/lesson5.mp3', 10, 5, false),
+  ('b1b2c3d4-0006-0006-0006-000000000001', 'a1b2c3d4-0001-0001-0001-000000000001', 'Loving Kindness (Metta)', 'Learn the Metta meditation — cultivating compassion for yourself and others.', 'https://example.com/media/lesson6.mp3', 12, 6, false),
+  ('b1b2c3d4-0007-0007-0007-000000000001', 'a1b2c3d4-0001-0001-0001-000000000001', 'Meditation for Stress', 'A targeted session for releasing stress and anxiety held in the body.', 'https://example.com/media/lesson7.mp3', 11, 7, false),
+  ('b1b2c3d4-0008-0008-0008-000000000001', 'a1b2c3d4-0001-0001-0001-000000000001', 'Building Your Daily Habit', 'Strategies, reminders, and accountability techniques to meditate consistently.', 'https://example.com/media/lesson8.mp3', 8, 8, false)
 ON CONFLICT (id) DO NOTHING;
 
 

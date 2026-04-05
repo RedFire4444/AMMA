@@ -20,12 +20,12 @@ export async function getContentAssets(bucket: string): Promise<ContentAsset[]> 
   }
 
   return (data ?? []).map((file) => ({
-    id: file.id,
+    id: file.id ?? '',
     name: file.name,
     file_path: `${bucket}/${file.name}`,
     file_type: file.metadata?.mimetype ?? 'unknown',
     file_size: file.metadata?.size ?? 0,
-    created_at: file.created_at,
+    created_at: file.created_at ?? '',
   }));
 }
 

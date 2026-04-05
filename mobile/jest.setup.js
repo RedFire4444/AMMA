@@ -1,3 +1,24 @@
+// Mock worklets core (used by react-native-reanimated)
+jest.mock('react-native-worklets-core', () => ({}));
+
+// Mock react-native-reanimated (MUST be before any other imports that use it)
+jest.mock('react-native-reanimated', () => {
+  const Reanimated = require('react-native-reanimated/mock');
+  Reanimated.default.call = () => {};
+  return {
+    ...Reanimated,
+    useSharedValue: jest.fn((init) => ({ value: init })),
+    useAnimatedStyle: jest.fn(() => ({})),
+    withTiming: jest.fn((val) => val),
+    withSpring: jest.fn((val) => val),
+    withDelay: jest.fn((_, val) => val),
+    Easing: { linear: jest.fn(), ease: jest.fn(), bezier: jest.fn(() => jest.fn()) },
+    FadeIn: { duration: jest.fn().mockReturnThis() },
+    FadeOut: { duration: jest.fn().mockReturnThis() },
+    SlideInRight: { duration: jest.fn().mockReturnThis() },
+  };
+});
+
 // Mock react-native-keychain
 jest.mock('react-native-keychain', () => ({
   setGenericPassword: jest.fn().mockResolvedValue(true),
@@ -48,6 +69,12 @@ jest.mock('@react-navigation/native-stack', () => {
     }),
   };
 });
+
+// Mock react-native-config
+jest.mock('react-native-config', () => ({
+  SUPABASE_URL: 'https://test.supabase.co',
+  SUPABASE_ANON_KEY: 'test-anon-key',
+}));
 
 // Mock supabase
 jest.mock('@supabase/supabase-js', () => {

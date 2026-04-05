@@ -57,12 +57,17 @@ export const directoryService = {
       .upsert({ user_id: user.id, content_id: contentId });
     if (error) throw error;
 
-    await supabase.rpc('increment_bookmark_count', { content_id: contentId }).catch(() => {
-      // If RPC doesn't exist, update directly
-      supabase.from('content_directory')
-        .update({ bookmark_count: supabase.rpc ? undefined : 0 })
-        .eq('id', contentId);
-    });
+    // Try to atomically increment bookmark count via RPC
+    try {
+      await supabase.rpc('increment_counter', {
+        p_table: 'content_directory',
+        p_column: 'bookmark_count',
+        p_id: contentId,
+        p_delta: 1
+      });
+    } catch {
+      // RPC may not exist yet — silently skip
+    }
   },
 
   async removeBookmark(contentId: string): Promise<void> {
@@ -92,14 +97,16 @@ export const directoryService = {
   },
 
   async trackView(contentId: string): Promise<void> {
-    await supabase
-      .from('content_directory')
-      .update({ view_count: supabase.rpc ? undefined : 0 })
-      .eq('id', contentId);
-
-    // Simpler approach: just increment
-    await supabase.rpc('increment_view_count', { p_content_id: contentId }).catch(() => {
-      // Fallback: direct update if RPC doesn't exist
-    });
+    // Try to atomically increment view count via RPC
+    try {
+      await supabase.rpc('increment_counter', {
+        p_table: 'content_directory',
+        p_column: 'view_count',
+        p_id: contentId,
+        p_delta: 1
+      });
+    } catch {
+      // RPC may not exist yet — silently skip
+    }
   },
 };
