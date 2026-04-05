@@ -93,11 +93,21 @@ describe('Events Controller', () => {
         { event_id: 'event-1', status: 'registered' },
       ];
 
-      // 1. events query -> range() is the last chained call
+      // listEvents flow:
+      // 1. from('events').select(*,{count}).gt().neq().order().range()
+      //    -> range() is terminal
+      // 2. from('event_registrations').select().eq('user_id').in('event_id').eq('status')
+      //    -> last eq() is terminal
+      //    eq is called twice in this chain: eq('user_id') then eq('status')
+      //    The 2nd eq call needs to resolve.
       db.range.mockResolvedValueOnce({ data: events, error: null, count: 2 });
 
-      // 2. registrations lookup -> eq() chain resolves
-      db.eq.mockResolvedValueOnce({ data: registrations, error: null });
+      // For the registration chain, eq is called twice:
+      // #1 eq('user_id', userId) - returns db (chainable, in() follows)
+      // #2 eq('status', 'registered') - terminal, needs to resolve
+      db.eq
+        .mockReturnValueOnce(db)  // #1 eq('user_id')
+        .mockResolvedValueOnce({ data: registrations, error: null }); // #2 eq('status') - terminal
 
       const req = mockReq({ query: { page: '1', limit: '20' } });
       const res = mockRes();
@@ -129,7 +139,6 @@ describe('Events Controller', () => {
         })
       );
 
-      // Verify correct table and filtering
       expect(db.from).toHaveBeenCalledWith('events');
       expect(db.neq).toHaveBeenCalledWith('status', 'cancelled');
       expect(db.order).toHaveBeenCalledWith('event_date', { ascending: true });
@@ -137,6 +146,8 @@ describe('Events Controller', () => {
 
     it('returns empty events list with proper pagination meta', async () => {
       db.range.mockResolvedValueOnce({ data: [], error: null, count: 0 });
+
+      // No events means no registration lookup (eventIds.length === 0)
 
       const req = mockReq({ query: {} });
       const res = mockRes();
@@ -203,8 +214,11 @@ describe('Events Controller', () => {
       ];
 
       db.range.mockResolvedValueOnce({ data: events, error: null, count: 1 });
+
       // Registration lookup returns null data
-      db.eq.mockResolvedValueOnce({ data: null, error: null });
+      db.eq
+        .mockReturnValueOnce(db)
+        .mockResolvedValueOnce({ data: null, error: null });
 
       const req = mockReq({ query: {} });
       const res = mockRes();
@@ -244,13 +258,18 @@ describe('Events Controller', () => {
         status: 'registered',
       };
 
-      // 1. event lookup -> .single()
+      // registerForEvent flow:
+      // 1. from('events').select().eq('id').single() -> single() terminal
+      // 2. from('event_registrations').select('id').eq('event_id').eq('user_id').single()
+      //    -> single() terminal (returns null = not registered yet)
+      // 3. from('event_registrations').insert(...).select().single()
+      //    -> single() terminal
+      // 4. rpc('increment_counter', ...)
       db.single
-        .mockResolvedValueOnce({ data: event, error: null })       // event exists
-        .mockResolvedValueOnce({ data: null, error: { code: 'PGRST116' } }) // no existing registration
-        .mockResolvedValueOnce({ data: registration, error: null }); // insert registration
+        .mockResolvedValueOnce({ data: event, error: null })                    // event exists
+        .mockResolvedValueOnce({ data: null, error: { code: 'PGRST116' } })     // no existing registration
+        .mockResolvedValueOnce({ data: registration, error: null });             // insert registration
 
-      // rpc to increment registration_count
       db.rpc.mockResolvedValueOnce({ data: null, error: null });
 
       const req = mockReq({ params: { id: 'event-1' } });
@@ -271,10 +290,7 @@ describe('Events Controller', () => {
         })
       );
 
-      // Verify the event lookup
       expect(db.from).toHaveBeenCalledWith('events');
-
-      // Verify registration insert
       expect(db.insert).toHaveBeenCalledWith(
         expect.objectContaining({
           event_id: 'event-1',
@@ -282,8 +298,6 @@ describe('Events Controller', () => {
           status: 'registered',
         })
       );
-
-      // Verify counter increment RPC
       expect(db.rpc).toHaveBeenCalledWith('increment_counter', {
         p_table: 'events',
         p_column: 'registration_count',
@@ -306,10 +320,11 @@ describe('Events Controller', () => {
         status: 'registered',
       };
 
-      // 1. event lookup -> .single()
+      // 1. event lookup -> single()
+      // 2. existing registration check -> single() (returns the existing record)
       db.single
-        .mockResolvedValueOnce({ data: event, error: null })                // event exists
-        .mockResolvedValueOnce({ data: existingRegistration, error: null }); // already registered
+        .mockResolvedValueOnce({ data: event, error: null })
+        .mockResolvedValueOnce({ data: existingRegistration, error: null });
 
       const req = mockReq({ params: { id: 'event-1' } });
       const res = mockRes();
@@ -325,10 +340,9 @@ describe('Events Controller', () => {
         })
       );
 
-      // Verify insert was NOT called (no duplicate registration)
+      // Verify insert was NOT called (no duplicate)
       expect(db.insert).not.toHaveBeenCalled();
-
-      // Verify RPC was NOT called (no counter increment for existing registration)
+      // Verify RPC was NOT called (no counter increment)
       expect(db.rpc).not.toHaveBeenCalled();
     });
 
@@ -448,9 +462,9 @@ describe('Events Controller', () => {
       };
 
       db.single
-        .mockResolvedValueOnce({ data: event, error: null })                    // event exists
-        .mockResolvedValueOnce({ data: null, error: { code: 'PGRST116' } })     // no existing registration
-        .mockResolvedValueOnce({ data: null, error: { message: 'insert failed' } }); // insert fails
+        .mockResolvedValueOnce({ data: event, error: null })
+        .mockResolvedValueOnce({ data: null, error: { code: 'PGRST116' } })
+        .mockResolvedValueOnce({ data: null, error: { message: 'insert failed' } });
 
       const req = mockReq({ params: { id: 'event-1' } });
       const res = mockRes();
@@ -517,11 +531,15 @@ describe('Events Controller', () => {
         status: 'live',
       };
 
-      // 1. registration check -> .single()
-      // 2. event fetch -> .single()
+      // getStreamUrl flow:
+      // 1. from('event_registrations').select('id, status')
+      //      .eq('event_id').eq('user_id').eq('status').single()
+      //    -> single() terminal
+      // 2. from('events').select('id, title, ...').eq('id').single()
+      //    -> single() terminal
       db.single
-        .mockResolvedValueOnce({ data: registration, error: null })  // registered
-        .mockResolvedValueOnce({ data: event, error: null });         // event details
+        .mockResolvedValueOnce({ data: registration, error: null })
+        .mockResolvedValueOnce({ data: event, error: null });
 
       const req = mockReq({ params: { id: 'event-1' } });
       const res = mockRes();
@@ -543,7 +561,6 @@ describe('Events Controller', () => {
         })
       );
 
-      // Verify registration was checked with correct filters
       expect(db.from).toHaveBeenCalledWith('event_registrations');
       expect(db.eq).toHaveBeenCalledWith('event_id', 'event-1');
       expect(db.eq).toHaveBeenCalledWith('user_id', 'test-user-id');
@@ -551,7 +568,7 @@ describe('Events Controller', () => {
     });
 
     it('returns 403 for unregistered users', async () => {
-      // Registration check fails (user not registered)
+      // Registration check returns no data (user not registered)
       db.single.mockResolvedValueOnce({
         data: null,
         error: { message: 'not found', code: 'PGRST116' },
@@ -578,8 +595,8 @@ describe('Events Controller', () => {
       const registration = { id: 'reg-1', status: 'registered' };
 
       db.single
-        .mockResolvedValueOnce({ data: registration, error: null })  // registered
-        .mockResolvedValueOnce({ data: null, error: { message: 'not found' } }); // event not found
+        .mockResolvedValueOnce({ data: registration, error: null })
+        .mockResolvedValueOnce({ data: null, error: { message: 'not found' } });
 
       const req = mockReq({ params: { id: 'deleted-event' } });
       const res = mockRes();

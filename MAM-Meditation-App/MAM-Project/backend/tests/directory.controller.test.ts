@@ -90,7 +90,7 @@ describe('Directory Controller', () => {
       ];
 
       // browseDirectory chains: from -> select -> eq -> order -> range
-      // range() is the last awaited call
+      // range() is the terminal awaited call
       db.range.mockResolvedValueOnce({ data: items, error: null, count: 2 });
 
       const req = mockReq({ query: { page: '1', limit: '20' } });
@@ -177,7 +177,7 @@ describe('Directory Controller', () => {
         })
       );
 
-      // Verify category filter was applied
+      // Verify category filter was applied (second eq call after is_active)
       expect(db.eq).toHaveBeenCalledWith('category', 'bhajan');
     });
 
@@ -270,13 +270,16 @@ describe('Directory Controller', () => {
         content_id: 'content-1',
       };
 
-      // 1. content lookup -> .single()
-      // 2. upsert bookmark -> .single()
+      // bookmarkContent flow:
+      // 1. from('content_directory').select('id').eq('id', contentId).single()
+      //    -> single() is terminal
+      // 2. from('bookmarks').upsert(...).select().single()
+      //    -> single() is terminal
+      // 3. rpc('increment_counter', ...)
       db.single
         .mockResolvedValueOnce({ data: content, error: null })  // content exists
         .mockResolvedValueOnce({ data: bookmark, error: null }); // bookmark upserted
 
-      // 3. rpc to increment bookmark_count
       db.rpc.mockResolvedValueOnce({ data: null, error: null });
 
       const req = mockReq({ params: { id: 'content-1' } });
@@ -296,10 +299,7 @@ describe('Directory Controller', () => {
         })
       );
 
-      // Verify content lookup was on the correct table
       expect(db.from).toHaveBeenCalledWith('content_directory');
-
-      // Verify upsert was called with correct conflict handling
       expect(db.upsert).toHaveBeenCalledWith(
         expect.objectContaining({
           user_id: 'test-user-id',
@@ -310,8 +310,6 @@ describe('Directory Controller', () => {
           ignoreDuplicates: true,
         })
       );
-
-      // Verify counter increment RPC was called
       expect(db.rpc).toHaveBeenCalledWith('increment_counter', {
         p_table: 'content_directory',
         p_column: 'bookmark_count',
@@ -359,8 +357,8 @@ describe('Directory Controller', () => {
       const content = { id: 'content-1' };
 
       db.single
-        .mockResolvedValueOnce({ data: content, error: null })    // content exists
-        .mockResolvedValueOnce({ data: null, error: { message: 'upsert error' } }); // upsert fails
+        .mockResolvedValueOnce({ data: content, error: null })
+        .mockResolvedValueOnce({ data: null, error: { message: 'upsert error' } });
 
       const req = mockReq({ params: { id: 'content-1' } });
       const res = mockRes();
@@ -384,13 +382,28 @@ describe('Directory Controller', () => {
     it('deletes a bookmark and returns 200', async () => {
       const existing = { id: 'bookmark-1' };
 
-      // 1. check existing bookmark -> .single()
+      // removeBookmark flow:
+      // 1. from('bookmarks').select('id').eq('user_id').eq('content_id').single()
+      //    -> single() is terminal (1st single call)
+      // 2. from('bookmarks').delete().eq('user_id').eq('content_id')
+      //    -> last eq() is terminal — need the 4th eq call to resolve
+      // 3. rpc('increment_counter', ...)
+
+      // single() resolves the existing bookmark check
       db.single.mockResolvedValueOnce({ data: existing, error: null });
 
-      // 2. delete -> .eq() chain resolves
-      db.eq.mockResolvedValueOnce({ error: null });
+      // For the delete chain, eq is called 4 times total:
+      // #1 eq('user_id', ...) in select chain - returns db (chainable)
+      // #2 eq('content_id', ...) in select chain - returns db (chainable, single() is terminal)
+      // #3 eq('user_id', ...) in delete chain - returns db (chainable)
+      // #4 eq('content_id', ...) in delete chain - this is the terminal await
+      // We skip 3 eq calls (they return db by default), then resolve the 4th
+      db.eq
+        .mockReturnValueOnce(db)  // #1 select chain: eq('user_id')
+        .mockReturnValueOnce(db)  // #2 select chain: eq('content_id')
+        .mockReturnValueOnce(db)  // #3 delete chain: eq('user_id')
+        .mockResolvedValueOnce({ error: null }); // #4 delete chain: eq('content_id') - terminal
 
-      // 3. rpc to decrement bookmark_count
       db.rpc.mockResolvedValueOnce({ data: null, error: null });
 
       const req = mockReq({ params: { id: 'content-1' } });
@@ -406,12 +419,9 @@ describe('Directory Controller', () => {
         })
       );
 
-      // Verify the bookmark lookup checked the right table and fields
       expect(db.from).toHaveBeenCalledWith('bookmarks');
       expect(db.eq).toHaveBeenCalledWith('user_id', 'test-user-id');
       expect(db.eq).toHaveBeenCalledWith('content_id', 'content-1');
-
-      // Verify counter decrement RPC
       expect(db.rpc).toHaveBeenCalledWith('increment_counter', {
         p_table: 'content_directory',
         p_column: 'bookmark_count',
@@ -459,7 +469,13 @@ describe('Directory Controller', () => {
       const existing = { id: 'bookmark-1' };
 
       db.single.mockResolvedValueOnce({ data: existing, error: null });
-      db.eq.mockResolvedValueOnce({ error: { message: 'delete failed' } });
+
+      // Same 4 eq calls, but the 4th resolves with an error
+      db.eq
+        .mockReturnValueOnce(db)
+        .mockReturnValueOnce(db)
+        .mockReturnValueOnce(db)
+        .mockResolvedValueOnce({ error: { message: 'delete failed' } });
 
       const req = mockReq({ params: { id: 'content-1' } });
       const res = mockRes();
@@ -524,8 +540,8 @@ describe('Directory Controller', () => {
         },
       ];
 
-      // getBookmarks chains: from -> select -> eq -> order
-      // order() is the last awaited call
+      // getBookmarks chain: from('bookmarks').select(...).eq('user_id').order(...)
+      // order() is the terminal awaited call
       db.order.mockResolvedValueOnce({ data: bookmarks, error: null });
 
       const req = mockReq();
@@ -558,7 +574,6 @@ describe('Directory Controller', () => {
         })
       );
 
-      // Verify correct table and ordering
       expect(db.from).toHaveBeenCalledWith('bookmarks');
       expect(db.eq).toHaveBeenCalledWith('user_id', 'test-user-id');
       expect(db.order).toHaveBeenCalledWith('created_at', { ascending: false });
@@ -624,10 +639,11 @@ describe('Directory Controller', () => {
     it('increments view count and returns updated count', async () => {
       const content = { id: 'content-1', view_count: 42 };
 
-      // 1. content lookup -> .single()
+      // trackView chain: from('content_directory').select('id, view_count').eq('id', contentId).single()
+      // single() is terminal
       db.single.mockResolvedValueOnce({ data: content, error: null });
 
-      // 2. rpc to increment view_count
+      // rpc to increment view_count
       db.rpc.mockResolvedValueOnce({ data: null, error: null });
 
       const req = mockReq({ params: { id: 'content-1' } });
@@ -646,11 +662,8 @@ describe('Directory Controller', () => {
         })
       );
 
-      // Verify content lookup
       expect(db.from).toHaveBeenCalledWith('content_directory');
       expect(db.eq).toHaveBeenCalledWith('id', 'content-1');
-
-      // Verify counter increment RPC
       expect(db.rpc).toHaveBeenCalledWith('increment_counter', {
         p_table: 'content_directory',
         p_column: 'view_count',
@@ -694,7 +707,7 @@ describe('Directory Controller', () => {
       );
     });
 
-    it('handles null view_count gracefully', async () => {
+    it('handles null view_count gracefully by returning 1', async () => {
       const content = { id: 'content-1', view_count: null };
 
       db.single.mockResolvedValueOnce({ data: content, error: null });
