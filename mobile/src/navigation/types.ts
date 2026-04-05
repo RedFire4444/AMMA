@@ -33,6 +33,8 @@ export type DirectoryStackParamList = {
 
 export type ProfileStackParamList = {
   ProfileMain: undefined;
+  Paywall: undefined;
+  Subscription: undefined;
 };
 
 export type MainTabParamList = {

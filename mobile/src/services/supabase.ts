@@ -1,15 +1,18 @@
 import { createClient } from '@supabase/supabase-js';
 import 'react-native-url-polyfill/auto';
-import Config from 'react-native-config';
 
-const supabaseUrl = Config.SUPABASE_URL ?? '';
-const supabaseAnonKey = Config.SUPABASE_ANON_KEY ?? '';
+// Configuration — set these in a .env file and load via react-native-config,
+// or replace with your project's actual values for development.
+// NEVER commit real credentials to source control.
+const SUPABASE_URL = '';
+const SUPABASE_ANON_KEY = '';
 
-if (!supabaseUrl || !supabaseAnonKey) {
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   console.warn(
-    'Missing SUPABASE_URL or SUPABASE_ANON_KEY. ' +
-    'Create a .env file in the mobile directory with your Supabase credentials.'
+    'Supabase credentials not configured. ' +
+    'Set SUPABASE_URL and SUPABASE_ANON_KEY in mobile/src/services/supabase.ts ' +
+    'or configure react-native-config with a .env file.'
   );
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);

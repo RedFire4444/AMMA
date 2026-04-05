@@ -7,8 +7,13 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuthStore } from '../store/authStore';
 import { userService } from '../services/user.service';
+import { ProfileStackParamList } from '../navigation/types';
+
+type ProfileNavProp = NativeStackNavigationProp<ProfileStackParamList, 'ProfileMain'>;
 
 interface UserProfile {
   full_name: string | null;
@@ -50,6 +55,7 @@ const SettingsRow = ({
 );
 
 const ProfileMain = () => {
+  const navigation = useNavigation<ProfileNavProp>();
   const { logout, user } = useAuthStore();
   const [profile, setProfile] = useState<UserProfile | null>(null);
 
@@ -127,7 +133,10 @@ const ProfileMain = () => {
               Access all premium courses, ad-free meditations, and exclusive
               satsangs.
             </Text>
-            <TouchableOpacity className="bg-primary py-3 rounded-button items-center">
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Paywall')}
+              className="bg-primary py-3 rounded-button items-center"
+            >
               <Text className="text-white font-bold">Upgrade to Premium</Text>
             </TouchableOpacity>
           </View>
@@ -135,7 +144,7 @@ const ProfileMain = () => {
 
         {/* Settings List */}
         <View className="px-6 mt-6 mb-8">
-          <SettingsRow label="Subscription" onPress={() => {}} />
+          <SettingsRow label="Subscription" onPress={() => navigation.navigate('Subscription')} />
           <SettingsRow label="Notifications" onPress={() => {}} />
           <SettingsRow label="Invite a Friend" onPress={() => {}} />
           <SettingsRow label="Terms & Privacy" onPress={() => {}} />

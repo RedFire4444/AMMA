@@ -1,23 +1,50 @@
-// Mock worklets core (used by react-native-reanimated)
-jest.mock('react-native-worklets-core', () => ({}));
-
-// Mock react-native-reanimated (MUST be before any other imports that use it)
+// Mock react-native-reanimated (fully manual — avoids native module loading)
 jest.mock('react-native-reanimated', () => {
-  const Reanimated = require('react-native-reanimated/mock');
-  Reanimated.default.call = () => {};
+  const View = require('react-native').View;
   return {
-    ...Reanimated,
+    __esModule: true,
+    default: {
+      addWhitelistedNativeProps: jest.fn(),
+      addWhitelistedUIProps: jest.fn(),
+      createAnimatedComponent: (component) => component,
+      call: jest.fn(),
+      Value: jest.fn(),
+      event: jest.fn(),
+      Node: jest.fn(),
+    },
     useSharedValue: jest.fn((init) => ({ value: init })),
     useAnimatedStyle: jest.fn(() => ({})),
+    useAnimatedProps: jest.fn(() => ({})),
+    useDerivedValue: jest.fn((fn) => ({ value: fn() })),
+    useAnimatedRef: jest.fn(() => ({ current: null })),
+    useAnimatedScrollHandler: jest.fn(() => jest.fn()),
     withTiming: jest.fn((val) => val),
     withSpring: jest.fn((val) => val),
     withDelay: jest.fn((_, val) => val),
-    Easing: { linear: jest.fn(), ease: jest.fn(), bezier: jest.fn(() => jest.fn()) },
-    FadeIn: { duration: jest.fn().mockReturnThis() },
-    FadeOut: { duration: jest.fn().mockReturnThis() },
-    SlideInRight: { duration: jest.fn().mockReturnThis() },
+    withSequence: jest.fn((...args) => args[args.length - 1]),
+    withRepeat: jest.fn((val) => val),
+    cancelAnimation: jest.fn(),
+    runOnJS: jest.fn((fn) => fn),
+    runOnUI: jest.fn((fn) => fn),
+    Easing: { linear: jest.fn(), ease: jest.fn(), bezier: jest.fn(() => jest.fn()), inOut: jest.fn((e) => e) },
+    FadeIn: { duration: jest.fn().mockReturnThis(), delay: jest.fn().mockReturnThis() },
+    FadeOut: { duration: jest.fn().mockReturnThis(), delay: jest.fn().mockReturnThis() },
+    FadeInDown: { duration: jest.fn().mockReturnThis(), delay: jest.fn().mockReturnThis() },
+    FadeInUp: { duration: jest.fn().mockReturnThis(), delay: jest.fn().mockReturnThis() },
+    SlideInRight: { duration: jest.fn().mockReturnThis(), delay: jest.fn().mockReturnThis() },
+    SlideOutLeft: { duration: jest.fn().mockReturnThis(), delay: jest.fn().mockReturnThis() },
+    Layout: { duration: jest.fn().mockReturnThis() },
+    createAnimatedComponent: (component) => component,
+    Animated: { View, Text: require('react-native').Text, ScrollView: require('react-native').ScrollView },
   };
 });
+
+
+// Mock nativewind (prevents className processing issues in test env)
+jest.mock('nativewind', () => ({
+  styled: (component) => component,
+  useColorScheme: jest.fn(() => ({ colorScheme: 'light', setColorScheme: jest.fn(), toggleColorScheme: jest.fn() })),
+}));
 
 // Mock react-native-keychain
 jest.mock('react-native-keychain', () => ({
@@ -69,12 +96,6 @@ jest.mock('@react-navigation/native-stack', () => {
     }),
   };
 });
-
-// Mock react-native-config
-jest.mock('react-native-config', () => ({
-  SUPABASE_URL: 'https://test.supabase.co',
-  SUPABASE_ANON_KEY: 'test-anon-key',
-}));
 
 // Mock supabase
 jest.mock('@supabase/supabase-js', () => {

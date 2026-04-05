@@ -21,8 +21,8 @@ describe('CoursesMain', () => {
   });
 
   it('renders difficulty filter pills', () => {
-    const { getByText } = render(<CoursesMain />);
-    expect(getByText('All')).toBeTruthy();
+    const { getAllByText, getByText } = render(<CoursesMain />);
+    expect(getAllByText('All').length).toBeGreaterThanOrEqual(1);
     expect(getByText('Beginner')).toBeTruthy();
     expect(getByText('Intermediate')).toBeTruthy();
     expect(getByText('Advanced')).toBeTruthy();

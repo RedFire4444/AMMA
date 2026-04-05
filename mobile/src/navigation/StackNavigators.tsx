@@ -9,6 +9,8 @@ import MeditationTimerScreen from '../screens/MeditationTimerScreen';
 import DirectoryMain from '../screens/DirectoryMain';
 import EventDetailScreen from '../screens/EventDetailScreen';
 import ProfileMain from '../screens/ProfileMain';
+import PaywallScreen from '../screens/PaywallScreen';
+import SubscriptionScreen from '../screens/SubscriptionScreen';
 import {
   HomeStackParamList,
   CoursesStackParamList,
@@ -53,5 +55,7 @@ const Profile = createNativeStackNavigator<ProfileStackParamList>();
 export const ProfileStack = () => (
   <Profile.Navigator screenOptions={{ headerShown: false }}>
     <Profile.Screen name="ProfileMain" component={ProfileMain} />
+    <Profile.Screen name="Paywall" component={PaywallScreen} />
+    <Profile.Screen name="Subscription" component={SubscriptionScreen} />
   </Profile.Navigator>
 );
