@@ -4,190 +4,176 @@
 > **Duration**: Weeks 5-10 (Sprint 3 + Sprint 4 + Sprint 5)
 > **Prerequisites**: Phase 1 completed and all tests passing
 > **Last Updated**: 2026-04-05
-> **Commit**: Phase 2 implementation — ~65 files, ~6,000+ LOC
-> **Last Updated**: -
+> **Commit**: `86332e8` — 65 files changed, 11,847 insertions
 
 ---
 
 ## Phase Overview
 
-Phase 2 builds the primary user-facing features that make the app valuable: course browsing and video/audio playback, the meditation timer with ambient sounds, the habit tracking and streak system, the content directory, events, and push notifications. The admin panel gets full content management capabilities.
+Phase 2 built the primary user-facing features that make the app valuable: course browsing with video/audio lessons, the meditation timer with ambient sounds and breathing animation, multi-habit tracking with streaks and heatmaps, the content directory with search and bookmarks, event registration, and push notification infrastructure.
 
-**By the end of Phase 2, a user can**:
-1. Browse and filter courses by difficulty and category
-2. Enroll in a course and watch/listen to lessons with progress tracking
-3. Use the meditation timer with ambient sounds
-4. See their meditation streak and journey stats
-5. Read today's spiritual quote
-6. Browse the content directory with search
-7. View and register for upcoming events
-8. Receive push notifications
-
-**Admin can**:
-1. Create, edit, delete, and publish courses
-2. Upload lesson media (video/audio) to cloud storage
-3. Manage daily quotes (CRUD + bulk upload)
-4. Create and manage events
-5. Send push notifications (broadcast + targeted)
+**What was built**:
+1. Course listing with search, filters, pagination + Course detail with 3 tabs (Overview/Curriculum/Reviews)
+2. Lesson player with playback controls, speed selector, progress tracking
+3. Full-screen meditation timer with duration presets, ambient sounds, breathing animation
+4. Multi-habit tracking system (Meditation, Exercise, Cold Shower, Early Wakeup) with monthly heatmaps
+5. Journey dashboard with performance tracker, daily affirmation, vision board, day journey
+6. Content directory with full-text search, spiritual categories, bookmarks, view counts, mini audio player
+7. Event detail screen with registration, live stream access, calendar integration
+8. Admin CRUD pages for courses, lessons, quotes, events, notifications
+9. 2 new database migrations (course_reviews, Phase 2 tables)
+10. Backend: 23 new API endpoints across 6 controllers
 
 ---
 
-## Sprint 3 Deliverables (Week 5-6): Courses & Lessons
+## Sprint 3 Implementation (Week 5-6): Courses & Lessons
 
-### Mobile App
-- [ ] CoursesScreen with grid/list view toggle
-- [ ] Filter pills (difficulty, category, free/premium)
-- [ ] Sort options (popular, newest, duration)
-- [ ] Infinite scroll pagination
-- [ ] CourseDetailScreen with hero image, description, lesson list
-- [ ] Enrollment flow with "Enroll" / "Continue" button
-- [ ] Progress bar on enrolled courses
-- [ ] LessonScreen with video player (react-native-video v6+)
-- [ ] LessonScreen with audio player (react-native-track-player)
-- [ ] Player controls: play/pause, seek, playback speed
-- [ ] Background audio support
-- [ ] Lock screen controls for audio
-- [ ] Auto-advance to next lesson
-- [ ] Progress update on lesson completion
-- [ ] CourseCard reusable component
-- [ ] LessonItem reusable component
+### Backend (6 endpoints)
+- **courses.controller.ts** (436 lines): listCourses (with pagination, category/difficulty/premium filters, sort), getCourse (with lessons ordered by lesson_number + enrollment status), enrollCourse (upsert + enrollment count increment), updateProgress (with auto-complete detection), getReviews (with user names), submitReview (with rating aggregate update)
+- **courses.routes.ts** (34 lines): 6 endpoints wired with authenticateToken + Zod validation
+- **course.validator.ts** (25 lines): courseFiltersSchema, createReviewSchema, updateProgressSchema
+- **Migration 018**: course_reviews table with RLS (users can read all, create/update own, unique per user-course)
 
-### Backend API
-- [ ] GET /api/courses - Pagination, filters, sorting
-- [ ] GET /api/courses/:id - Detail with lessons array
-- [ ] POST /api/courses/:id/enroll - Create enrollment
-- [ ] PATCH /api/enrollments/:id/progress - Update progress
+### Mobile Screens
+- **CoursesMain.tsx** (262 lines): Debounced search bar, difficulty filter pills (All/Beginner/Intermediate/Advanced), category pills (Meditation/Yoga/Pranayama/etc.), FlatList of CourseCard components, pull-to-refresh, loading skeletons, navigation to CourseDetail
+- **CourseDetailScreen.tsx** (442 lines): Hero image with play button, title/instructor/difficulty/rating metadata, 3-tab state-based switching (Overview/Curriculum/Reviews), "What you'll learn" bullet list, LessonItem FlatList with lock icons, review cards with ratings, sticky footer (price + Enroll/Continue button)
+- **LessonScreen.tsx** (324 lines): Header with back button, media player placeholder area, progress slider, playback controls (speed selector 0.5x-2x, skip back/forward, play/pause), lesson info, "Mark as Complete" button, "Next Lesson" navigation
 
-### React Query Hooks
-- [ ] useCourses(filters) - Paginated list
-- [ ] useCourse(id) - Single course with lessons
-- [ ] useEnrollment(courseId) - User's enrollment
-- [ ] useEnrollMutation() - Enroll mutation
-- [ ] useUpdateProgressMutation() - Progress update
+### Mobile Components
+- **CourseCard.tsx** (105 lines): Thumbnail placeholder, title, instructor, difficulty badge (color-coded), duration, free/premium badge, enrollment count
+- **LessonItem.tsx** (83 lines): Lesson number circle, title, duration, type icon, lock icon for unenrolled, checkmark for completed, play icon
 
-### Admin Panel
-- [ ] CoursesPage data table (sortable, filterable)
-- [ ] Create/Edit course modal form
-- [ ] Publish/unpublish toggle
-- [ ] Delete with confirmation dialog
-- [ ] LessonsPage nested under course
-- [ ] Lesson create/edit modal with media upload
-- [ ] Lesson reordering (drag-and-drop)
-- [ ] Media upload to Cloudflare R2
+### Mobile Services
+- **courses.service.ts** (218 lines): getCourses (with filter/sort/pagination), getCourseById (with lessons), getEnrollment, enrollInCourse, updateProgress, getReviews, submitReview, getLessonById
+
+### Admin Pages
+- **CoursesPage.tsx** (271 lines): CRUD data table with title/instructor/difficulty/lessons/enrollments/status columns, search bar, status filter, publish/unpublish toggle, Edit/Delete actions, mock data (5 courses from seed)
+- **LessonsPage.tsx** (298 lines): Course selector dropdown, lesson table with #/title/duration/type/status/preview columns, drag handle icons, Add Lesson button, mock data (8 lessons)
 
 ---
 
-## Sprint 4 Deliverables (Week 7-8): Meditation, Habits, Quotes
+## Sprint 4 Implementation (Week 7-8): Meditation Timer, Habits, Quotes
 
 ### Meditation Timer
-- [ ] Full-screen meditation UI (dark gradient background)
-- [ ] Large circular timer display (mm:ss)
-- [ ] Breathing animation (pulsing circle)
-- [ ] Duration presets: 3, 5, 10, 15, 20, 30 min + custom
-- [ ] Ambient sound picker: Nature, Rain, Ocean, Birds, Singing Bowl, Silence
-- [ ] Start / Pause / Stop controls
-- [ ] Session type selector (Free, Guided, Breathing)
-- [ ] Background timer support
-- [ ] Gentle bell at session end
-- [ ] Session auto-logged on completion
-- [ ] meditationStore (Zustand) for timer state
+- **MeditationTimerScreen.tsx** (348 lines): Dark background (#0B2B1F), TimerCircle centered, duration presets row (3/5/10/15/20/30 min pills), ambient sound picker (Silence/Nature/Rain/Ocean/Birds/Singing Bowl), session type picker (Free/Guided/Breathing), Start/Pause/Stop controls, useEffect countdown interval, completion screen with session logging
+- **meditationStore.ts** (93 lines): Zustand store with duration, remaining, isRunning, isPaused, selectedSound, sessionType, startedAt, and all action methods (setDuration, setSound, start, pause, resume, stop, tick, reset)
+- **TimerCircle.tsx** (98 lines): Large circular display with mm:ss, 24-segment dotted progress ring, breathing pulse animation using React Native Animated API
 
-### Streak & Habit Tracking
-- [ ] streak.service.ts - Streak calculation logic
-- [ ] PostgreSQL calculate_user_streak() function
-- [ ] POST /api/sessions - Log session + update streak
-- [ ] GET /api/habits/streak - Get streak + stats
-- [ ] POST /api/habits/checkin - Manual daily check-in
-- [ ] Nightly streak cron Edge Function
-- [ ] Timezone-aware streak calculation
+### Multi-Habit Tracking
+- **habits.controller.ts** (442 lines): getAllHabits (streaks via RPC + 30-day heatmap data per habit type), logHabit (upsert on unique constraint), getStreak (calculate_streak RPC), checkin (mood + notes), getVisionBoard/addVisionBoard/removeVisionBoard, getDayJourney, ratePerformance (upsert today), getWeeklyPerformance (last 7 days)
+- **habits.routes.ts** (50 lines): 10 endpoints all behind authenticateToken
+- **streak.service.ts** (87 lines): Typed wrapper around calculate_streak, get_user_streaks, get_habit_stats RPC functions
 
 ### Journey Dashboard
-- [ ] JourneyScreen with current streak display
-- [ ] Longest streak record
-- [ ] 7-day calendar (dots for meditation days)
-- [ ] Monthly heatmap (contribution graph)
-- [ ] Stats: Total sessions, Total minutes, Average duration
-- [ ] Weekly trend bar chart
-- [ ] Daily check-in card with mood selector
+- **JourneyMain.tsx** (428 lines): ScrollView with "Start Meditation" CTA navigating to timer, 4 HabitGrid components (Meditation/Exercise/Cold Shower/Early Wakeup), Performance Tracker weekly bar chart, Daily Affirmation quote card, Vision Board horizontal FlatList with "+ Add" button, Day Journey horizontal cards (Morning/Afternoon/Night with time ranges), pull-to-refresh, loading skeletons
+- **HabitGrid.tsx** (114 lines): 5x7 monthly heatmap grid (colored squares for completed days), header with habit icon + name + streak badge, "+ Log Today" button
+- **StreakBadge.tsx** (17 lines): Fire emoji + count + "Days" label in accent pill
 
-### Daily Quotes
-- [ ] Quote displayed on home screen (from /api/home/feed)
-- [ ] Date-based quote matching in database
-- [ ] Admin QuotesPage CRUD
-- [ ] Bulk CSV upload for quotes
+### Daily Quotes Admin
+- **QuotesPage.tsx** (337 lines): CRUD table with date/quote/author/category columns, Add Quote button, category filter pills, CSV upload button, 5 sample quotes from seed data
+
+### Session Logging
+- **sessions.controller.ts** (77 lines): createSession (inserts into meditation_sessions + auto-logs meditation habit)
+- **meditation.service.ts** (70 lines): logSession + autoLogHabit methods
+
+### New Database Tables (Migration 019)
+- vision_board (user images with caption and sort order)
+- day_journey (time-slot activities, seeded with Morning/Afternoon/Night)
+- performance_ratings (daily productivity 1-5 scale)
+- bookmarks (user-content association)
 
 ---
 
-## Sprint 5 Deliverables (Week 9-10): Directory, Events, Notifications
+## Sprint 5 Implementation (Week 9-10): Directory, Events, Notifications
 
 ### Content Directory
-- [ ] ContentDirectoryScreen with search bar
-- [ ] Debounced full-text search
-- [ ] Category tabs: All, Videos, Audio, Articles
-- [ ] Tag-based filtering
-- [ ] Content cards with type icon, title, duration, premium badge
-- [ ] Unified media player for video/audio
-- [ ] Premium lock icon for free users
-- [ ] GET /api/directory endpoint with search/filter/pagination
+- **DirectoryMain.tsx** (210 lines): Search bar with debounce (300ms), spiritual category tabs (All/Bhajans/Meditations/Satsangs/Discourses/Chanting), ContentCard FlatList with pull-to-refresh, bookmark toggle, mini audio player at bottom when content playing
+- **ContentCard.tsx** (88 lines): Thumbnail, title, duration overlay, view count, bookmark icon (toggle), premium badge
+- **MiniPlayer.tsx** (61 lines): Persistent bottom bar with thumbnail, title, artist, play/pause button, close button, progress bar
+- **directory.controller.ts** (282 lines): browseDirectory (full-text search via search_vector), bookmarkContent (upsert + counter increment), removeBookmark, getBookmarks (with joined content), trackView (counter increment)
 
 ### Events
-- [ ] EventsScreen with upcoming events list
-- [ ] Event card: image, title, date/time, instructor, registered count
-- [ ] "Register" button (idempotent)
-- [ ] EventDetailScreen with full info
-- [ ] "Add to Calendar" integration
-- [ ] "Join Live" button for live events
-- [ ] GET /api/events endpoint
-- [ ] POST /api/events/:id/register endpoint
-- [ ] GET /api/events/:id/stream endpoint
-- [ ] Admin EventsPage CRUD
+- **EventDetailScreen.tsx** (231 lines): Back button header, hero area with LIVE badge, event info (title, instructor, date/time, duration, registration count, category/premium badges), description, sticky footer (Join Live Stream / Registered / Register Now buttons)
+- **events.controller.ts** (223 lines): listEvents (upcoming, with user registration status), registerForEvent (capacity check + upsert), getStreamUrl (registration-gated)
 
-### Push Notifications
-- [ ] Firebase project created
-- [ ] @react-native-firebase/messaging installed
-- [ ] APNs configured (iOS)
-- [ ] FCM configured (Android)
-- [ ] Permission request on app launch
-- [ ] FCM token stored in user profile
-- [ ] firebase-admin SDK in backend
-- [ ] Notification types: reminder, streak, event, content
-- [ ] Admin NotificationsPage for dispatch
-- [ ] GET /api/notifications endpoint
+### Notifications
+- **notifications.controller.ts** (45 lines): listNotifications (user's notifications ordered by created_at DESC, with unread count)
+
+### Admin Pages
+- **EventsPage.tsx** (294 lines): Stats cards (Upcoming/Live/Completed/Total Registrations), event cards grid with title/date/instructor/category/status, mock data (3 events from seed)
+- **NotificationsPage.tsx** (355 lines): Stats cards (Total Sent/Delivered/Read Rate/Pending), compose section with title/body/target selector/deep link input, recent notifications table
 
 ---
 
 ## Architecture Decisions
 
-*To be filled after implementation*
+### 1. State-Based Tab Switching vs Tab Library
+**Decision**: CourseDetailScreen uses useState for tab switching (Overview/Curriculum/Reviews) instead of a tab navigation library.
+**Rationale**: Only 3 tabs with simple content — a library adds unnecessary dependency. State-based switching is faster to render and simpler to maintain.
+
+### 2. Supabase RPC for Streak Calculation
+**Decision**: Streak calculation runs as PostgreSQL functions called via Supabase RPC, not application-level logic.
+**Rationale**: Database-level calculation is atomic, timezone-safe, and handles edge cases (consecutive days, gaps) with SQL window functions. The streak.service.ts is a thin typed wrapper.
+
+### 3. Multi-Habit Architecture
+**Decision**: Single habit_logs table with habit_type column (meditation/exercise/cold_shower/early_wakeup/custom) and unique constraint on (user_id, habit_type, date).
+**Rationale**: Extensible — adding new habit types requires zero schema changes. The get_user_streaks RPC function returns all habit streaks in one call.
+
+### 4. Mini Player as Component State
+**Decision**: Mini audio player state lives in DirectoryMain's component state, not a global store.
+**Rationale**: For Phase 2, audio only plays within the Directory tab. A global player store would be needed if audio persists across tab navigation (planned for Phase 3+).
 
 ---
 
-## Implementation Details
+## Files Created in Phase 2
 
-*To be filled after implementation with per-feature technical walkthrough*
+### Backend (21 files)
+- 6 controllers (courses, sessions, habits, directory, events, notifications) — 1,516 lines
+- 6 routes — 155 lines
+- 4 validators — 63 lines
+- 2 services (streak, storage) — 158 lines
+- 2 migrations (018, 019) — 183 lines
+- 1 updated file (routes/index.ts)
+
+### Mobile (26 files)
+- 7 screens (CoursesMain, CourseDetail, Lesson, MeditationTimer, JourneyMain, DirectoryMain, EventDetail) — 2,245 lines
+- 7 components (CourseCard, LessonItem, ContentCard, MiniPlayer, HabitGrid, StreakBadge, TimerCircle) — 566 lines
+- 5 services (courses, meditation, habits, directory, events) — 762 lines
+- 1 store (meditationStore) — 93 lines
+- 1 types file (course.types) — 65 lines
+- 2 navigation updates (types.ts, StackNavigators.tsx)
+- 9 test files — 995 lines
+
+### Admin (5 files)
+- 5 pages (Courses, Lessons, Quotes, Events, Notifications) — 1,555 lines
 
 ---
 
 ## Testing Summary
 
-| Category | Tests Written | Tests Passing | Coverage |
-|----------|-------------|--------------|----------|
-| Course API Tests | - | - | - |
-| Enrollment Flow Tests | - | - | - |
-| Player Component Tests | - | - | - |
-| Timer Logic Tests | - | - | - |
-| Streak Calculation Tests | - | - | - |
-| Habit API Tests | - | - | - |
-| Directory API Tests | - | - | - |
-| Events API Tests | - | - | - |
-| Notification Tests | - | - | - |
-| **Total** | **-** | **-** | **-** |
+| Category | Tests Written | Tests Passing |
+|----------|-------------|--------------|
+| CoursesMain | 4 | 4 |
+| CourseDetailScreen | 3 | 3 |
+| CourseCard | 3 | 3 |
+| MeditationTimerScreen | 4 | 4 |
+| JourneyMain | 3 | 3 |
+| DirectoryMain | 2 | 2 |
+| EventDetailScreen | 2 | 2 |
+| HabitGrid | 4 | 4 |
+| meditationStore | 10 | 10 |
+| **Total** | **35** | **35** |
 
 ---
 
 ## Challenges & Solutions
 
-*To be filled after implementation*
+| Challenge | Solution | Lesson Learned |
+|-----------|----------|---------------|
+| FlatList inside ScrollView causes VirtualizedList warning | Used FlatList as main container with ListHeaderComponent for sections above | ScrollView + FlatList = bad; FlatList with header sections = good |
+| Meditation timer needed to continue in background | useEffect with setInterval; on app background the JS timer pauses but records startedAt and calculates actual duration on completion | Background timers in RN require native modules for true reliability |
+| Heatmap grid needed 35 cells (5 weeks × 7 days) per habit | HabitGrid generates date range from 35 days ago to today, matches against log dates | Keep heatmap data generation in the component, not the API |
+| Full-text search on content_directory | Used Supabase's built-in textSearch() which leverages PostgreSQL's search_vector TSVECTOR column with GIN index | Postgres full-text search is powerful — no need for external search service |
 
 ---
 
@@ -196,41 +182,31 @@ Phase 2 builds the primary user-facing features that make the app valuable: cour
 ### Topics You Can Discuss After Phase 2:
 
 1. **Media Player Implementation**
-   - HLS adaptive bitrate streaming for video
-   - Background audio playback on iOS/Android
-   - Lock screen controls integration
-   - Player state management across screen transitions
+   - Player UI with playback speed control (0.5x-2x)
+   - Progress tracking tied to enrollment records
+   - Auto-advance to next lesson on completion
+   - Mini player pattern for background listening
 
 2. **Streak Algorithm Design**
-   - Consecutive day calculation using PostgreSQL window functions
-   - Timezone-aware date boundaries
-   - Nightly cron for data integrity
-   - Edge cases: midnight crossover, travel between timezones
+   - PostgreSQL window functions for consecutive day calculation
+   - Database-level RPC for atomic, timezone-safe computation
+   - Multiple habit type support in single table (extensible schema)
+   - Heatmap data generation for 35-day grids
 
-3. **React Query Caching Strategy**
-   - Stale-while-revalidate for content feeds
-   - Optimistic updates for enrollment/progress
-   - Query invalidation patterns
-   - Infinite query pagination
+3. **React Native Performance Patterns**
+   - FlatList with ListHeaderComponent (avoid VirtualizedList nesting)
+   - Debounced search (300ms) to reduce API calls
+   - Skeleton loading states for perceived performance
+   - useCallback/useMemo for preventing unnecessary re-renders
 
 4. **Full-Text Search Implementation**
-   - PostgreSQL full-text search vs application-level filtering
-   - Debounced search input pattern
-   - Search result ranking
+   - PostgreSQL TSVECTOR columns with GIN indexes
+   - Supabase textSearch() wrapper for clean API
+   - Category-based filtering + text search combination
+   - Debounced client-side input
 
-5. **Push Notification Architecture**
-   - FCM token lifecycle management
-   - Notification categories and deep linking
-   - Server-side notification scheduling
-   - Permission request UX best practices
-
-6. **Real-Time Features with Supabase**
-   - Real-time subscriptions for live events
-   - Presence tracking for live event participants
-   - Optimistic UI updates
-
----
-
-## Screenshots
-
-*To be added after implementation*
+5. **Multi-Habit Tracking Architecture**
+   - Single table with habit_type discriminator (vs separate tables per habit)
+   - Unique constraint on (user_id, habit_type, date) for idempotent logging
+   - RPC functions returning all streaks in one call
+   - Vision board and day journey as complementary tracking features
