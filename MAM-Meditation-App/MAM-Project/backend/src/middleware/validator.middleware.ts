@@ -14,9 +14,9 @@ export const validate = (schema: ZodSchema) => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid request data',
-            details: err.errors.map((e) => ({
-              field: e.path.join('.'),
-              message: e.message,
+            details: err.issues.map((issue) => ({
+              field: issue.path.join('.'),
+              message: issue.message,
             })),
           },
           meta: null,

@@ -2,14 +2,19 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeMain from '../screens/HomeMain';
 import CoursesMain from '../screens/CoursesMain';
+import CourseDetailScreen from '../screens/CourseDetailScreen';
+import LessonScreen from '../screens/LessonScreen';
 import JourneyMain from '../screens/JourneyMain';
+import MeditationTimerScreen from '../screens/MeditationTimerScreen';
 import DirectoryMain from '../screens/DirectoryMain';
+import EventDetailScreen from '../screens/EventDetailScreen';
 import ProfileMain from '../screens/ProfileMain';
 
 const Home = createNativeStackNavigator();
 export const HomeStack = () => (
   <Home.Navigator screenOptions={{ headerShown: false }}>
     <Home.Screen name="HomeMain" component={HomeMain} />
+    <Home.Screen name="EventDetail" component={EventDetailScreen} />
   </Home.Navigator>
 );
 
@@ -17,6 +22,8 @@ const Courses = createNativeStackNavigator();
 export const CoursesStack = () => (
   <Courses.Navigator screenOptions={{ headerShown: false }}>
     <Courses.Screen name="CoursesMain" component={CoursesMain} />
+    <Courses.Screen name="CourseDetail" component={CourseDetailScreen} />
+    <Courses.Screen name="Lesson" component={LessonScreen} />
   </Courses.Navigator>
 );
 
@@ -24,6 +31,7 @@ const Journey = createNativeStackNavigator();
 export const JourneyStack = () => (
   <Journey.Navigator screenOptions={{ headerShown: false }}>
     <Journey.Screen name="JourneyMain" component={JourneyMain} />
+    <Journey.Screen name="MeditationTimer" component={MeditationTimerScreen} />
   </Journey.Navigator>
 );
 

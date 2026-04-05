@@ -13,14 +13,18 @@ export type OnboardingStackParamList = {
 
 export type HomeStackParamList = {
   HomeMain: undefined;
+  EventDetail: { eventId: string };
 };
 
 export type CoursesStackParamList = {
   CoursesMain: undefined;
+  CourseDetail: { courseId: string };
+  Lesson: { lessonId: string; courseId: string; enrollmentId: string };
 };
 
 export type JourneyStackParamList = {
   JourneyMain: undefined;
+  MeditationTimer: undefined;
 };
 
 export type DirectoryStackParamList = {
