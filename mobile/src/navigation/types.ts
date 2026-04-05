@@ -2,10 +2,13 @@ import { NavigatorScreenParams } from '@react-navigation/native';
 
 export type AuthStackParamList = {
   Login: undefined;
-  OTP: { phoneNumber: string };
+  OTP: { phone: string };
+};
+
+export type OnboardingStackParamList = {
   OnboardingWelcome: undefined;
   OnboardingInterests: undefined;
-  OnboardingGoal: undefined;
+  OnboardingGoal: { interests: string[] };
 };
 
 export type HomeStackParamList = {
@@ -20,8 +23,8 @@ export type JourneyStackParamList = {
   JourneyMain: undefined;
 };
 
-export type EventsStackParamList = {
-  EventsMain: undefined;
+export type DirectoryStackParamList = {
+  DirectoryMain: undefined;
 };
 
 export type ProfileStackParamList = {
@@ -29,10 +32,10 @@ export type ProfileStackParamList = {
 };
 
 export type MainTabParamList = {
-  Home: NavigatorScreenParams<HomeStackParamList>;
-  Courses: NavigatorScreenParams<CoursesStackParamList>;
   Journey: NavigatorScreenParams<JourneyStackParamList>;
-  Events: NavigatorScreenParams<EventsStackParamList>;
+  Courses: NavigatorScreenParams<CoursesStackParamList>;
+  Home: NavigatorScreenParams<HomeStackParamList>;
+  Directory: NavigatorScreenParams<DirectoryStackParamList>;
   Profile: NavigatorScreenParams<ProfileStackParamList>;
 };
 

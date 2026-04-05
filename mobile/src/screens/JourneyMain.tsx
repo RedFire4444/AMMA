@@ -1,16 +1,21 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const JourneyMain = () => {
   return (
-    <View style={styles.container}>
-      <Text>JourneyMain</Text>
-    </View>
+    <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+      <View className="flex-1 items-center justify-center px-6">
+        <Text className="text-3xl mb-2">{'\u{1F9D8}'}</Text>
+        <Text className="text-2xl font-serif font-bold text-primary mb-2">
+          My Journey
+        </Text>
+        <Text className="text-base text-text-secondary text-center">
+          Track your daily sadhana, meditation streaks, and spiritual growth. Full implementation coming in Phase 2.
+        </Text>
+      </View>
+    </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center' }
-});
 
 export default JourneyMain;

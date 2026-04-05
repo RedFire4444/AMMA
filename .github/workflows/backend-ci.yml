@@ -1,0 +1,39 @@
+name: Backend CI
+on:
+  push:
+    branches: ['main']
+    paths: ['MAM-Meditation-App/MAM-Project/backend/**']
+  pull_request:
+    branches: ['main']
+    paths: ['MAM-Meditation-App/MAM-Project/backend/**']
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [22.x]
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: 'MAM-Meditation-App/MAM-Project/backend/package-lock.json'
+      - name: Install dependencies
+        working-directory: ./MAM-Meditation-App/MAM-Project/backend
+        run: npm ci
+      - name: Type check
+        working-directory: ./MAM-Meditation-App/MAM-Project/backend
+        run: npx tsc --noEmit
+      - name: Run tests
+        working-directory: ./MAM-Meditation-App/MAM-Project/backend
+        run: npm test
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          PORT: 3000
+          NODE_ENV: test

@@ -1,16 +1,30 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  ActivityIndicator,
+  NativeSyntheticEvent,
+  TextInputKeyPressEventData,
+} from 'react-native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { AuthStackParamList } from '../navigation/types';
 import { useAuthStore } from '../store/authStore';
 
 const OTP_LENGTH = 6;
 const RESEND_TIMER = 30;
 
-const OTPScreen = ({ route }: any) => {
-  const { phone } = route.params || {};
+type Props = NativeStackScreenProps<AuthStackParamList, 'OTP'>;
+
+const OTPScreen = ({ route }: Props) => {
+  const { phone } = route.params;
   const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(''));
   const [timer, setTimer] = useState(RESEND_TIMER);
   const [error, setError] = useState('');
-  
+
   const { verifyOTP, requestOTP, isLoading } = useAuthStore();
   const inputRefs = useRef<Array<TextInput | null>>(Array(OTP_LENGTH).fill(null));
 
@@ -38,7 +52,10 @@ const OTPScreen = ({ route }: any) => {
     }
   };
 
-  const handleKeyPress = (e: any, index: number) => {
+  const handleKeyPress = (
+    e: NativeSyntheticEvent<TextInputKeyPressEventData>,
+    index: number,
+  ) => {
     if (e.nativeEvent.key === 'Backspace' && !otp[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
       const newOtp = [...otp];
@@ -54,19 +71,19 @@ const OTPScreen = ({ route }: any) => {
       return;
     }
     setError('');
-    
+
     try {
       await verifyOTP(phone, code);
-      // Navigation is generally handled by App navigator based on authStore session, 
-      // but we can explicitly reset or rely on root navigator listening to store updates.
-    } catch (err: any) {
-      setError(err.message || 'Verification failed. Please check your OTP.');
+      // Navigation is handled by App navigator based on authStore session state.
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Verification failed. Please check your OTP.';
+      setError(message);
     }
   };
 
   // Auto verify when all digits are entered
   useEffect(() => {
-    if (otp.every(digit => digit !== '')) {
+    if (otp.every((digit) => digit !== '')) {
       handleVerify();
     }
   }, [otp]);
@@ -77,13 +94,23 @@ const OTPScreen = ({ route }: any) => {
       await requestOTP(phone);
       setTimer(RESEND_TIMER);
       setError('');
-    } catch (err: any) {
-      setError(err.message || 'Failed to resend OTP.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to resend OTP.';
+      setError(message);
     }
   };
 
+  const getOtpInputClassName = (digit: string): string => {
+    if (digit) {
+      return 'w-12 h-14 border rounded-xl text-center text-xl font-bold bg-white border-primary text-primary';
+    }
+    return 'w-12 h-14 border rounded-xl text-center text-xl font-bold bg-white border-gray-300 text-gray-800';
+  };
+
+  const isResendDisabled = timer > 0 || isLoading;
+
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       className="flex-1 bg-background justify-center px-6"
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
@@ -99,24 +126,28 @@ const OTPScreen = ({ route }: any) => {
         {otp.map((digit, idx) => (
           <TextInput
             key={idx}
-            ref={(ref) => { inputRefs.current[idx] = ref; }}
-            className={`w-12 h-14 border rounded-xl text-center text-xl font-bold bg-white
-              \${digit ? 'border-primary text-primary' : 'border-gray-300 text-gray-800'}
-            `}
+            ref={(ref) => {
+              inputRefs.current[idx] = ref;
+            }}
+            className={getOtpInputClassName(digit)}
             keyboardType="number-pad"
             maxLength={1}
             value={digit}
             onChangeText={(text) => handleChange(text, idx)}
             onKeyPress={(e) => handleKeyPress(e, idx)}
-            testID={`otp-input-\${idx}`}
+            testID={'otp-input-' + idx}
           />
         ))}
       </View>
 
-      {error ? <Text className="text-red-500 text-center mb-4 text-sm">{error}</Text> : <View className="h-4 mb-4" />}
+      {error ? (
+        <Text className="text-red-500 text-center mb-4 text-sm">{error}</Text>
+      ) : (
+        <View className="h-4 mb-4" />
+      )}
 
       <TouchableOpacity
-        className={`w-full py-4 rounded-xl items-center \${isLoading ? 'bg-primary-light' : 'bg-primary'}`}
+        className={isLoading ? 'w-full py-4 rounded-xl items-center bg-primary-light' : 'w-full py-4 rounded-xl items-center bg-primary'}
         onPress={handleVerify}
         disabled={isLoading}
       >
@@ -129,9 +160,9 @@ const OTPScreen = ({ route }: any) => {
 
       <View className="flex-row justify-center items-center mt-6">
         <Text className="text-gray-500 font-sans">Didn't receive the code? </Text>
-        <TouchableOpacity onPress={handleResend} disabled={timer > 0 || isLoading}>
-          <Text className={`font-bold \${timer > 0 || isLoading ? 'text-gray-400' : 'text-primary'}`}>
-            {timer > 0 ? `Resend in \${timer}s` : 'Resend OTP'}
+        <TouchableOpacity onPress={handleResend} disabled={isResendDisabled}>
+          <Text className={isResendDisabled ? 'font-bold text-gray-400' : 'font-bold text-primary'}>
+            {timer > 0 ? 'Resend in ' + timer + 's' : 'Resend OTP'}
           </Text>
         </TouchableOpacity>
       </View>

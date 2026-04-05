@@ -47,7 +47,11 @@ export const updateMe = async (req: Request, res: Response): Promise<void> => {
     }
 
     // Only allow safe fields to be updated (never id, role, created_at)
-    const { full_name, avatar_url, date_of_birth, timezone, preferred_language, notification_preferences } = req.body;
+    const {
+      full_name, avatar_url, date_of_birth, timezone,
+      preferred_language, notification_preferences,
+      interests, meditation_goal_minutes, onboarding_complete, notification_enabled
+    } = req.body;
 
     const updates: Record<string, unknown> = {};
     if (full_name !== undefined) updates.full_name = full_name;
@@ -56,6 +60,10 @@ export const updateMe = async (req: Request, res: Response): Promise<void> => {
     if (timezone !== undefined) updates.timezone = timezone;
     if (preferred_language !== undefined) updates.preferred_language = preferred_language;
     if (notification_preferences !== undefined) updates.notification_preferences = notification_preferences;
+    if (interests !== undefined) updates.interests = interests;
+    if (meditation_goal_minutes !== undefined) updates.meditation_goal_minutes = meditation_goal_minutes;
+    if (onboarding_complete !== undefined) updates.onboarding_complete = onboarding_complete;
+    if (notification_enabled !== undefined) updates.notification_enabled = notification_enabled;
 
     if (Object.keys(updates).length === 0) {
       res.status(400).json(error('NO_FIELDS', 'No valid fields provided to update', 400));
