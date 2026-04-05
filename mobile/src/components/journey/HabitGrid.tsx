@@ -69,9 +69,9 @@ export const HabitGrid = ({
 
       {/* Grid */}
       <View className="mb-3">
-        {Array.from({ length: GRID_ROWS }).map((_, row) => (
+        {Array.from({ length: GRID_ROWS }).map((_rowItem, row) => (
           <View key={`row-${row}`} className="flex-row justify-between mb-1">
-            {Array.from({ length: GRID_COLS }).map((_, col) => {
+            {Array.from({ length: GRID_COLS }).map((_colItem, col) => {
               const index = row * GRID_COLS + col;
               const day = gridDays[index];
               if (!day) return null;

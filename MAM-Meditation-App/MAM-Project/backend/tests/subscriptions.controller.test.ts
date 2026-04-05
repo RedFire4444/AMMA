@@ -211,11 +211,12 @@ describe('Subscriptions Controller', () => {
   // cancelSubscription
   // -----------------------------------------------------------------------
   describe('cancelSubscription', () => {
-    it('sets subscription status to cancelled and returns 200', async () => {
+    it('marks subscription for cancellation at period end and returns 200', async () => {
       const existing = { id: 'sub-1', status: 'active' };
+      // Controller keeps status=active, sets cancel_at_period_end=true
       const updated = {
         id: 'sub-1',
-        status: 'cancelled',
+        status: 'active',
         cancel_at_period_end: true,
         cancelled_at: '2026-04-05T12:00:00.000Z',
         cancellation_reason: 'Too expensive',
@@ -238,18 +239,18 @@ describe('Subscriptions Controller', () => {
           success: true,
           data: expect.objectContaining({
             id: 'sub-1',
-            status: 'cancelled',
+            status: 'active',
             cancel_at_period_end: true,
             cancellation_reason: 'Too expensive',
           }),
         })
       );
 
-      // Verify the update payload
+      // Verify the update payload does NOT change status — keeps user active until period end
       expect(db.update).toHaveBeenCalledWith(
         expect.objectContaining({
-          status: 'cancelled',
           cancel_at_period_end: true,
+          cancellation_reason: 'Too expensive',
         })
       );
     });

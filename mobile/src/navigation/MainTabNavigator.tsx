@@ -1,5 +1,6 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { MainTabParamList } from './types';
 import { CustomTabBar } from '../components/CustomTabBar';
 import {
@@ -12,10 +13,12 @@ import {
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
+const renderTabBar = (props: BottomTabBarProps) => <CustomTabBar {...props} />;
+
 export const MainTabNavigator = () => {
   return (
     <Tab.Navigator
-      tabBar={(props) => <CustomTabBar {...props} />}
+      tabBar={renderTabBar}
       screenOptions={{ headerShown: false }}
     >
       <Tab.Screen

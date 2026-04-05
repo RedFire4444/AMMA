@@ -38,10 +38,10 @@ NODE_ENV=development
 SUPABASE_URL=https://xxxxxxxxxx.supabase.co
 
 # Public anon key — safe for client-side, respects RLS
-SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+SUPABASE_ANON_KEY=<YOUR_SUPABASE_ANON_KEY>
 
 # Service role key — bypasses RLS, server-only, NEVER expose to client
-SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+SUPABASE_SERVICE_ROLE_KEY=<YOUR_SUPABASE_SERVICE_ROLE_KEY>
 
 # ============================================================
 # Razorpay Payment Gateway
@@ -60,7 +60,7 @@ FIREBASE_PROJECT_ID=mam-meditation-app
 
 # Service account private key (JSON format, escaped for .env)
 # Generate from Firebase Console > Project Settings > Service Accounts > Generate New Private Key
-FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIEvQ...\n-----END PRIVATE KEY-----\n"
+FIREBASE_PRIVATE_KEY="<PASTE_FIREBASE_SERVICE_ACCOUNT_PRIVATE_KEY_HERE>"
 
 # ============================================================
 # Sentry Error Monitoring

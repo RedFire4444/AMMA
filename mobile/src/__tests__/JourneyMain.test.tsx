@@ -35,9 +35,8 @@ jest.mock('../services/home.service', () => ({
 // Mock the HabitGrid component to simplify rendering
 jest.mock('../components/journey/HabitGrid', () => ({
   HabitGrid: ({ habitName }: { habitName: string }) => {
-    const React = require('react');
-    const { Text } = require('react-native');
-    return React.createElement(Text, null, habitName);
+    const RN = require('react-native');
+    return require('react').createElement(RN.Text, null, habitName);
   },
 }));
 

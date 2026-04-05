@@ -270,7 +270,7 @@ describe('Payments Controller', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: false,
-          error: expect.objectContaining({ code: 'INVALID_SIGNATURE' }),
+          error: expect.objectContaining({ code: 'PAYMENT_VERIFICATION_FAILED' }),
         })
       );
     });

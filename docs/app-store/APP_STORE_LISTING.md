@@ -150,9 +150,12 @@ Initial release with guided meditations, structured courses, habit tracking, liv
 
 ### Test Account Credentials
 
+> **IMPORTANT**: Store real review credentials in App Store Connect's private "App Review Information" field only.
+> Do NOT commit real credentials to version control.
+
 ```
-Phone Number: +91 9999900001
-OTP Code: 123456
+Phone Number: <REVIEW_TEST_PHONE_NUMBER>
+OTP Code: <REVIEW_TEST_OTP_CODE>
 ```
 
 **Note**: The test account uses a fixed OTP code that bypasses SMS verification. This account has pre-populated data including:
@@ -164,8 +167,8 @@ OTP Code: 123456
 ### Demo Account Credentials (Alternative)
 
 ```
-Email: review@mamapp.com
-Password: MAMReview2026!
+Email: <REVIEW_ACCOUNT_EMAIL>
+Password: <REVIEW_ACCOUNT_PASSWORD>
 ```
 
 ### Notes for Reviewers

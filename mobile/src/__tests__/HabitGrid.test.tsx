@@ -5,9 +5,8 @@ import { HabitGrid } from '../components/journey/HabitGrid';
 // Mock the StreakBadge component so we can verify streak count rendering
 jest.mock('../components/journey/StreakBadge', () => ({
   StreakBadge: ({ count, label }: { count: number; label: string }) => {
-    const React = require('react');
-    const { Text } = require('react-native');
-    return React.createElement(Text, null, `${count} ${label}`);
+    const RN = require('react-native');
+    return require('react').createElement(RN.Text, null, `${count} ${label}`);
   },
 }));
 
