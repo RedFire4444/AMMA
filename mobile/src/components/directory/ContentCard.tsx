@@ -26,7 +26,7 @@ const formatDuration = (seconds: number | null): string => {
 
 export const ContentCard = ({
   title,
-  instructorName,
+  instructorName: _instructorName,
   thumbnailUrl,
   durationSeconds,
   viewCount,

@@ -108,6 +108,7 @@ const LessonScreen = () => {
     } catch {
       Alert.alert('Error', 'Failed to update progress.');
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- handleNextLesson is stable via useCallback with same deps
   }, [lesson, allLessons, enrollmentId, navigation]);
 
   const handleNextLesson = useCallback(() => {

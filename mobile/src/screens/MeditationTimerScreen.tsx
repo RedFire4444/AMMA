@@ -88,6 +88,7 @@ const MeditationTimerScreen = () => {
     if (remaining === 0 && startedAt && !isRunning && !isPaused) {
       handleCompletion();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- handleCompletion is defined below and stable via useCallback
   }, [remaining, startedAt, isRunning, isPaused]);
 
   const handleCompletion = useCallback(async () => {

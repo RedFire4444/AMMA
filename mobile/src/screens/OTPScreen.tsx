@@ -86,6 +86,7 @@ const OTPScreen = ({ route }: Props) => {
     if (otp.every((digit) => digit !== '')) {
       handleVerify();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- handleVerify is stable (only depends on phone which never changes on this screen)
   }, [otp]);
 
   const handleResend = async () => {

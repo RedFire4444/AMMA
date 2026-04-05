@@ -40,11 +40,11 @@ export function captureMessage(message: string, level: 'info' | 'warning' | 'err
   // Sentry.captureMessage(message, level);
 }
 
-export function setUser(userId: string, email?: string): void {
+export function setUser(userId: string, _email?: string): void {
   console.log('[Sentry] Set user:', userId);
-  // Sentry.setUser({ id: userId, email });
+  // Sentry.setUser({ id: userId, email: _email });
 }
 
-export function addBreadcrumb(category: string, message: string, data?: Record<string, unknown>): void {
-  // Sentry.addBreadcrumb({ category, message, data, level: 'info' });
+export function addBreadcrumb(_category: string, _message: string, _data?: Record<string, unknown>): void {
+  // Sentry.addBreadcrumb({ category: _category, message: _message, data: _data, level: 'info' });
 }
