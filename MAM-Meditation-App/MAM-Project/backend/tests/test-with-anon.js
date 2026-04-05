@@ -60,7 +60,7 @@ async function testWithAnonKey() {
     console.log('   4. Test streak functions');
 
     console.log('\n🔗 Get your SERVICE_ROLE_KEY:');
-    console.log('   https://supabase.com/dashboard/project/lbviqtrxwxybpbjnalrc/settings/api');
+    console.log('   https://supabase.com/dashboard/project/YOUR_PROJECT_ID/settings/api');
     console.log('   Look for "service_role" key (starts with "eyJ")');
 
   } catch (error) {

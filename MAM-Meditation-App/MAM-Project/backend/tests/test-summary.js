@@ -34,7 +34,7 @@ console.log('   4. Run: npm run test:quick');
 console.log('   5. Start backend: npm run dev');
 
 console.log('\n🔗 GET YOUR SERVICE_ROLE_KEY:');
-console.log('   https://supabase.com/dashboard/project/lbviqtrxwxybpbjnalrc/settings/api');
+console.log('   https://supabase.com/dashboard/project/YOUR_PROJECT_ID/settings/api');
 console.log('   Look for "service_role" key (starts with "eyJ")');
 
 console.log('\n💡 WHAT THIS MEANS:');

@@ -54,7 +54,7 @@ async function testConnection() {
     console.log('   4. Run: npm run test:quick (full test)');
     
     console.log('\n🔗 Get your SERVICE_ROLE_KEY here:');
-    console.log(`   https://supabase.com/dashboard/project/lbviqtrxwxybpbjnalrc/settings/api`);
+    console.log(`   https://supabase.com/dashboard/project/YOUR_PROJECT_ID/settings/api`);
 
   } catch (error) {
     console.log('❌ Connection failed:', error.message);
