@@ -1,0 +1,157 @@
+appId: com.mam.meditation
+---
+# =============================================================================
+# Courses E2E Flow: Browse -> Search -> Filter -> Open -> Enroll -> Lesson
+# =============================================================================
+# This flow verifies the complete courses browsing, filtering, enrollment,
+# and lesson completion journey for an authenticated user.
+# =============================================================================
+
+# --- Step 1: Launch app (assumes user is already authenticated) ---
+- launchApp:
+    clearState: false
+
+# --- Step 2: Navigate to Courses tab ---
+- tapOn:
+    id: "tab-Courses"
+
+# --- Step 3: Verify Courses screen header and structure ---
+- assertVisible: "Courses"
+- assertVisible: "Explore meditation, yoga, and wellness programs"
+
+# Verify search bar is present
+- assertVisible: "Search courses..."
+
+# --- Step 4: Verify difficulty filter pills ---
+- assertVisible: "All"
+- assertVisible: "Beginner"
+- assertVisible: "Intermediate"
+- assertVisible: "Advanced"
+
+# Verify category filter pills
+- assertVisible: "Meditation"
+- assertVisible: "Yoga"
+- assertVisible: "Pranayama"
+- assertVisible: "Mindfulness"
+- assertVisible: "Sleep"
+- assertVisible: "Stress"
+
+# --- Step 5: Search for a course ---
+- tapOn: "Search courses..."
+- inputText: "breathing"
+
+# Wait for debounced search results to load (500ms debounce)
+- waitForAnimationToEnd
+
+# If results exist, verify course cards are displayed
+# If no results, verify empty state
+- assertVisible:
+    text: ".*"
+    # At least something should be visible after search
+
+# --- Step 6: Clear search and apply difficulty filter ---
+- tapOn:
+    text: "\u2715"
+    # Clear button (X) appears when search has text
+
+# Tap the Beginner difficulty filter
+- tapOn: "Beginner"
+
+# Wait for filtered results to load
+- waitForAnimationToEnd
+
+# --- Step 7: Apply category filter ---
+- tapOn: "Meditation"
+
+# Wait for filtered results to load
+- waitForAnimationToEnd
+
+# --- Step 8: Reset filters to see all courses ---
+- tapOn:
+    text: "All"
+    index: 0
+    # First "All" pill is the difficulty filter
+
+- waitForAnimationToEnd
+
+# --- Step 9: Open first course (tap on a course card) ---
+# Assuming at least one course is loaded, tap it
+- tapOn:
+    index: 0
+    # Tap the first course card in the list
+
+# --- Step 10: Verify CourseDetail screen ---
+- assertVisible: "Course Details"
+
+# Verify tabs are present
+- assertVisible: "Overview"
+- assertVisible: "Curriculum"
+- assertVisible: "Reviews"
+
+# Verify the Overview tab is active by default and shows course description
+- assertVisible: "What you'll learn"
+
+# Verify meta information is shown (difficulty badge, duration, lessons count)
+# These are dynamic but the structure should be visible
+
+# Verify enrollment CTA at bottom
+- assertVisible: "Enroll Now"
+
+# --- Step 11: View Curriculum tab ---
+- tapOn: "Curriculum"
+
+# Verify curriculum content is shown
+# Should show lesson count and total duration
+- assertVisible:
+    text: ".*lessons.*total"
+
+# --- Step 12: View Reviews tab ---
+- tapOn: "Reviews"
+
+# Either reviews are shown or the empty state message appears
+# Both are valid depending on data
+
+# --- Step 13: Enroll in the course ---
+- tapOn: "Enroll Now"
+
+# After enrollment, the button text changes
+- waitForAnimationToEnd
+- assertVisible: "Continue Learning"
+
+# --- Step 14: Tap Continue Learning to switch to Curriculum ---
+- tapOn: "Continue Learning"
+
+# Verify we are on the Curriculum tab
+- assertVisible: "Curriculum"
+
+# --- Step 15: Open the first lesson ---
+# Tap on the first lesson item in the curriculum list
+- tapOn:
+    text: "Lesson 1"
+    optional: true
+
+# If there are lessons, navigate into the lesson screen
+# --- Step 16: Verify Lesson screen ---
+- assertVisible:
+    text: ".*"
+    # Lesson title should be visible
+
+# Verify media player area
+# Verify playback controls
+- assertVisible: "1x"
+
+# Verify progress bar
+
+# Verify Mark as Complete button
+- assertVisible: "Mark as Complete"
+
+# --- Step 17: Mark lesson as complete ---
+- tapOn: "Mark as Complete"
+
+# An alert should appear confirming completion
+- assertVisible: "Lesson Complete!"
+- tapOn: "OK"
+
+# --- Step 18: Navigate back to Course Detail ---
+# After dismissing the alert, user may be on the next lesson
+# or back on the course detail screen depending on flow

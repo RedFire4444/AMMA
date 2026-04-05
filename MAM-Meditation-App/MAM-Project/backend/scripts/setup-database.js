@@ -39,7 +39,8 @@ const migrations = [
   '017_add_onboarding_fields.sql',
   '018_create_course_reviews.sql',
   '019_create_phase2_tables.sql',
-  '020_add_missing_columns.sql'
+  '020_add_missing_columns.sql',
+  '021_fix_phase3_issues.sql'
 ];
 
 async function runMigrations() {

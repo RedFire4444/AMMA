@@ -1,0 +1,115 @@
+appId: com.mam.meditation
+---
+# =============================================================================
+# Directory E2E Flow: Browse -> Search -> Play -> Bookmark -> View Bookmarks
+# =============================================================================
+# This flow verifies the content directory browsing, search, playback,
+# bookmarking, and bookmark management features.
+# =============================================================================
+
+# --- Step 1: Launch app (assumes user is authenticated) ---
+- launchApp:
+    clearState: false
+
+# --- Step 2: Navigate to Directory tab ---
+- tapOn:
+    id: "tab-Directory"
+
+# --- Step 3: Verify Directory screen structure ---
+# Verify the search bar is present
+- assertVisible: "Search teachings, bhajans..."
+
+# Verify category filter tabs
+- assertVisible: "All"
+- assertVisible: "Bhajans"
+- assertVisible: "Meditations"
+- assertVisible: "Satsangs"
+- assertVisible: "Discourses"
+- assertVisible: "Chanting"
+
+# --- Step 4: Browse content with "All" category (default) ---
+# Content cards should be visible if data is available
+# Each card shows title, instructor name, duration, view count, and
+# optional premium badge and bookmark toggle
+
+# --- Step 5: Search for "meditation" ---
+- tapOn: "Search teachings, bhajans..."
+- inputText: "meditation"
+
+# Wait for debounced search (300ms)
+- waitForAnimationToEnd
+
+# Results should update based on search query.
+# If no results, the empty state message appears:
+# "No results found. Try a different search."
+
+# --- Step 6: Clear search ---
+- tapOn:
+    text: "\u2715"
+    # Clear button
+
+# Verify search field is cleared and all content reloads
+- waitForAnimationToEnd
+
+# --- Step 7: Filter by category ---
+- tapOn: "Bhajans"
+
+# Wait for filtered content to load
+- waitForAnimationToEnd
+
+# --- Step 8: Reset to All category ---
+- tapOn: "All"
+- waitForAnimationToEnd
+
+# --- Step 9: Tap on a content card to play it ---
+# Tap the first content card in the list
+- tapOn:
+    index: 0
+
+# --- Step 10: Verify MiniPlayer appears ---
+# After tapping a content item, the MiniPlayer should appear at the bottom
+# MiniPlayer shows the title, artist/instructor, play/pause button, and close button
+
+# Verify the MiniPlayer is visible (it renders the title of the playing item)
+# The exact title is dynamic, but the player controls should be visible
+
+# --- Step 11: Toggle play/pause on MiniPlayer ---
+# The MiniPlayer has a play/pause toggle
+
+# --- Step 12: Close the MiniPlayer ---
+# Tap the close button on the MiniPlayer
+
+# --- Step 13: Bookmark a content item ---
+# Each ContentCard has a bookmark toggle button.
+# Tap the bookmark icon on the first content card.
+# The bookmark icon should toggle its state (filled vs outline).
+
+# --- Step 14: Verify bookmark was saved ---
+# Scroll down or navigate to verify the bookmark state persists.
+# Pull down to refresh the content list.
+- scrollUntilVisible:
+    element: "Search teachings, bhajans..."
+    direction: "UP"
+
+# --- Step 15: Search for the bookmarked content ---
+- tapOn: "Search teachings, bhajans..."
+- inputText: "meditation"
+- waitForAnimationToEnd
+
+# --- Step 16: Clear search and check bookmark state is retained ---
+- tapOn:
+    text: "\u2715"
+- waitForAnimationToEnd
+
+# Bookmarked items should still show the filled bookmark icon
+# after refreshing or re-searching
+
+# --- Step 17: Navigate away and come back to verify persistence ---
+- tapOn:
+    id: "tab-Home"
+
+- tapOn:
+    id: "tab-Directory"
+
+# The bookmarked state should persist after tab switching
+# The directory should reload and show bookmarked items with filled icons

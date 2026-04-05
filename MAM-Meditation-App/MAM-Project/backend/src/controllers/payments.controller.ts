@@ -69,7 +69,7 @@ export const verifyPayment = async (req: Request, res: Response): Promise<void> 
     const message = err instanceof Error ? err.message : 'Failed to verify payment';
 
     if (message === 'Invalid payment signature') {
-      res.status(400).json(error('INVALID_SIGNATURE', 'Payment signature verification failed', 400));
+      res.status(400).json(error('PAYMENT_VERIFICATION_FAILED', 'Payment verification failed. Please try again.', 400));
       return;
     }
 

@@ -71,10 +71,11 @@ export const cancelSubscription = async (req: Request, res: Response): Promise<v
 
     const now = new Date().toISOString();
 
+    // Keep status=active so user retains access until period end.
+    // A cron job should flip status to 'cancelled' after expires_at passes.
     const { data: updated, error: updateError } = await supabase
       .from('subscriptions')
       .update({
-        status: 'cancelled',
         cancel_at_period_end: true,
         cancelled_at: now,
         cancellation_reason: req.body?.reason ?? null,

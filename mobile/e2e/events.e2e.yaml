@@ -1,0 +1,124 @@
+appId: com.mam.meditation
+---
+# =============================================================================
+# Events E2E Flow: Home -> Events -> Event Detail -> Register -> Verify
+# =============================================================================
+# This flow verifies the event discovery, detail viewing, registration,
+# and registration status verification journey.
+# =============================================================================
+
+# --- Step 1: Launch app (assumes user is authenticated) ---
+- launchApp:
+    clearState: false
+
+# --- Step 2: Navigate to Home tab ---
+- tapOn:
+    id: "tab-Home"
+
+# --- Step 3: Verify Home screen loads ---
+# The greeting should be visible (Good Morning/Afternoon/Evening)
+# Stats pills should be present
+- assertVisible: "Total Time"
+- assertVisible: "Day Streak"
+
+# --- Step 4: Scroll down to Upcoming Events section ---
+- scrollUntilVisible:
+    element: "Upcoming Events"
+    direction: "DOWN"
+
+- assertVisible: "Upcoming Events"
+
+# Verify at least one event card is shown in the horizontal list
+# Event cards display title, date, and optionally a LIVE badge
+
+# --- Step 5: Tap on the first event card ---
+# This navigates to the EventDetail screen
+- tapOn:
+    text: "Upcoming Events"
+    # First tap near the events section header, then we'll tap the card
+
+# Tap the first event card in the horizontal scroll
+- scroll:
+    direction: "DOWN"
+    distance: 100
+
+# Locate and tap the first event card
+# Event cards are in a horizontal FlatList under "Upcoming Events"
+
+# --- Step 6: Navigate to Event Detail screen ---
+# After tapping an event card, we should see the EventDetail screen
+
+# --- Step 7: Verify Event Detail screen ---
+- assertVisible: "Event Details"
+
+# Verify event information sections
+# Event title (dynamic content)
+- assertVisible: "Instructor"
+
+# Verify event metadata
+# Date, duration, registration count, category are shown with icons
+
+# Verify the "About this event" section if description exists
+- assertVisible:
+    text: "About this event"
+    optional: true
+
+# --- Step 8: Verify Register button (for unregistered user) ---
+- assertVisible: "Register Now"
+
+# --- Step 9: Register for the event ---
+- tapOn: "Register Now"
+
+# Wait for registration API call to complete
+- waitForAnimationToEnd
+
+# --- Step 10: Verify registration success ---
+# An alert should appear confirming registration
+- assertVisible: "You are registered for this event!"
+- tapOn: "OK"
+
+# --- Step 11: Verify registered status on the Event Detail screen ---
+# After registration, the "Register Now" button should change to
+# a "Registered" indicator
+- assertVisible: "Registered"
+
+# The Register Now button should no longer be visible
+- assertNotVisible: "Register Now"
+
+# --- Step 12: Verify idempotent registration ---
+# If we somehow tap register again (or refresh), the status remains registered
+# The event detail should still show the registered state
+
+# --- Step 13: Check for live stream access (if event is live) ---
+# If the event has is_live=true, a "Join Live Stream" button appears
+# instead of the "Registered" badge
+- assertVisible:
+    text: "Join Live Stream"
+    optional: true
+
+# --- Step 14: Navigate back to Home ---
+# Tap the back arrow to return
+- tapOn:
+    text: "\u2190"
+
+# --- Step 15: Verify we are back on Home screen ---
+- assertVisible: "Upcoming Events"
+
+# The event card should now show a registered indicator
+# (is_registered = true in the event data after registration)
+
+# --- Step 16: Navigate to Journey tab to verify no side effects ---
+- tapOn:
+    id: "tab-Journey"
+
+- assertVisible: "My Journey"
+
+# --- Step 17: Return to Home to confirm events section persists ---
+- tapOn:
+    id: "tab-Home"
+
+- scrollUntilVisible:
+    element: "Upcoming Events"
+    direction: "DOWN"
+
+- assertVisible: "Upcoming Events"

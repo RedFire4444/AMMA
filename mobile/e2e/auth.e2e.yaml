@@ -1,0 +1,164 @@
+appId: com.mam.meditation
+---
+# =============================================================================
+# Auth E2E Flow: Welcome -> Login (Phone) -> OTP -> Onboarding -> Home
+# =============================================================================
+# This flow verifies the complete new-user authentication and onboarding
+# journey from app launch through to reaching the Home screen.
+# =============================================================================
+
+# --- Step 1: App launch and Welcome (OnboardingWelcome) screen ---
+- launchApp:
+    clearState: true
+
+# Verify the welcome screen renders with branding and CTA
+- assertVisible: "Mata Amritanandamayi Math"
+- assertVisible:
+    text: "Begin your\njourney within"
+- assertVisible: "Discover peace through meditation, yoga, pranayama, and spiritual wisdom guided by ancient traditions."
+- assertVisible: "Get Started"
+- assertVisible: "Skip"
+
+# Verify the progress indicator shows step 1 of 3 is active
+# (first dot is wide, other two are narrow)
+
+# --- Step 2: Tap "Get Started" to navigate to Interests screen ---
+- tapOn: "Get Started"
+
+# --- Step 3: Verify OnboardingInterests screen ---
+- assertVisible: "What interests you?"
+- assertVisible: "Select topics you'd like to explore. You can always change these later."
+- assertVisible: "Skip"
+
+# Verify all 8 interest options are visible
+- assertVisible: "Meditation"
+- assertVisible: "Yoga"
+- assertVisible: "Pranayama"
+- assertVisible: "Chanting"
+- assertVisible: "Sleep"
+- assertVisible: "Stress Relief"
+- assertVisible: "Focus"
+- assertVisible: "Spirituality"
+
+# Try tapping Next without selecting anything — should show validation error
+- tapOn: "Next"
+- assertVisible: "Please select at least one interest"
+
+# Select two interests
+- tapOn: "Meditation"
+- tapOn: "Yoga"
+
+# Validation error should disappear after selecting an interest
+- assertNotVisible: "Please select at least one interest"
+
+# --- Step 4: Tap "Next" to navigate to Goal screen ---
+- tapOn: "Next"
+
+# --- Step 5: Verify OnboardingGoal screen ---
+- assertVisible: "Set your daily goal"
+- assertVisible: "How many minutes would you like to meditate each day?"
+
+# Verify duration options are displayed (3, 5, 10, 15, 20, 30)
+- assertVisible: "3"
+- assertVisible: "5"
+- assertVisible: "10"
+- assertVisible: "15"
+- assertVisible: "20"
+- assertVisible: "30"
+
+# Select a duration
+- tapOn: "5"
+
+# Verify daily reminders toggle is visible
+- assertVisible: "Daily Reminders"
+- assertVisible: "Get gentle reminders to keep your practice consistent"
+
+# --- Step 6: Complete onboarding ---
+- assertVisible: "Start My Journey"
+- tapOn: "Start My Journey"
+
+# After completing onboarding, we should be redirected to the Login screen
+# because the user is not yet authenticated (no session).
+
+# --- Step 7: Verify Login screen ---
+- assertVisible: "Welcome Back"
+- assertVisible: "Enter your phone number to receive a secure one-time password."
+
+# Verify phone input area with country code
+- assertVisible: "+91"
+
+# Verify action buttons
+- assertVisible: "Send OTP"
+- assertVisible: "Or use your email instead"
+- assertVisible: "Sign in with Google"
+
+# --- Step 8: Enter phone number ---
+- tapOn:
+    text: "9876543210"
+    # Tap on the placeholder to focus the input
+- inputText: "9876543210"
+
+# --- Step 9: Tap Send OTP ---
+- tapOn: "Send OTP"
+
+# --- Step 10: Verify OTP screen ---
+- assertVisible: "Verification"
+- assertVisible: "We've sent a 6-digit verification code to"
+- assertVisible: "+919876543210"
+
+# Verify 6 OTP input fields are present
+- assertVisible:
+    id: "otp-input-0"
+- assertVisible:
+    id: "otp-input-1"
+- assertVisible:
+    id: "otp-input-2"
+- assertVisible:
+    id: "otp-input-3"
+- assertVisible:
+    id: "otp-input-4"
+- assertVisible:
+    id: "otp-input-5"
+
+# Verify Verify OTP button
+- assertVisible: "Verify OTP"
+
+# Verify resend timer is shown
+- assertVisible:
+    text: "Didn't receive the code?"
+
+# --- Step 11: Enter OTP digits ---
+- tapOn:
+    id: "otp-input-0"
+- inputText: "1"
+- tapOn:
+    id: "otp-input-1"
+- inputText: "2"
+- tapOn:
+    id: "otp-input-2"
+- inputText: "3"
+- tapOn:
+    id: "otp-input-3"
+- inputText: "4"
+- tapOn:
+    id: "otp-input-4"
+- inputText: "5"
+- tapOn:
+    id: "otp-input-5"
+- inputText: "6"
+
+# OTP auto-verifies when all 6 digits are entered.
+# On success, the navigator transitions to the main app (Home screen).
+
+# --- Step 12: Verify we landed on the Home screen ---
+# The Home tab should be the initial tab shown after login
+- assertVisible:
+    id: "tab-Home"
+- assertVisible:
+    id: "tab-Journey"
+- assertVisible:
+    id: "tab-Courses"
+- assertVisible:
+    id: "tab-Directory"
+- assertVisible:
+    id: "tab-Profile"

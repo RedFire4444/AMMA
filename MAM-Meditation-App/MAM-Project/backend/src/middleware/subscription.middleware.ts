@@ -27,8 +27,8 @@ export const requirePremium = async (req: Request, res: Response, next: NextFunc
       return;
     }
 
-    // Check expiry
-    if (subscription.expires_at && new Date(subscription.expires_at) < new Date()) {
+    // Check expiry — require a valid, non-expired expires_at
+    if (!subscription.expires_at || new Date(subscription.expires_at) < new Date()) {
       res.status(403).json(error('SUBSCRIPTION_EXPIRED', 'Your subscription has expired', 403));
       return;
     }

@@ -34,6 +34,23 @@ export const authRateLimiter = rateLimit({
   },
 });
 
+// Payment rate limiter: 5 payment operations per 10 minutes per IP
+export const paymentRateLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    data: null,
+    error: {
+      code: 'PAYMENT_LIMIT_EXCEEDED',
+      message: 'Too many payment requests. Please wait before trying again.',
+    },
+    meta: null,
+  },
+});
+
 // Strict OTP rate limiter: 3 OTP requests per phone per 10 minutes
 // Apply this specifically to the /api/auth/request-otp route
 export const otpRateLimiter = rateLimit({

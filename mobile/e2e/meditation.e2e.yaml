@@ -1,0 +1,147 @@
+appId: com.mam.meditation
+---
+# =============================================================================
+# Meditation E2E Flow: Journey -> Timer -> Configure -> Meditate -> Complete
+# =============================================================================
+# This flow verifies the complete meditation timer experience, from launching
+# via the Journey tab through session configuration, active meditation,
+# and session completion logging.
+# =============================================================================
+
+# --- Step 1: Launch app (assumes user is authenticated) ---
+- launchApp:
+    clearState: false
+
+# --- Step 2: Navigate to Journey tab ---
+- tapOn:
+    id: "tab-Journey"
+
+# --- Step 3: Verify Journey screen ---
+- assertVisible: "My Journey"
+- assertVisible: "Track your daily sadhana"
+
+# Verify the Start Meditation card is visible
+- assertVisible: "Start Meditation"
+- assertVisible: "Begin your daily practice"
+
+# Verify habit tracking grids are present
+- assertVisible: "Meditation"
+- assertVisible: "Exercise"
+- assertVisible: "Cold Shower"
+- assertVisible: "Early Wakeup"
+
+# Verify Performance Tracker section
+- assertVisible: "Performance Tracker"
+- assertVisible: "Rate your daily performance"
+
+# Verify Vision Board section
+- assertVisible: "Vision Board"
+
+# Verify Day Journey section
+- assertVisible: "Day Journey"
+
+# --- Step 4: Tap "Start Meditation" to open timer screen ---
+- tapOn: "Start Meditation"
+
+# --- Step 5: Verify MeditationTimer screen initial state ---
+- assertVisible: "Meditation"
+
+# Verify duration presets are shown
+- assertVisible: "Duration (minutes)"
+- assertVisible: "3"
+- assertVisible: "5"
+- assertVisible: "10"
+- assertVisible: "15"
+- assertVisible: "20"
+- assertVisible: "30"
+
+# Verify ambient sound picker is shown
+- assertVisible: "Ambient Sound"
+- assertVisible: "Silence"
+- assertVisible: "Nature"
+- assertVisible: "Rain"
+- assertVisible: "Ocean"
+- assertVisible: "Birds"
+- assertVisible: "Bowl"
+
+# Verify session type picker is shown
+- assertVisible: "Session Type"
+- assertVisible: "Free"
+- assertVisible: "Guided"
+- assertVisible: "Breathing"
+
+# --- Step 6: Select 5-minute duration ---
+- tapOn:
+    text: "5"
+    # Select 5-minute duration preset
+
+# Verify the timer circle updates to show 5:00
+
+# --- Step 7: Select Rain ambient sound ---
+- tapOn: "Rain"
+
+# Verify Rain is now the selected sound (highlighted with accent border)
+
+# --- Step 8: Keep session type as Free (default) ---
+# Free is selected by default, no action needed
+
+# --- Step 9: Start the meditation session ---
+# Tap the play button (large center circle)
+- tapOn:
+    text: "\u25B6"
+    # Play triangle icon to start
+
+# --- Step 10: Verify active session state ---
+# Once running, duration presets, sound picker, and session type picker
+# should be hidden. Only the timer circle and controls are visible.
+
+# The scroll should be disabled during active session
+
+# Verify stop and pause/resume controls appear
+- assertVisible:
+    text: "\u25A0"
+    # Stop button (square icon)
+- assertVisible:
+    text: "\u23F8"
+    # Pause button (pause icon, because session is running)
+
+# --- Step 11: Pause the session ---
+- tapOn:
+    text: "\u23F8"
+
+# After pausing, the pause button should become a play button
+- assertVisible:
+    text: "\u25B6"
+
+# --- Step 12: Resume the session ---
+- tapOn:
+    text: "\u25B6"
+
+# After resuming, play button becomes pause button again
+- assertVisible:
+    text: "\u23F8"
+
+# --- Step 13: Wait for session to complete ---
+# For a 5-minute session, we would normally wait 300 seconds.
+# In a test environment, this would be accelerated.
+# Using a shorter wait to simulate passage of time.
+- waitForAnimationToEnd:
+    timeout: 310000
+    # 5 minutes + 10 second buffer
+
+# --- Step 14: Verify Session Complete screen ---
+- assertVisible: "Session Complete"
+- assertVisible: "You meditated for 5 minutes"
+- assertVisible: "Your practice has been logged. Namaste."
+- assertVisible: "Done"
+
+# --- Step 15: Dismiss completion screen ---
+- tapOn: "Done"
+
+# --- Step 16: Verify return to Journey screen ---
+# After tapping Done, we navigate back to the Journey screen
+- assertVisible: "My Journey"
+- assertVisible: "Start Meditation"
+
+# The session should now be logged and reflected in the habit grid
+# and performance tracker data upon next refresh

@@ -48,6 +48,7 @@ export const paymentService = {
     const orderId = generateOrderId();
 
     // Create a pending payment record
+    // NOTE: amount_display is GENERATED ALWAYS in the DB — do not include it in the insert
     const { data: payment, error: paymentError } = await supabase
       .from('payments')
       .insert({
@@ -56,7 +57,6 @@ export const paymentService = {
         gateway_order_id: orderId,
         amount,
         currency: 'INR',
-        amount_display: `₹${(amount / 100).toFixed(2)}`,
         status: 'pending',
         plan_type: planType,
       })
@@ -85,17 +85,30 @@ export const paymentService = {
     const razorpaySecret = process.env.RAZORPAY_KEY_SECRET;
 
     if (razorpaySecret) {
-      // Production: HMAC SHA256 verification
+      // Production: HMAC SHA256 verification with timing-safe comparison
       const body = `${orderId}|${paymentId}`;
       const expectedSignature = crypto
         .createHmac('sha256', razorpaySecret)
         .update(body)
         .digest('hex');
 
-      return expectedSignature === signature;
+      try {
+        return crypto.timingSafeEqual(
+          Buffer.from(expectedSignature, 'hex'),
+          Buffer.from(signature, 'hex')
+        );
+      } catch {
+        return false;
+      }
     }
 
-    // Development: validate all fields are present
+    // Block in production if secret is not configured
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('RAZORPAY_KEY_SECRET is not configured — cannot verify payments');
+    }
+
+    // Development only: validate all fields are present
+    console.warn('[PaymentService] Signature verification bypassed in development mode');
     return orderId.length > 0 && paymentId.length > 0 && signature.length > 0;
   },
 
@@ -115,8 +128,8 @@ export const paymentService = {
       throw new Error('Invalid payment signature');
     }
 
-    // Update payment record to captured
-    const { error: updateError } = await supabase
+    // Update payment record to captured (only if still pending — prevents double-processing)
+    const { data: capturedPayment, error: updateError } = await supabase
       .from('payments')
       .update({
         gateway_payment_id: paymentId,
@@ -125,7 +138,10 @@ export const paymentService = {
         updated_at: new Date().toISOString(),
       })
       .eq('gateway_order_id', orderId)
-      .eq('user_id', userId);
+      .eq('user_id', userId)
+      .eq('status', 'pending')
+      .select('id')
+      .single();
 
     if (updateError) {
       throw new Error(`Failed to update payment record: ${updateError.message}`);
@@ -135,14 +151,6 @@ export const paymentService = {
     const now = new Date();
     const expiresAt = new Date(now);
     expiresAt.setDate(expiresAt.getDate() + PLAN_DAYS[planType]);
-
-    // Get the payment record ID for the subscription FK
-    const { data: paymentRecord } = await supabase
-      .from('payments')
-      .select('id')
-      .eq('gateway_order_id', orderId)
-      .eq('user_id', userId)
-      .single();
 
     // Upsert subscription (one active subscription per user)
     const { data: subscription, error: subError } = await supabase
@@ -157,7 +165,7 @@ export const paymentService = {
           billing_cycle: planType === 'annual' ? 'yearly' : 'monthly',
           current_period_start: now.toISOString(),
           current_period_end: expiresAt.toISOString(),
-          payment_method_id: paymentRecord?.id ?? null,
+          payment_method_id: capturedPayment?.id ?? null,
           started_at: now.toISOString(),
           expires_at: expiresAt.toISOString(),
           cancel_at_period_end: false,

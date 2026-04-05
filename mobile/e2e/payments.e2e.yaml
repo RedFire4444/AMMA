@@ -1,0 +1,140 @@
+appId: com.mam.meditation
+---
+# =============================================================================
+# Payments E2E Flow: Profile -> Subscription -> Paywall -> Subscribe -> Premium
+# =============================================================================
+# This flow verifies the complete subscription upgrade journey from the
+# Profile tab through plan selection, payment, and premium activation.
+# =============================================================================
+
+# --- Step 1: Launch app (assumes user is authenticated, free tier) ---
+- launchApp:
+    clearState: false
+
+# --- Step 2: Navigate to Profile tab ---
+- tapOn:
+    id: "tab-Profile"
+
+# --- Step 3: Verify Profile screen ---
+# Verify avatar initial and user name are shown
+- assertVisible: "Edit Profile"
+
+# Verify stats grid
+- assertVisible: "Member Since"
+- assertVisible: "Longest Streak"
+- assertVisible: "Total Duration"
+- assertVisible: "Sessions"
+- assertVisible: "Longest Session"
+- assertVisible: "Monthly Progress"
+
+# Verify Premium upsell card (only visible for free-tier users)
+- assertVisible: "Current Plan: Free"
+- assertVisible: "Enhance Your Practice"
+- assertVisible: "Access all premium courses, ad-free meditations, and exclusive satsangs."
+- assertVisible: "Upgrade to Premium"
+
+# Verify settings rows
+- assertVisible: "Subscription"
+- assertVisible: "Notifications"
+- assertVisible: "Invite a Friend"
+- assertVisible: "Logout"
+
+# --- Step 4: Navigate to Subscription screen ---
+- tapOn: "Subscription"
+
+# --- Step 5: Verify Subscription screen ---
+- assertVisible: "Subscription"
+- assertVisible: "Current Plan"
+
+# For a free user, the plan badge shows "Free Plan"
+- assertVisible: "Free Plan"
+
+# Verify the upgrade CTA
+- assertVisible: "Upgrade to Premium"
+
+# Verify billing history section
+- assertVisible: "Billing History"
+- assertVisible: "No billing history yet"
+
+# --- Step 6: Tap Upgrade to Premium ---
+- tapOn: "Upgrade to Premium"
+
+# --- Step 7: Verify Paywall screen ---
+- assertVisible: "Enhance Your Practice"
+- assertVisible: "Unlock the full MAM experience with premium access to all meditations, courses, and exclusive content."
+
+# Verify feature comparison table header
+- assertVisible: "Feature"
+- assertVisible: "Free"
+- assertVisible: "Premium"
+
+# Verify specific feature rows
+- assertVisible: "Guided Meditations"
+- assertVisible: "10 sessions"
+- assertVisible: "Full library (500+)"
+- assertVisible: "Courses"
+- assertVisible: "1 free course"
+- assertVisible: "All courses"
+- assertVisible: "Meditation Timer"
+- assertVisible: "Live Events"
+- assertVisible: "Offline Downloads"
+- assertVisible: "Ad-Free"
+
+# --- Step 8: Verify plan cards ---
+- assertVisible: "Choose Your Plan"
+
+# Monthly plan card
+- assertVisible: "Monthly"
+- assertVisible: "Billed monthly"
+- assertVisible: "199"
+- assertVisible: "/month"
+
+# Annual plan card (selected by default)
+- assertVisible: "Annual"
+- assertVisible: "Billed annually"
+- assertVisible: "1,499"
+- assertVisible: "/year"
+- assertVisible: "Save 37%"
+
+# --- Step 9: Select the Annual plan (already selected by default) ---
+# Verify Annual is pre-selected by tapping to confirm
+- tapOn: "Annual"
+
+# --- Step 10: Subscribe ---
+- assertVisible: "Subscribe Now"
+- assertVisible: "Cancel anytime. You can manage your subscription from your profile settings."
+- tapOn: "Subscribe Now"
+
+# --- Step 11: Wait for payment processing ---
+# In test/dev mode, payment is simulated (no Razorpay SDK popup)
+- waitForAnimationToEnd
+
+# --- Step 12: Verify success modal ---
+- assertVisible: "Welcome to Premium!"
+- assertVisible: "Your subscription is now active. Enjoy unlimited access to all meditations, courses, and premium features."
+
+# Dismiss the success modal
+- tapOn: "Get Started"
+
+# --- Step 13: Verify premium is now unlocked ---
+# We should be back on the Subscription screen or Profile screen
+# Navigate to Profile to verify the upsell card is gone
+- tapOn:
+    id: "tab-Profile"
+
+# The "Current Plan: Free" upsell card should no longer be visible
+- assertNotVisible: "Current Plan: Free"
+
+# --- Step 14: Verify Subscription screen shows active premium ---
+- tapOn: "Subscription"
+- assertVisible: "Current Plan"
+
+# The plan badge should now show the premium plan type
+- assertNotVisible: "Free Plan"
+
+# Cancel Subscription button should be visible for premium users
+- assertVisible: "Cancel Subscription"
+
+# Billing history should now have an entry
+- assertVisible: "Billing History"
+- assertNotVisible: "No billing history yet"
