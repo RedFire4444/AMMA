@@ -11,8 +11,8 @@ const PaywallScreen = require('../screens/PaywallScreen').default;
 
 describe('PaywallScreen', () => {
   it('renders plan comparison heading', () => {
-    const { getByText } = render(<PaywallScreen />);
-    expect(getByText(/Premium/i)).toBeTruthy();
+    const { getAllByText } = render(<PaywallScreen />);
+    expect(getAllByText(/Premium/i).length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders monthly plan card', () => {
@@ -36,8 +36,8 @@ describe('PaywallScreen', () => {
   });
 
   it('renders feature comparison items', () => {
-    const { getByText } = render(<PaywallScreen />);
-    expect(getByText(/Guided Meditations/i)).toBeTruthy();
-    expect(getByText(/Courses/i)).toBeTruthy();
+    const { getAllByText } = render(<PaywallScreen />);
+    expect(getAllByText(/Guided Meditations/i).length).toBeGreaterThanOrEqual(1);
+    expect(getAllByText(/Courses/i).length).toBeGreaterThanOrEqual(1);
   });
 });
