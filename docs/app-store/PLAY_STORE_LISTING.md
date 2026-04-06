@@ -17,9 +17,9 @@
 | **Category** | Health & Fitness |
 | **Content Rating** | Everyone |
 | **Developer Name** | MAA Wellness |
-| **Developer Email** | developer@mamapp.com |
-| **Developer Website** | https://mamapp.com |
-| **Privacy Policy URL** | https://mamapp.com/privacy |
+| **Developer Email** | developer@maaapp.com |
+| **Developer Website** | https://maaapp.com |
+| **Privacy Policy URL** | https://maaapp.com/privacy |
 
 ---
 
@@ -241,7 +241,7 @@ No user data is shared with third parties for advertising, marketing, or data br
 |----------|---------|
 | Data encrypted in transit | Yes — all API communication over HTTPS/TLS 1.2+ |
 | Data encrypted at rest | Yes — Supabase (PostgreSQL) with AES-256 encryption |
-| Users can request data deletion | Yes — Settings > Delete Account, or email privacy@mamapp.com |
+| Users can request data deletion | Yes — Settings > Delete Account, or email privacy@maaapp.com |
 | Data retention | Account data retained while account is active; deleted within 30 days of account deletion request |
 
 ---

@@ -211,19 +211,19 @@ Cloudflare CDN. Push notifications require notification permission.
 ### Privacy Policy URL
 
 ```
-https://mamapp.com/privacy
+https://maaapp.com/privacy
 ```
 
 ### Support URL
 
 ```
-https://mamapp.com/support
+https://maaapp.com/support
 ```
 
 ### Marketing URL
 
 ```
-https://mamapp.com
+https://maaapp.com
 ```
 
 ### App Privacy Details (App Store Privacy Labels)

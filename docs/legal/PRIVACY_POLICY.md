@@ -5,7 +5,7 @@
 
 ---
 
-MAA Wellness Pvt. Ltd. ("MAA," "we," "us," or "our") operates the MAA - Meditation & Wellness mobile application (the "App") and the website at https://mamapp.com (the "Website"). This Privacy Policy describes how we collect, use, store, and protect your personal information when you use our services.
+MAA Wellness Pvt. Ltd. ("MAA," "we," "us," or "our") operates the MAA - Meditation & Wellness mobile application (the "App") and the website at https://maaapp.com (the "Website"). This Privacy Policy describes how we collect, use, store, and protect your personal information when you use our services.
 
 By using the App, you agree to the collection and use of information as described in this Privacy Policy. If you do not agree with the terms of this policy, please do not use our services.
 
@@ -152,12 +152,12 @@ You can update your name, email, and profile picture from the Profile > Edit Pro
 You can enable or disable push notifications from the App's Settings screen or from your device's system notification settings.
 
 ### 5.4 Export Your Data
-You can request a copy of your personal data by emailing privacy@mamapp.com. We will provide your data in a machine-readable format (JSON) within 30 days of your request.
+You can request a copy of your personal data by emailing privacy@maaapp.com. We will provide your data in a machine-readable format (JSON) within 30 days of your request.
 
 ### 5.5 Delete Your Account
 You can permanently delete your account and all associated data through:
 - **In-App**: Profile > Settings > Delete Account
-- **Email**: Send a request to privacy@mamapp.com
+- **Email**: Send a request to privacy@maaapp.com
 
 Upon account deletion:
 - Your profile, meditation data, course progress, habit data, bookmarks, and event registrations are permanently deleted from our active database within 7 days
@@ -188,7 +188,7 @@ You may withdraw your consent for data collection by deleting your account. Cert
 
 MAA is not directed at children under the age of 13. We do not knowingly collect personal information from children under 13 years of age.
 
-If you are a parent or guardian and believe that your child under 13 has provided us with personal information, please contact us at privacy@mamapp.com. We will take steps to delete such information from our systems within a reasonable timeframe.
+If you are a parent or guardian and believe that your child under 13 has provided us with personal information, please contact us at privacy@maaapp.com. We will take steps to delete such information from our systems within a reasonable timeframe.
 
 In compliance with the Children's Online Privacy Protection Act (COPPA) and equivalent provisions under Indian data protection law:
 - We do not knowingly solicit data from children under 13
@@ -213,7 +213,7 @@ The MAA mobile app does not use browser cookies. However:
 - **Firebase** uses instance IDs for push notification delivery
 - **Sentry** uses session identifiers for crash grouping
 
-The MAA website (https://mamapp.com) may use cookies for essential functionality (session management) and analytics. A separate cookie notice is provided on the website.
+The MAA website (https://maaapp.com) may use cookies for essential functionality (session management) and analytics. A separate cookie notice is provided on the website.
 
 ---
 
@@ -240,9 +240,9 @@ If you have any questions, concerns, or requests regarding this Privacy Policy o
 
 | Channel | Details |
 |---------|---------|
-| **Email** | privacy@mamapp.com |
-| **Support** | support@mamapp.com |
-| **Website** | https://mamapp.com/contact |
+| **Email** | privacy@maaapp.com |
+| **Support** | support@maaapp.com |
+| **Website** | https://maaapp.com/contact |
 | **Mailing Address** | MAA Wellness Pvt. Ltd., Pune, Maharashtra, India |
 
 We aim to respond to all privacy-related inquiries within 7 business days.

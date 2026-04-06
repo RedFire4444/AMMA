@@ -309,7 +309,6 @@ MAA-Project/
 │       └── admin-deploy.yml         # Deploy admin panel
 │
 ├── .gitignore
-├── CLAUDE.md                        # Project-specific AI assistant rules
 └── meditation_app_project_plan.pdf  # Original project plan
 ```
 
@@ -1885,7 +1884,7 @@ SENTRY_DSN=xxx
 
 # Client URLs
 ADMIN_URL=http://localhost:5173
-MOBILE_DEEP_LINK_PREFIX=mamapp://
+MOBILE_DEEP_LINK_PREFIX=maaapp://
 ```
 
 ---

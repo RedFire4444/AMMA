@@ -1,6 +1,6 @@
 # MAA Meditation App — API Reference
 
-> **Base URL**: `https://api.mamapp.com/api` (production) | `http://localhost:3000/api` (development)
+> **Base URL**: `https://api.maaapp.com/api` (production) | `http://localhost:3000/api` (development)
 > **Authentication**: Bearer token in Authorization header (JWT from Supabase Auth)
 > **Response Format**: `{ success: boolean, data: object|null, error: object|null, meta: object|null }`
 

@@ -306,7 +306,7 @@ Supabase does not have built-in alerting for all metrics. Set up external monito
 
 ### 3.1 R2 Storage Monitoring
 
-Monitor the Cloudflare R2 bucket used for media delivery (`cdn.mamapp.com`):
+Monitor the Cloudflare R2 bucket used for media delivery (`cdn.maaapp.com`):
 
 | Metric | Where to Find | Healthy Range |
 |--------|--------------|--------------|
@@ -328,7 +328,7 @@ If using Cloudflare for DNS and proxying:
 | Threat analytics | Blocked attacks, bot traffic |
 | Cache performance | Cached vs uncached requests |
 | SSL/TLS | Certificate validity, protocol versions |
-| Web Analytics | Page views on `mamapp.com` website (if applicable) |
+| Web Analytics | Page views on `maaapp.com` website (if applicable) |
 
 ### 3.3 CDN Cache Rules
 
@@ -432,10 +432,10 @@ Set up external uptime monitoring (e.g., UptimeRobot, Better Stack, or Checkly):
 
 | Check | URL | Interval | Timeout | Alert On |
 |-------|-----|----------|---------|----------|
-| API Health | `https://api.mamapp.com/api/health` | 1 minute | 10 seconds | 2 consecutive failures |
-| Admin Panel | `https://admin.mamapp.com` | 5 minutes | 15 seconds | 2 consecutive failures |
-| CDN Media | `https://cdn.mamapp.com/health-check.txt` | 5 minutes | 10 seconds | 3 consecutive failures |
-| Website | `https://mamapp.com` | 5 minutes | 15 seconds | 2 consecutive failures |
+| API Health | `https://api.maaapp.com/api/health` | 1 minute | 10 seconds | 2 consecutive failures |
+| Admin Panel | `https://admin.maaapp.com` | 5 minutes | 15 seconds | 2 consecutive failures |
+| CDN Media | `https://cdn.maaapp.com/health-check.txt` | 5 minutes | 10 seconds | 3 consecutive failures |
+| Website | `https://maaapp.com` | 5 minutes | 15 seconds | 2 consecutive failures |
 
 **Expected uptime target**: 99.9% (allows ~8.7 hours of downtime per year).
 

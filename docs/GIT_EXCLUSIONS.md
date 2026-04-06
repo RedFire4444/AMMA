@@ -9,8 +9,6 @@
 | Item | Reason |
 |------|--------|
 | `.env`, `.env.local`, `.env.*.local` | Contains API keys, secrets, credentials |
-| `CLAUDE.md` | Local-only AI assistant config, not part of the project |
-| `.claude/` | Local AI session data |
 | `node_modules/` | Dependencies — install via `npm ci` |
 | `dist/`, `build/` | Build artifacts — generated from source |
 | `.DS_Store`, `Thumbs.db`, `desktop.ini` | OS-generated files |
@@ -25,20 +23,10 @@
 
 | Rule | Details |
 |------|---------|
-| No AI attribution | No "Co-Authored-By" lines referencing any AI in commits |
-| No AI mentions | No references to Claude, GPT, or any AI tool in commit messages, PR descriptions, code comments, or any file pushed to GitHub |
 | No secrets | No API keys, tokens, passwords, or connection strings in any file |
 | No credentials files | No `credentials.json`, `serviceAccountKey.json`, or similar |
 | Only collaborator | **ninjacode911** — never add anyone else |
-
-## GitHub Account Rules
-
-| Rule | Details |
-|------|---------|
-| **Never add Claude as a collaborator** | Claude must never be added as a collaborator, contributor, or team member on any GitHub repository |
-| **Never mention Claude on GitHub** | No references to Claude in any commit message, PR title, PR description, issue, comment, wiki, README, or any other GitHub-visible content |
-| **No AI tool references on GitHub** | Do not mention any AI assistant (Claude, GPT, Copilot, Gemini, etc.) anywhere on GitHub — commits, PRs, issues, discussions, or file contents |
-| **Single collaborator only** | The only collaborator on all repos is **ninjacode911** — no exceptions |
+| Single collaborator only | The only collaborator on all repos is **ninjacode911** — no exceptions |
 
 ## Enforced Via
 

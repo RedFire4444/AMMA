@@ -52,7 +52,7 @@ You agree to provide accurate and complete information during registration and t
 You are responsible for:
 - Maintaining the confidentiality of your account credentials
 - All activities that occur under your account
-- Notifying us immediately at support@mamapp.com if you suspect unauthorized access to your account
+- Notifying us immediately at support@maaapp.com if you suspect unauthorized access to your account
 
 We are not liable for any loss or damage arising from unauthorized use of your account.
 
@@ -62,7 +62,7 @@ Each individual may maintain only one active account. Creating multiple accounts
 
 ### 2.4 Account Data
 
-Your account stores your meditation sessions, course progress, habit tracking data, bookmarks, event registrations, and subscription status. This data is personal to your account and is handled in accordance with our [Privacy Policy](https://mamapp.com/privacy).
+Your account stores your meditation sessions, course progress, habit tracking data, bookmarks, event registrations, and subscription status. This data is personal to your account and is handled in accordance with our [Privacy Policy](https://maaapp.com/privacy).
 
 ---
 
@@ -120,7 +120,7 @@ You will be charged the applicable subscription fee at the beginning of each ren
 
 You may cancel your subscription at any time through:
 - **In-App**: Profile > Subscription > Cancel Subscription
-- **Email**: support@mamapp.com
+- **Email**: support@maaapp.com
 
 Upon cancellation:
 - Your premium access continues until the end of the current billing period
@@ -130,7 +130,7 @@ Upon cancellation:
 
 ### 3.7 Refunds
 
-- Refund requests must be submitted within 7 days of the charge date by emailing support@mamapp.com
+- Refund requests must be submitted within 7 days of the charge date by emailing support@maaapp.com
 - Refunds are processed at our discretion and in accordance with Razorpay's refund policies
 - Partial-month or partial-year refunds are generally not provided
 - If the App experiences a significant service outage (more than 72 continuous hours), affected subscribers may be eligible for a pro-rata credit
@@ -256,7 +256,7 @@ You agree to indemnify, defend, and hold harmless MAA Wellness Pvt. Ltd., its of
 
 You may terminate your account at any time by:
 - Deleting your account through Profile > Settings > Delete Account
-- Emailing support@mamapp.com with your account deletion request
+- Emailing support@maaapp.com with your account deletion request
 
 ### 9.2 Termination by Us
 
@@ -281,7 +281,7 @@ Upon termination:
 
 ### 10.1 Informal Resolution
 
-Before filing any formal legal claim, you agree to first contact us at legal@mamapp.com to attempt to resolve the dispute informally. We will make good-faith efforts to resolve the dispute within 30 days.
+Before filing any formal legal claim, you agree to first contact us at legal@maaapp.com to attempt to resolve the dispute informally. We will make good-faith efforts to resolve the dispute within 30 days.
 
 ### 10.2 Arbitration
 
@@ -335,7 +335,7 @@ We may send notices to you through:
 - Email (to the address associated with your account)
 - Push notifications (if enabled)
 
-You may send notices to us at legal@mamapp.com.
+You may send notices to us at legal@maaapp.com.
 
 ### 12.7 Language
 
@@ -359,11 +359,11 @@ For questions, concerns, or feedback regarding these Terms:
 
 | Channel | Details |
 |---------|---------|
-| **General Support** | support@mamapp.com |
-| **Legal Inquiries** | legal@mamapp.com |
-| **Privacy Concerns** | privacy@mamapp.com |
+| **General Support** | support@maaapp.com |
+| **Legal Inquiries** | legal@maaapp.com |
+| **Privacy Concerns** | privacy@maaapp.com |
 | **Mailing Address** | MAA Wellness Pvt. Ltd., Pune, Maharashtra, India |
-| **Website** | https://mamapp.com |
+| **Website** | https://maaapp.com |
 
 We aim to respond to all inquiries within 7 business days.
 

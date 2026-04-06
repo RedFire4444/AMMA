@@ -250,7 +250,7 @@ RAZORPAY_KEY_SECRET=<test-secret>
 FIREBASE_PROJECT_ID=mam-meditation-staging
 FIREBASE_PRIVATE_KEY=<staging-private-key>
 SENTRY_DSN=<staging-sentry-dsn>
-ALLOWED_ORIGINS=https://staging-admin.mamapp.com
+ALLOWED_ORIGINS=https://staging-admin.maaapp.com
 
 # Mobile
 SUPABASE_URL=https://staging-xxxxxxxxxx.supabase.co
@@ -286,7 +286,7 @@ RAZORPAY_KEY_SECRET=<live-secret>
 FIREBASE_PROJECT_ID=mam-meditation-prod
 FIREBASE_PRIVATE_KEY=<production-private-key>
 SENTRY_DSN=<production-sentry-dsn>
-ALLOWED_ORIGINS=https://admin.mamapp.com,https://mamapp.com
+ALLOWED_ORIGINS=https://admin.maaapp.com,https://maaapp.com
 
 # Mobile
 SUPABASE_URL=https://prod-xxxxxxxxxx.supabase.co
@@ -318,7 +318,7 @@ VITE_SUPABASE_ANON_KEY=<production-anon-key>
 | Razorpay Keys | `rzp_test_*` | `rzp_test_*` | `rzp_live_*` |
 | Firebase Project | `mam-meditation-dev` | `mam-meditation-staging` | `mam-meditation-prod` |
 | Sentry | Optional (console) | Enabled | Enabled |
-| CORS Origins | `localhost:*` | `staging-admin.mamapp.com` | `admin.mamapp.com` |
+| CORS Origins | `localhost:*` | `staging-admin.maaapp.com` | `admin.maaapp.com` |
 | Real Payments | No | No | Yes |
 | Real Push Notifications | Optional | Yes (staging devices) | Yes (all users) |
 

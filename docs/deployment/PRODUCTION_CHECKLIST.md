@@ -160,7 +160,7 @@ Configure all environment variables for each service. Refer to [ENVIRONMENT_SETU
 - [ ] Deploy to Vercel (or chosen hosting platform)
 - [ ] Configure production environment variables in Vercel dashboard
 - [ ] Verify build succeeds with no errors
-- [ ] Configure custom domain (e.g., `admin.mamapp.com`)
+- [ ] Configure custom domain (e.g., `admin.maaapp.com`)
 - [ ] Verify SSL certificate is active (HTTPS)
 - [ ] Test admin login with production Supabase credentials
 - [ ] Verify all admin pages load and display data correctly:
@@ -180,11 +180,11 @@ Configure all environment variables for each service. Refer to [ENVIRONMENT_SETU
 
 ## 9. Custom Domain and SSL
 
-- [ ] Register domain `mamapp.com` (if not already done)
+- [ ] Register domain `maaapp.com` (if not already done)
 - [ ] Configure DNS records:
-  - [ ] `A` or `CNAME` for `mamapp.com` pointing to backend server
-  - [ ] `CNAME` for `admin.mamapp.com` pointing to Vercel
-  - [ ] `CNAME` for `cdn.mamapp.com` pointing to Cloudflare R2 (media delivery)
+  - [ ] `A` or `CNAME` for `maaapp.com` pointing to backend server
+  - [ ] `CNAME` for `admin.maaapp.com` pointing to Vercel
+  - [ ] `CNAME` for `cdn.maaapp.com` pointing to Cloudflare R2 (media delivery)
 - [ ] Enable SSL/TLS on all domains (Let's Encrypt or Cloudflare)
 - [ ] Verify HTTPS redirect is active (HTTP to HTTPS)
 - [ ] Test all URLs with SSL checker tool
@@ -215,7 +215,7 @@ Configure all environment variables for each service. Refer to [ENVIRONMENT_SETU
 
 - [ ] Create Cloudflare R2 bucket for media storage (audio, video, images)
 - [ ] Configure R2 bucket with public read access via custom domain
-- [ ] Set up `cdn.mamapp.com` as the custom domain for R2
+- [ ] Set up `cdn.maaapp.com` as the custom domain for R2
 - [ ] Upload all media assets to R2:
   - [ ] Course lesson audio files
   - [ ] Course lesson video files
