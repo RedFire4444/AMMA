@@ -1,4 +1,13 @@
 /**
+ * File: database.test.js
+ *
+ * Description: Database connection and basic functionality tests. Validates Supabase connectivity,
+ * verifies that all expected tables exist, and exercises basic CRUD operations against the database.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
+/**
  * Database Connection and Basic Functionality Tests
  * Tests Supabase connection, table creation, and basic operations
  */

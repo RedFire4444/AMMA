@@ -1,3 +1,11 @@
+/**
+ * File: ContentPage.tsx
+ *
+ * Description: Content directory management for bhajans, meditations, and satsangs.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { FolderOpen, Upload, Grid, List } from 'lucide-react';
 
 export function ContentPage() {

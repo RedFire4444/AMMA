@@ -1,3 +1,11 @@
+/**
+ * File: courses.controller.ts
+ *
+ * Description: Manages course CRUD operations: listing with filters, detail with lessons, enrollment, progress tracking, and reviews.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Request, Response } from 'express';
 import { supabase } from '../services/supabase.service';
 import { success, error } from '../utils/apiResponse';

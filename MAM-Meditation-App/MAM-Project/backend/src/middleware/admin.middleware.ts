@@ -1,3 +1,13 @@
+/**
+ * File: admin.middleware.ts
+ *
+ * Description: Express middleware that enforces admin-level authorization. Verifies the
+ * authenticated user has an 'admin' or 'super_admin' role in the database before allowing
+ * access to protected admin routes.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Request, Response, NextFunction } from 'express';
 import { supabase } from '../services/supabase.service';
 

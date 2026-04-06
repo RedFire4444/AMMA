@@ -1,3 +1,12 @@
+/**
+ * File: content.service.ts
+ *
+ * Description: Content asset service for listing, uploading, and deleting media files
+ * from Supabase storage buckets.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { supabase } from './supabase';
 
 export interface ContentAsset {

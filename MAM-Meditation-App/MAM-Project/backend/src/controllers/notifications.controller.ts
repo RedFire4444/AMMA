@@ -1,3 +1,11 @@
+/**
+ * File: notifications.controller.ts
+ *
+ * Description: Handles notification endpoints: listing user notifications with unread count, ordered by most recent.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Request, Response } from 'express';
 import { supabase } from '../services/supabase.service';
 import { success, error } from '../utils/apiResponse';

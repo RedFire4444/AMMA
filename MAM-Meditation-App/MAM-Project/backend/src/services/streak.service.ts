@@ -1,3 +1,13 @@
+/**
+ * File: streak.service.ts
+ *
+ * Description: Calculates and retrieves habit streak data by invoking Supabase RPC functions.
+ * Supports per-habit streak calculation, aggregated user streaks across all habit types,
+ * and comprehensive habit statistics including completion rates and weekly/monthly totals.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { supabase } from './supabase.service';
 
 interface StreakResult {

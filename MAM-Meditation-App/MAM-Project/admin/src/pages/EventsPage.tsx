@@ -1,3 +1,11 @@
+/**
+ * File: EventsPage.tsx
+ *
+ * Description: Event management page with CRUD, registration tracking, and status indicators.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import {
   Plus,
   Calendar,

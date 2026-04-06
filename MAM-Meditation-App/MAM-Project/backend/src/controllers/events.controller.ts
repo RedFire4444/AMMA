@@ -1,3 +1,11 @@
+/**
+ * File: events.controller.ts
+ *
+ * Description: Manages event endpoints: listing upcoming events, user registration with capacity checks, and stream URL access for registered users.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Request, Response } from 'express';
 import { supabase } from '../services/supabase.service';
 import { success, error } from '../utils/apiResponse';

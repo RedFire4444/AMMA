@@ -1,3 +1,11 @@
+/**
+ * File: api.ts
+ *
+ * Description: Generic CRUD helpers for Supabase table operations with error handling.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { supabase } from './supabase';
 
 /**

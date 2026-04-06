@@ -1,3 +1,11 @@
+/**
+ * File: NotificationsPage.tsx
+ *
+ * Description: Notification dispatch page for broadcast and targeted push notifications.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { useState } from 'react';
 import {
   Send,
@@ -256,7 +264,7 @@ export function NotificationsPage() {
                 type="text"
                 value={composeDeepLink}
                 onChange={(e) => setComposeDeepLink(e.target.value)}
-                placeholder="mam://courses/foundations"
+                placeholder="maa://courses/foundations"
                 className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>

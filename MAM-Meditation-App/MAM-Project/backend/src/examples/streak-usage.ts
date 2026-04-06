@@ -1,4 +1,14 @@
 /**
+ * File: streak-usage.ts
+ *
+ * Description: Reference examples demonstrating usage of the Supabase service for streak
+ * calculations, habit logging, meditation session creation, and user profile operations.
+ * Includes an example Express route handler for integrating streaks into API endpoints.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
+/**
  * Example usage of Supabase service and streak functions
  * This file demonstrates how to use the implemented features
  */

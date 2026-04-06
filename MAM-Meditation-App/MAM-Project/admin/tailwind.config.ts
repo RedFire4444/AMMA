@@ -1,3 +1,13 @@
+/**
+ * File: tailwind.config.ts
+ *
+ * Description: Tailwind CSS configuration for the admin panel. Defines the custom
+ * color palette (forest greens), typography (Inter + Playfair Display), and content
+ * paths for class scanning.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import type { Config } from 'tailwindcss';
 
 const config: Config = {

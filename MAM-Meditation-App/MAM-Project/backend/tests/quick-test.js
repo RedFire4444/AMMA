@@ -1,4 +1,13 @@
 /**
+ * File: quick-test.js
+ *
+ * Description: Quick smoke test for the database setup. Checks Supabase connectivity, verifies
+ * core tables exist, validates streak functions, and confirms RLS policies are active.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
+/**
  * Quick Database Test
  * Fast test to check if your database is working
  */

@@ -1,3 +1,11 @@
+/**
+ * File: subscriptions.controller.ts
+ *
+ * Description: Manages subscription endpoints: fetching active subscription status with premium check, and cancelling subscriptions at period end.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Request, Response } from 'express';
 import { supabase } from '../services/supabase.service';
 import { success, error } from '../utils/apiResponse';

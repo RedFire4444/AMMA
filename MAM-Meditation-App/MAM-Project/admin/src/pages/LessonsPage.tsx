@@ -1,3 +1,11 @@
+/**
+ * File: LessonsPage.tsx
+ *
+ * Description: Lesson management page nested under courses with media upload and reordering.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { useState } from 'react';
 import {
   Plus,

@@ -1,3 +1,11 @@
+/**
+ * File: ProtectedRoute.tsx
+ *
+ * Description: Authentication guard that redirects unauthenticated users to the login page.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { useEffect, useState } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { supabase } from '../../services/supabase';

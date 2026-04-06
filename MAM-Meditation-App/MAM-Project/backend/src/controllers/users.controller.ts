@@ -1,3 +1,11 @@
+/**
+ * File: users.controller.ts
+ *
+ * Description: Handles user profile endpoints: fetching the authenticated user's profile and updating allowed profile fields.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Request, Response } from 'express';
 import { supabase } from '../services/supabase.service';
 import { success, error } from '../utils/apiResponse';

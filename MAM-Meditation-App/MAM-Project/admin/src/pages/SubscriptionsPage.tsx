@@ -1,3 +1,12 @@
+/**
+ * File: SubscriptionsPage.tsx
+ *
+ * Description: Subscription analytics dashboard with revenue charts, conversion funnel,
+ * and plan distribution.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { CreditCard, TrendingUp, Users, DollarSign, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
 const MOCK_STATS = [

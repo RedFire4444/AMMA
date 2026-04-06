@@ -1,3 +1,11 @@
+/**
+ * File: AdminLayout.tsx
+ *
+ * Description: Admin layout wrapper combining sidebar navigation with content area.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Outlet, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 

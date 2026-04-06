@@ -1,3 +1,12 @@
+/**
+ * File: auth.routes.ts
+ *
+ * Description: Defines authentication API routes for phone OTP and email-based login/signup.
+ * Applies rate limiting and Zod validation to all auth endpoints, and includes a health check route.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Router } from 'express';
 import { requestOTP, verifyOTP, emailLogin, emailSignup } from '../controllers/auth.controller';
 import { validate } from '../middleware/validator.middleware';

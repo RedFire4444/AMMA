@@ -1,3 +1,12 @@
+/**
+ * File: users.service.ts
+ *
+ * Description: User management service for listing, updating, and deleting user profiles
+ * from the Supabase profiles table in the admin panel.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { fetchFromTable, updateInTable, deleteFromTable } from './api';
 
 export interface User {

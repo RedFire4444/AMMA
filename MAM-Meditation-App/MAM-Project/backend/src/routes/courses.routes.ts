@@ -1,3 +1,12 @@
+/**
+ * File: courses.routes.ts
+ *
+ * Description: Defines API routes for the courses module including listing, enrollment,
+ * progress tracking, and reviews. All routes require authentication via JWT token middleware.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Router } from 'express';
 import {
   listCourses,

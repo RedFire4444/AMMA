@@ -1,3 +1,11 @@
+/**
+ * File: Sidebar.tsx
+ *
+ * Description: Navigation sidebar with route links, active state highlighting, and logout button.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -51,7 +59,7 @@ export function Sidebar() {
         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/20 font-heading text-lg font-bold">
           M
         </div>
-        <span className="font-heading text-xl font-semibold tracking-wide">MAM Admin</span>
+        <span className="font-heading text-xl font-semibold tracking-wide">MAA Admin</span>
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 py-4">

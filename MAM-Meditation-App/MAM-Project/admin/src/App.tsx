@@ -1,3 +1,12 @@
+/**
+ * File: App.tsx
+ *
+ * Description: Root application component with React Router configuration. Defines all admin
+ * routes with authentication protection.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from './components/layout/ProtectedRoute';
 import { AdminLayout } from './components/layout/AdminLayout';

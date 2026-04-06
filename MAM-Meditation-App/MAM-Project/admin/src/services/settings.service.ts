@@ -1,3 +1,12 @@
+/**
+ * File: settings.service.ts
+ *
+ * Description: Application settings service for reading and updating key-value configuration
+ * entries organized by category (general, security, appearance, localization, database) via Supabase.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { supabase } from './supabase';
 
 export interface AppSettings {

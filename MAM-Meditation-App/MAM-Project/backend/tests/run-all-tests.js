@@ -1,4 +1,13 @@
 /**
+ * File: run-all-tests.js
+ *
+ * Description: Sequential test runner that executes all database test suites (connection, streaks,
+ * RLS, auth middleware) and produces an aggregated pass/fail summary report.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
+/**
  * Test Runner - Runs all database tests in sequence
  * Use this to test your complete database setup
  */

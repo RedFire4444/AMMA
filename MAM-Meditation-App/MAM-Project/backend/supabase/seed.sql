@@ -1,5 +1,5 @@
 -- =====================================================
--- MAM Meditation App — Seed Data
+-- MAA Meditation App — Seed Data
 -- Development sample data: courses, lessons, quotes, events
 -- Run AFTER all migrations (001-020) have been applied
 -- =====================================================
@@ -188,7 +188,7 @@ VALUES
   ('Om Namah Shivaya — Full Chant', 'A 15-minute continuous chanting of Om Namah Shivaya, perfect for morning or evening practice.', 'Pandit Raghavendra', 'https://example.com/content/om-namah-shivaya.mp3', NULL, 900, 'chanting', ARRAY['shiva', 'mantra', 'morning', 'beginner'], 'hi', false),
   ('Gayatri Mantra — 108 Times', 'The sacred Gayatri Mantra chanted 108 times. Known to purify the mind and awaken higher consciousness.', 'Pandit Raghavendra', 'https://example.com/content/gayatri-108.mp3', NULL, 1800, 'chanting', ARRAY['gayatri', 'vedic', 'mantra', 'purification'], 'sa', false),
   ('Body Scan Meditation (20 min)', 'A guided body scan to release tension held in muscles and arrive fully in the present moment.', 'Ananya Sharma', 'https://example.com/content/body-scan.mp3', NULL, 1200, 'meditation', ARRAY['body scan', 'relaxation', 'beginner'], 'en', false),
-  ('Hanuman Chalisa — Devotional', 'The complete Hanuman Chalisa, sung in a devotional style with instrumental accompaniment.', 'Bhajan Group MAM', 'https://example.com/content/hanuman-chalisa.mp3', NULL, 780, 'bhajan', ARRAY['hanuman', 'bhajan', 'devotion', 'hindi'], 'hi', false),
+  ('Hanuman Chalisa — Devotional', 'The complete Hanuman Chalisa, sung in a devotional style with instrumental accompaniment.', 'Bhajan Group MAA', 'https://example.com/content/hanuman-chalisa.mp3', NULL, 780, 'bhajan', ARRAY['hanuman', 'bhajan', 'devotion', 'hindi'], 'hi', false),
   ('Who Am I? — Ramana Maharshi Satsang', 'An audio exploration of Ramana Maharshi''s Self-inquiry method — the path of Jnana Yoga.', 'Guru Ananda', 'https://example.com/content/who-am-i.mp3', NULL, 2400, 'satsang', ARRAY['self-inquiry', 'vedanta', 'advanced', 'jnana'], 'en', true),
-  ('Sleep Bhajan — Peaceful Night', 'Soft bhajans composed to ease the mind into restful sleep. Best listened to with eyes closed.', 'Bhajan Group MAM', 'https://example.com/content/sleep-bhajan.mp3', NULL, 3600, 'bhajan', ARRAY['sleep', 'night', 'relaxation', 'soft'], 'hi', false)
+  ('Sleep Bhajan — Peaceful Night', 'Soft bhajans composed to ease the mind into restful sleep. Best listened to with eyes closed.', 'Bhajan Group MAA', 'https://example.com/content/sleep-bhajan.mp3', NULL, 3600, 'bhajan', ARRAY['sleep', 'night', 'relaxation', 'soft'], 'hi', false)
 ON CONFLICT DO NOTHING;

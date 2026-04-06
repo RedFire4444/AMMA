@@ -1,3 +1,11 @@
+/**
+ * File: LoginPage.tsx
+ *
+ * Description: Admin login page with email/password authentication via Supabase.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../services/auth.service';
@@ -32,7 +40,7 @@ export function LoginPage() {
             M
           </div>
           <h1 className="font-heading text-2xl font-bold text-text-primary">
-            MAM Admin Panel
+            MAA Admin Panel
           </h1>
           <p className="mt-2 text-sm text-text-secondary">
             Sign in to manage your meditation app
@@ -55,7 +63,7 @@ export function LoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@mamapp.com"
+              placeholder="admin@maaapp.com"
               required
               className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
             />

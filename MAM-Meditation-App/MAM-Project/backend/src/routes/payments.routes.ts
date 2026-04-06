@@ -1,3 +1,13 @@
+/**
+ * File: payments.routes.ts
+ *
+ * Description: Defines API routes for payment processing including order creation, payment
+ * verification, and payment history retrieval. Applies rate limiting and validation to
+ * protect against abuse.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Router } from 'express';
 import { createOrder, verifyPayment, getPaymentHistory } from '../controllers/payments.controller';
 import { authenticateToken } from '../middleware/auth.middleware';

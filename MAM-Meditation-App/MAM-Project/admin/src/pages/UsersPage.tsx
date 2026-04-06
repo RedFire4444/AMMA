@@ -1,3 +1,11 @@
+/**
+ * File: UsersPage.tsx
+ *
+ * Description: User management page with search, filter, and user data table.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Users, Search, Filter } from 'lucide-react';
 
 export function UsersPage() {

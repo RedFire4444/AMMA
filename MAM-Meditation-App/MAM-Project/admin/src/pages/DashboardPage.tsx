@@ -1,3 +1,11 @@
+/**
+ * File: DashboardPage.tsx
+ *
+ * Description: Admin dashboard with analytics overview cards and key metrics.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Users, BookOpen, Calendar, TrendingUp } from 'lucide-react';
 
 interface StatCardProps {

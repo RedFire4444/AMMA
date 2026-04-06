@@ -1,3 +1,11 @@
+/**
+ * File: QuotesPage.tsx
+ *
+ * Description: Daily quotes management with CRUD, date scheduling, and category filtering.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { useState } from 'react';
 import {
   Plus,

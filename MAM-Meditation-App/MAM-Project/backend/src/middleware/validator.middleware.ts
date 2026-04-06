@@ -1,3 +1,13 @@
+/**
+ * File: validator.middleware.ts
+ *
+ * Description: Generic Zod-based request validation middleware. Accepts a Zod schema and a
+ * validation source (body, params, or query), parses the incoming data, and returns structured
+ * validation error responses with field-level details on failure.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Request, Response, NextFunction } from 'express';
 import { ZodSchema, ZodError } from 'zod';
 

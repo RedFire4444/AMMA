@@ -1,3 +1,13 @@
+/**
+ * File: auth.middleware.ts
+ *
+ * Description: TypeScript authentication middleware that verifies Supabase-issued JWT tokens.
+ * Extracts the Bearer token from the Authorization header, validates it against Supabase,
+ * and attaches the authenticated user to the Express request object.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Request, Response, NextFunction } from 'express';
 import { createClient } from '@supabase/supabase-js';
 

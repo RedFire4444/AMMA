@@ -1,3 +1,11 @@
+/**
+ * File: sessions.controller.ts
+ *
+ * Description: Handles meditation session logging. Creates session records and auto-logs a meditation habit entry for streak tracking.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Request, Response } from 'express';
 import { supabase } from '../services/supabase.service';
 import { success, error } from '../utils/apiResponse';

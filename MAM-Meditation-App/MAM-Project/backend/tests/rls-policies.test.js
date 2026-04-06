@@ -1,4 +1,13 @@
 /**
+ * File: rls-policies.test.js
+ *
+ * Description: Row Level Security (RLS) policy tests. Verifies that RLS is enabled on protected
+ * tables, service role bypasses RLS, anonymous clients are blocked, and cross-user access is prevented.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
+/**
  * Row Level Security (RLS) Policies Tests
  * Tests that users can only access their own data
  */

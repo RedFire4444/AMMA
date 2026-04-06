@@ -1,3 +1,12 @@
+/**
+ * File: quotes.service.ts
+ *
+ * Description: Daily quote CRUD service for managing inspirational quotes including
+ * creation, scheduling by display date, and activation toggling via Supabase.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { fetchFromTable, insertIntoTable, updateInTable, deleteFromTable } from './api';
 
 export interface DailyQuote {

@@ -1,3 +1,13 @@
+/**
+ * File: config.ts
+ *
+ * Description: Centralizes application configuration by loading environment variables via dotenv.
+ * Exports a typed config object for Supabase credentials and server settings, and validates
+ * that all required environment variables are present at startup.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import dotenv from 'dotenv';
 
 dotenv.config();

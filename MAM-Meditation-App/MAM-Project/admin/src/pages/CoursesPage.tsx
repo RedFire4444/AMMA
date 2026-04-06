@@ -1,3 +1,12 @@
+/**
+ * File: CoursesPage.tsx
+ *
+ * Description: Course management page with CRUD operations, publish/unpublish toggle,
+ * and data table.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { useState } from 'react';
 import {
   Plus,

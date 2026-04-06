@@ -1,3 +1,12 @@
+/**
+ * File: events.routes.ts
+ *
+ * Description: Defines API routes for live events including listing upcoming events,
+ * registering for events, and retrieving stream URLs. All routes require authentication.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Router } from 'express';
 import {
   listEvents,

@@ -1,3 +1,11 @@
+/**
+ * File: server.ts
+ *
+ * Description: Express server entry point. Configures middleware stack (helmet, CORS, rate-limiting, logging) and mounts all API routes.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import 'dotenv/config'; // ⚠️ MUST be first — loads .env before any other imports read process.env
 import express from 'express';
 import helmet from 'helmet';

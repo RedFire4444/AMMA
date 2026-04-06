@@ -1,3 +1,13 @@
+/**
+ * File: habit.validator.ts
+ *
+ * Description: Zod validation schemas for habit tracking endpoints. Validates habit log entries
+ * with supported habit types (meditation, cold shower, early wakeup, exercise), optional
+ * duration and mood/energy ratings, and daily performance rating submissions.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { z } from 'zod';
 
 export const logHabitSchema = z.object({

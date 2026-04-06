@@ -1,3 +1,12 @@
+/**
+ * File: auth.validator.test.ts
+ *
+ * Description: Unit tests for Zod-based authentication validators. Verifies that requestOTPSchema
+ * and verifyOTPSchema correctly accept valid inputs and reject malformed phone numbers and OTP codes.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { requestOTPSchema, verifyOTPSchema } from '../src/validators/auth.validator';
 
 describe('Auth Validators (Zod schemas)', () => {

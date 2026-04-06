@@ -1,3 +1,13 @@
+/**
+ * File: user.validator.ts
+ *
+ * Description: Zod validation schemas for user-related endpoints. Validates user profile
+ * updates (name, avatar, date of birth, meditation goals, language, notifications) with
+ * strict mode, and UUID format for user ID route parameters.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { z } from 'zod';
 
 export const updateUserSchema = z.object({

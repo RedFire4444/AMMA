@@ -1,4 +1,14 @@
 /**
+ * File: streak-functions.test.js
+ *
+ * Description: Tests for PostgreSQL streak calculation functions. Validates calculate_streak,
+ * get_user_streaks, and get_habit_stats with scenarios including no data, consecutive days,
+ * broken streaks, and independent habit types.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
+/**
  * Streak Functions Tests
  * Tests the PostgreSQL functions for calculating habit streaks
  */

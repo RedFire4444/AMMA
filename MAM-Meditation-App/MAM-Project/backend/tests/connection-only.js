@@ -1,4 +1,13 @@
 /**
+ * File: connection-only.js
+ *
+ * Description: Basic Supabase connectivity test using only the anonymous key. Verifies that
+ * environment variables are set and that the client can reach the Supabase instance.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
+/**
  * Basic Connection Test - Uses ANON key only
  * Tests if we can connect to Supabase at all
  */

@@ -1,3 +1,13 @@
+/**
+ * File: supabase.service.ts
+ *
+ * Description: Initializes the Supabase client with the service role key for backend operations
+ * that bypass RLS. Provides a singleton SupabaseService wrapper with error-handled query
+ * execution and RPC function calls.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 // Supabase configuration

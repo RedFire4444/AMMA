@@ -1,3 +1,12 @@
+/**
+ * File: notifications.service.ts
+ *
+ * Description: Notification CRUD service for managing push notification records
+ * including creation, scheduling, and delivery tracking via Supabase.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { fetchFromTable, insertIntoTable, updateInTable, deleteFromTable } from './api';
 
 export interface Notification {

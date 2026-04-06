@@ -1,3 +1,13 @@
+/**
+ * File: storage.service.ts
+ *
+ * Description: Provides file management operations for Supabase Storage buckets, including
+ * media upload with upsert support, signed URL generation for private file access, and
+ * file deletion.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { supabase } from './supabase.service';
 
 interface UploadResult {

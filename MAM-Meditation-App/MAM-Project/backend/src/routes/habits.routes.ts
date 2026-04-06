@@ -1,3 +1,13 @@
+/**
+ * File: habits.routes.ts
+ *
+ * Description: Defines API routes for the habits and wellness tracking module. Covers habit logging,
+ * streak tracking, daily check-ins, vision board management, day journey entries, and weekly
+ * performance ratings. All routes require authentication.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Router } from 'express';
 import {
   getAllHabits,

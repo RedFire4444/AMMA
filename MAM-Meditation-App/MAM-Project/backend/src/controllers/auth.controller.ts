@@ -1,3 +1,11 @@
+/**
+ * File: auth.controller.ts
+ *
+ * Description: Handles authentication endpoints: phone OTP request/verify, email login/signup. Creates user profiles on first login.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Request, Response } from 'express';
 import { supabase } from '../services/supabase.service';
 import { success, error } from '../utils/apiResponse';

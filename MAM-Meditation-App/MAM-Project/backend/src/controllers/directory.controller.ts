@@ -1,3 +1,11 @@
+/**
+ * File: directory.controller.ts
+ *
+ * Description: Handles content directory browsing with full-text search, category filtering, pagination, bookmarking, and view tracking.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Request, Response } from 'express';
 import { supabase } from '../services/supabase.service';
 import { success, error } from '../utils/apiResponse';

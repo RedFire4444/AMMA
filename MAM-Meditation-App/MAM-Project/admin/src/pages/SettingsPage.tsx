@@ -1,3 +1,11 @@
+/**
+ * File: SettingsPage.tsx
+ *
+ * Description: Admin panel settings and configuration page.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Settings, Shield, Palette, Globe, Database } from 'lucide-react';
 
 interface SettingsSectionProps {

@@ -1,3 +1,13 @@
+/**
+ * File: rateLimiter.middleware.ts
+ *
+ * Description: Configures multiple express-rate-limit instances for different API contexts:
+ * general API (100 req/min), auth attempts (5 per 15 min), payment operations (5 per 10 min),
+ * and OTP requests (3 per 10 min per phone). Prevents abuse and brute-force attacks.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import rateLimit from 'express-rate-limit';
 
 // General API rate limiter: 100 requests per minute per IP

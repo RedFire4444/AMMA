@@ -1,3 +1,12 @@
+/**
+ * File: courses.service.ts
+ *
+ * Description: Course CRUD service for creating, reading, updating, and deleting
+ * meditation courses via Supabase.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { fetchFromTable, insertIntoTable, updateInTable, deleteFromTable } from './api';
 
 export interface Course {

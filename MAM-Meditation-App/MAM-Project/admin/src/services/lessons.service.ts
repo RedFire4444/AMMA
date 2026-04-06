@@ -1,3 +1,12 @@
+/**
+ * File: lessons.service.ts
+ *
+ * Description: Lesson CRUD service for managing course lessons including ordering,
+ * creation, updates, and deletion via Supabase.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { fetchFromTable, insertIntoTable, updateInTable, deleteFromTable } from './api';
 
 export interface Lesson {

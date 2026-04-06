@@ -1,3 +1,12 @@
+/**
+ * File: dashboard.service.ts
+ *
+ * Description: Dashboard analytics service that aggregates user, course, and event
+ * counts from Supabase for the admin overview.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { supabase } from './supabase';
 
 export interface DashboardStats {

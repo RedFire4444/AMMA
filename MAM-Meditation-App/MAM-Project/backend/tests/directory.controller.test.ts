@@ -1,3 +1,12 @@
+/**
+ * File: directory.controller.test.ts
+ *
+ * Description: Unit tests for the content directory controller. Covers browsing with search and
+ * category filters, bookmark creation and removal, view tracking, and pagination edge cases.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Request, Response } from 'express';
 import {
   browseDirectory,
@@ -507,8 +516,8 @@ describe('Directory Controller', () => {
             title: 'Morning Meditation',
             description: 'A calming start to your day',
             instructor_name: 'Swami Ananda',
-            media_url: 'https://cdn.mam.org/audio/morning.mp3',
-            thumbnail_url: 'https://cdn.mam.org/img/morning.jpg',
+            media_url: 'https://cdn.maa.org/audio/morning.mp3',
+            thumbnail_url: 'https://cdn.maa.org/img/morning.jpg',
             duration_seconds: 600,
             category: 'meditation',
             tags: ['morning', 'calm'],
@@ -527,8 +536,8 @@ describe('Directory Controller', () => {
             title: 'Evening Bhajan',
             description: 'Sacred evening chanting',
             instructor_name: 'Devi Ma',
-            media_url: 'https://cdn.mam.org/audio/bhajan.mp3',
-            thumbnail_url: 'https://cdn.mam.org/img/bhajan.jpg',
+            media_url: 'https://cdn.maa.org/audio/bhajan.mp3',
+            thumbnail_url: 'https://cdn.maa.org/img/bhajan.jpg',
             duration_seconds: 900,
             category: 'bhajan',
             tags: ['evening', 'bhajan'],

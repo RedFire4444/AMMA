@@ -1,3 +1,12 @@
+/**
+ * File: payments.controller.test.ts
+ *
+ * Description: Unit tests for the payments controller. Validates order creation for monthly and
+ * annual plans, payment verification with signature checks, and payment history retrieval.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Request, Response } from 'express';
 import {
   createOrder,

@@ -1,3 +1,11 @@
+/**
+ * File: auth.service.ts
+ *
+ * Description: Admin authentication service with login, logout, and session management.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { supabase } from './supabase';
 
 export async function login(email: string, password: string) {

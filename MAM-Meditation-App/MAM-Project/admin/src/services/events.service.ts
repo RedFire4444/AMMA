@@ -1,3 +1,12 @@
+/**
+ * File: events.service.ts
+ *
+ * Description: Event CRUD service for creating, reading, updating, and deleting
+ * meditation events and workshops via Supabase.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { fetchFromTable, insertIntoTable, updateInTable, deleteFromTable } from './api';
 
 export interface MeditationEvent {

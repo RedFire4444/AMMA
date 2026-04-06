@@ -1,3 +1,12 @@
+/**
+ * File: auth.validator.ts
+ *
+ * Description: Zod validation schemas for authentication endpoints. Validates phone number
+ * format for OTP requests and enforces exact 6-digit OTP length for verification.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { z } from 'zod';
 
 export const requestOTPSchema = z.object({

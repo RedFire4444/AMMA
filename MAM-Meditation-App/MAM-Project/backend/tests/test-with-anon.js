@@ -1,4 +1,13 @@
 /**
+ * File: test-with-anon.js
+ *
+ * Description: Tests Supabase capabilities using only the anonymous key. Probes basic connectivity
+ * and system function access to identify which operations require the service role key.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
+/**
  * Test what we can do with ANON key only
  * This shows what's working and what needs SERVICE_ROLE_KEY
  */

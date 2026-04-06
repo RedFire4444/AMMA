@@ -1,3 +1,12 @@
+/**
+ * File: directory.routes.ts
+ *
+ * Description: Defines API routes for the content directory, enabling users to browse, search,
+ * bookmark, and track views on meditation content items. All routes are protected by authentication.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Router } from 'express';
 import {
   browseDirectory,

@@ -1,3 +1,12 @@
+/**
+ * File: courses.controller.test.ts
+ *
+ * Description: Unit tests for the courses controller. Covers listing, fetching, enrollment,
+ * review retrieval, and review submission with mocked Supabase queries and pagination validation.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Request, Response } from 'express';
 import {
   listCourses,

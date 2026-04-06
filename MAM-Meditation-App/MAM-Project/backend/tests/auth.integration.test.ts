@@ -1,3 +1,12 @@
+/**
+ * File: auth.integration.test.ts
+ *
+ * Description: Integration tests for the authentication API layer. Validates OTP request and
+ * verification endpoints using supertest against an Express app with mocked Supabase services.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import request from 'supertest';
 import express from 'express';
 import authRoutes from '../src/routes/auth.routes';

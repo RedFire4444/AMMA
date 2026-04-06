@@ -1,3 +1,13 @@
+/**
+ * File: subscription.middleware.ts
+ *
+ * Description: Express middleware that gates routes behind a premium subscription. Checks the
+ * database for an active or trialing subscription with a valid expiration date before allowing
+ * the request to proceed.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Request, Response, NextFunction } from 'express';
 import { supabase } from '../services/supabase.service';
 import { error } from '../utils/apiResponse';

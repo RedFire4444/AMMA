@@ -1,3 +1,13 @@
+/**
+ * File: payment.service.ts
+ *
+ * Description: Handles Razorpay payment order creation, signature verification (HMAC SHA256),
+ * and subscription lifecycle management. Processes verified payments by updating records and
+ * upserting user subscriptions with calculated billing periods.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import crypto from 'crypto';
 import { supabase } from './supabase.service';
 

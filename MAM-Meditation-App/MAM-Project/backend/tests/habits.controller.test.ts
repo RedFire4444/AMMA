@@ -1,3 +1,12 @@
+/**
+ * File: habits.controller.test.ts
+ *
+ * Description: Unit tests for the habits controller. Covers retrieving habit streaks with heatmap
+ * data, logging habit entries, and fetching per-habit streak statistics with defaults.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Request, Response } from 'express';
 import {
   getAllHabits,

@@ -1,3 +1,11 @@
+/**
+ * File: habits.controller.ts
+ *
+ * Description: Handles habit tracking endpoints: logging completions, streak calculations, vision board CRUD, day journey entries, and performance ratings.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Request, Response } from 'express';
 import { supabase } from '../services/supabase.service';
 import { success, error } from '../utils/apiResponse';

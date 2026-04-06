@@ -1,3 +1,11 @@
+/**
+ * File: home.controller.ts
+ *
+ * Description: Builds the home screen feed by aggregating daily quote, trending courses, upcoming events, user greeting, and meditation streak data.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Request, Response } from 'express';
 import { supabase } from '../services/supabase.service';
 import { success, error } from '../utils/apiResponse';

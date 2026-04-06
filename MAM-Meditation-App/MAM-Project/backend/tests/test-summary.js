@@ -1,4 +1,13 @@
 /**
+ * File: test-summary.js
+ *
+ * Description: Prints a human-readable summary of the current database test status, listing
+ * working components, pending requirements, and next steps to complete the backend setup.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
+/**
  * Test Summary - What we've verified so far
  */
 

@@ -1,3 +1,12 @@
+/**
+ * File: index.ts
+ *
+ * Description: Central route aggregator that mounts all feature-specific route modules under
+ * their respective API path prefixes. Acts as the single entry point for all backend routes.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Router } from 'express';
 import authRoutes from './auth.routes';
 import usersRoutes from './users.routes';

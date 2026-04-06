@@ -1,3 +1,12 @@
+/**
+ * File: subscriptions.routes.ts
+ *
+ * Description: Defines API routes for subscription management including checking current
+ * subscription status and cancelling active subscriptions. All routes require authentication.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Router } from 'express';
 import { getSubscriptionStatus, cancelSubscription } from '../controllers/subscriptions.controller';
 import { authenticateToken } from '../middleware/auth.middleware';

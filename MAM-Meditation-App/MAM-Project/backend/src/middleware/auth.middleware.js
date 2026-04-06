@@ -1,3 +1,13 @@
+/**
+ * File: auth.middleware.js
+ *
+ * Description: JavaScript (CommonJS) version of the Supabase authentication middleware.
+ * Verifies Supabase-issued JWT tokens from the Authorization header and attaches the
+ * authenticated user object to the request.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 const { createClient } = require('@supabase/supabase-js');
 
 const supabaseUrl = process.env.SUPABASE_URL;

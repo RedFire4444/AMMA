@@ -1,3 +1,13 @@
+/**
+ * File: logger.ts
+ *
+ * Description: Lightweight logging utility that wraps console methods with timestamped,
+ * level-prefixed output. Serves as a drop-in placeholder until winston is integrated
+ * for production-grade log transports.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 // Simple logger utility
 // Note: winston is not installed yet. Using console wrappers for now.
 // Install with: npm install winston @types/winston

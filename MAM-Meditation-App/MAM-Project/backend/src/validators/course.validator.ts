@@ -1,3 +1,13 @@
+/**
+ * File: course.validator.ts
+ *
+ * Description: Zod validation schemas for course-related endpoints. Defines rules for course
+ * filtering (category, difficulty, premium status), review creation with rating constraints,
+ * and progress tracking with lesson completion data.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { z } from 'zod';
 
 export const courseFiltersSchema = z.object({

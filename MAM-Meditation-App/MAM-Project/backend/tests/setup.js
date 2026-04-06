@@ -1,4 +1,13 @@
 /**
+ * File: setup.js
+ *
+ * Description: Global Jest test setup file. Configures extended timeouts for database operations,
+ * filters console output to show only status indicators, and provides shared test utility helpers.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
+/**
  * Jest Test Setup
  * Global setup for all tests
  */

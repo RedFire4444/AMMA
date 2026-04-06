@@ -1,3 +1,12 @@
+/**
+ * File: events.controller.test.ts
+ *
+ * Description: Unit tests for the events controller. Validates event listing with registration
+ * status, event registration with capacity checks, and stream URL retrieval for registered users.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Request, Response } from 'express';
 import {
   listEvents,
@@ -525,8 +534,8 @@ describe('Events Controller', () => {
       const event = {
         id: 'event-1',
         title: 'Live Satsang',
-        stream_url: 'https://stream.mam.org/live/satsang',
-        recording_url: 'https://cdn.mam.org/recordings/satsang.mp4',
+        stream_url: 'https://stream.maa.org/live/satsang',
+        recording_url: 'https://cdn.maa.org/recordings/satsang.mp4',
         is_live: true,
         status: 'live',
       };
@@ -553,8 +562,8 @@ describe('Events Controller', () => {
           data: expect.objectContaining({
             event_id: 'event-1',
             title: 'Live Satsang',
-            stream_url: 'https://stream.mam.org/live/satsang',
-            recording_url: 'https://cdn.mam.org/recordings/satsang.mp4',
+            stream_url: 'https://stream.maa.org/live/satsang',
+            recording_url: 'https://cdn.maa.org/recordings/satsang.mp4',
             is_live: true,
             status: 'live',
           }),

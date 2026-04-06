@@ -1,4 +1,13 @@
 /**
+ * File: auth-middleware.test.js
+ *
+ * Description: Tests for the Supabase JWT authentication middleware. Validates token extraction
+ * from Bearer headers, rejection of missing or invalid tokens, and graceful handling of service errors.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
+/**
  * Authentication Middleware Tests
  * Tests Supabase JWT token verification middleware
  */

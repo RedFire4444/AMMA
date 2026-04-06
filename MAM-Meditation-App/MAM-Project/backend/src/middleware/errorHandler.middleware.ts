@@ -1,3 +1,13 @@
+/**
+ * File: errorHandler.middleware.ts
+ *
+ * Description: Global Express error-handling middleware that catches unhandled errors,
+ * logs them to the console, and returns a standardized JSON error response with the
+ * appropriate HTTP status code.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Request, Response, NextFunction } from 'express';
 
 interface AppError extends Error {

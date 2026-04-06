@@ -1,3 +1,11 @@
+/**
+ * File: payments.controller.ts
+ *
+ * Description: Handles payment endpoints: creating Razorpay orders, verifying payment signatures, activating subscriptions, and fetching payment history.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Request, Response } from 'express';
 import { supabase } from '../services/supabase.service';
 import { paymentService } from '../services/payment.service';

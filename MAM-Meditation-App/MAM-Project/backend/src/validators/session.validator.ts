@@ -1,3 +1,13 @@
+/**
+ * File: session.validator.ts
+ *
+ * Description: Zod validation schema for meditation session creation. Validates duration,
+ * session type (guided, unguided, breathing, body scan, loving kindness), optional lesson
+ * reference, and optional before/after mood ratings with notes.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { z } from 'zod';
 
 export const createSessionSchema = z.object({

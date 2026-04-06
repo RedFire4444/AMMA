@@ -1,3 +1,13 @@
+/**
+ * File: subscriptions.controller.test.ts
+ *
+ * Description: Unit tests for the subscriptions controller. Validates subscription status checks
+ * including premium detection and expiration handling, and subscription cancellation with
+ * cancel-at-period-end logic.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Request, Response } from 'express';
 import {
   getSubscriptionStatus,

@@ -1,3 +1,13 @@
+/**
+ * File: supabase-auth.middleware.ts
+ *
+ * Description: Comprehensive Supabase authentication middleware providing three levels of access
+ * control: authenticateUser (required auth), optionalAuth (pass-through if no token), and
+ * requireAdmin (admin role check). Uses the Supabase anon key to respect RLS policies.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import { Request, Response, NextFunction } from 'express';
 import { createClient } from '@supabase/supabase-js';
 

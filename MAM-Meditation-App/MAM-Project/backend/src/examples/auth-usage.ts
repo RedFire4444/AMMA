@@ -1,6 +1,16 @@
 /**
+ * File: auth-usage.ts
+ *
+ * Description: Reference examples demonstrating the correct Supabase-based authentication
+ * flow for Express routes. Covers protected routes, optional auth, admin-only access,
+ * and documents the frontend integration pattern with Supabase JWT tokens.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
+/**
  * Supabase Auth Usage Examples
- * 
+ *
  * This demonstrates the correct way to handle authentication
  * with Supabase (NO custom JWT needed)
  */
