@@ -1,3 +1,12 @@
+/**
+ * File: CourseDetailScreen.tsx
+ *
+ * Description: Detailed course view showing description, instructor info,
+ * lesson list with progress tracking, and enrollment/continue actions.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,

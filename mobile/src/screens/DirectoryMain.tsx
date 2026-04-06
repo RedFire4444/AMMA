@@ -1,3 +1,12 @@
+/**
+ * File: DirectoryMain.tsx
+ *
+ * Description: Content directory screen with search, category tabs, and a
+ * scrollable grid of audio/video content cards with mini-player integration.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,

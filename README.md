@@ -6,7 +6,7 @@
   <img src="https://img.shields.io/badge/Tailwind_CSS-3.4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind" />
 </p>
 
-<h1 align="center">MAM - Meditation & Wellness</h1>
+<h1 align="center">MAA - Meditation & Wellness</h1>
 
 <p align="center">
   <strong>A cross-platform spiritual wellness and meditation app for the Indian subcontinent</strong>
@@ -27,7 +27,7 @@
 
 ## About
 
-**MAM** (Mata Amritanandamayi Math) is a spiritual wellness mobile application that combines traditional Indian meditation practices with modern habit-tracking technology. Unlike Western-centric apps like Calm or Headspace, MAM offers culturally relevant content including guided meditations, yoga, pranayama, bhajans, satsangs, and chanting at accessible pricing for the Indian market.
+**MAA** (Mata Amritanandamayi App) is a spiritual wellness mobile application that combines traditional Indian meditation practices with modern habit-tracking technology. Unlike Western-centric apps like Calm or Headspace, MAA offers culturally relevant content including guided meditations, yoga, pranayama, bhajans, satsangs, and chanting at accessible pricing for the Indian market.
 
 Built as an EDAI 6 group project, the application consists of three interconnected systems: a React Native mobile app (iOS + Android), a Node.js/Express backend API, and a React.js admin panel.
 
@@ -143,7 +143,7 @@ Firebase Cloud Messaging (Push)    Vercel (Admin Hosting)
 ## Project Structure
 
 ```
-MAM-Project/
+MAA-Project/
 ├── mobile/                          React Native mobile app
 │   ├── src/
 │   │   ├── screens/                 17 screen components
@@ -164,7 +164,7 @@ MAM-Project/
 │   ├── e2e/                         6 Maestro E2E test specs
 │   └── __tests__/                   20 Jest test files
 │
-├── MAM-Meditation-App/MAM-Project/
+├── MAA-Meditation-App/MAA-Project/
 │   ├── backend/                     Node.js + Express API
 │   │   ├── src/
 │   │   │   ├── controllers/         11 controller modules
@@ -292,7 +292,7 @@ cd mobile
 npm install
 
 # Install backend dependencies
-cd ../MAM-Meditation-App/MAM-Project/backend
+cd ../MAA-Meditation-App/MAA-Project/backend
 npm install
 
 # Install admin dependencies
@@ -325,7 +325,7 @@ VITE_SUPABASE_ANON_KEY=your-anon-key
 
 ```bash
 # Apply all migrations to your Supabase project
-cd MAM-Meditation-App/MAM-Project/backend
+cd MAA-Meditation-App/MAA-Project/backend
 npx supabase db push
 
 # Load seed data
@@ -336,11 +336,11 @@ npx supabase db seed
 
 ```bash
 # Start backend server
-cd MAM-Meditation-App/MAM-Project/backend
+cd MAA-Meditation-App/MAA-Project/backend
 npm run dev                    # http://localhost:3000
 
 # Start admin panel
-cd MAM-Meditation-App/MAM-Project/admin
+cd MAA-Meditation-App/MAA-Project/admin
 npm run dev                    # http://localhost:3001
 
 # Start mobile app
@@ -357,7 +357,7 @@ cd mobile
 npm test
 
 # Backend tests
-cd MAM-Meditation-App/MAM-Project/backend
+cd MAA-Meditation-App/MAA-Project/backend
 npm test
 ```
 
@@ -430,7 +430,7 @@ This project is developed as part of the EDAI 6 curriculum. All rights reserved.
 ---
 
 <p align="center">
-  <strong>MAM - Meditation & Wellness</strong><br/>
+  <strong>MAA - Meditation & Wellness</strong><br/>
   <em>EDAI 6 Group Project | March - April 2026</em><br/>
-  <em>Mata Amritanandamayi Math</em>
+  <em>Mata Amritanandamayi App</em>
 </p>

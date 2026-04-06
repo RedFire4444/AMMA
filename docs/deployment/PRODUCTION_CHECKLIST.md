@@ -1,4 +1,4 @@
-# Production Deployment Checklist — MAM Meditation & Wellness
+# Production Deployment Checklist — MAA Meditation & Wellness
 
 > **Last Updated**: 2026-04-05
 > **Owner**: Navnit (Team Lead)
@@ -8,7 +8,7 @@
 
 ## Overview
 
-This checklist covers every step required to take the MAM application from development to a fully operational production environment. Each item must be verified and signed off before proceeding to the next section. The checklist is organized in dependency order — complete each section top-to-bottom.
+This checklist covers every step required to take the MAA application from development to a fully operational production environment. Each item must be verified and signed off before proceeding to the next section. The checklist is organized in dependency order — complete each section top-to-bottom.
 
 **Sign-off format**: Replace `[ ]` with `[x]` and add initials + date when complete.
 

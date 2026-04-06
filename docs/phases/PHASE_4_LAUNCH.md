@@ -86,7 +86,7 @@ Phase 4 is the final quality assurance, beta testing, bug fixing, and launch pre
 - [ ] Final E2E test run passes
 
 ### App Store Listing (iOS)
-- [ ] App name: "MAM - Meditation & Wellness"
+- [ ] App name: "MAA - Meditation & Wellness"
 - [ ] Subtitle: "Daily meditation, yoga & spiritual growth"
 - [ ] Screenshots for 6.7" (iPhone 14 Pro Max)
 - [ ] Screenshots for 5.5" (iPhone 8 Plus)

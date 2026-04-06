@@ -1,4 +1,4 @@
-# MAM Meditation App — API Reference
+# MAA Meditation App — API Reference
 
 > **Base URL**: `https://api.mamapp.com/api` (production) | `http://localhost:3000/api` (development)
 > **Authentication**: Bearer token in Authorization header (JWT from Supabase Auth)

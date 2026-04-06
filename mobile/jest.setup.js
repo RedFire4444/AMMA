@@ -1,3 +1,12 @@
+/*
+ * File: jest.setup.js
+ *
+ * Description: Jest test environment setup providing mocks for React Native
+ * native modules, navigation, Supabase client, and third-party libraries.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 // Mock react-native-reanimated (fully manual — avoids native module loading)
 jest.mock('react-native-reanimated', () => {
   const View = require('react-native').View;

@@ -1,8 +1,10 @@
 /**
- * Sample React Native App
- * https://github.com/facebook/react-native
+ * File: App.tsx
  *
- * @format
+ * Description: Root application component that bootstraps the React Native app
+ * and renders the top-level navigation container.
+ *
+ * Author: Navnit(Ninjacode911)
  */
 
 import React from 'react';

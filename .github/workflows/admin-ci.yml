@@ -3,10 +3,10 @@ name: Admin CI
 on:
   push:
     branches: ['main']
-    paths: ['MAM-Meditation-App/MAM-Project/admin/**']
+    paths: ['MAA-Meditation-App/MAA-Project/admin/**']
   pull_request:
     branches: ['main']
-    paths: ['MAM-Meditation-App/MAM-Project/admin/**']
+    paths: ['MAA-Meditation-App/MAA-Project/admin/**']
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -20,7 +20,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./MAM-Meditation-App/MAM-Project/admin
+        working-directory: ./MAA-Meditation-App/MAA-Project/admin
 
     steps:
       - uses: actions/checkout@v4
@@ -30,7 +30,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-          cache-dependency-path: 'MAM-Meditation-App/MAM-Project/admin/package-lock.json'
+          cache-dependency-path: 'MAA-Meditation-App/MAA-Project/admin/package-lock.json'
 
       - name: Install dependencies
         run: npm ci || npm install

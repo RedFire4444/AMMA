@@ -1,3 +1,12 @@
+/**
+ * File: SubscriptionScreen.tsx
+ *
+ * Description: Subscription management screen displaying current plan status,
+ * upgrade CTA, billing history, and cancel subscription controls.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,

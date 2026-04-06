@@ -1,3 +1,12 @@
+/**
+ * File: EventDetailScreen.tsx
+ *
+ * Description: Detailed view of a single event showing description, schedule,
+ * location, speaker info, and RSVP/registration actions.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,

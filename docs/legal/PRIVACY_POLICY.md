@@ -1,11 +1,11 @@
-# Privacy Policy — MAM Meditation & Wellness
+# Privacy Policy — MAA Meditation & Wellness
 
 **Effective Date**: April 5, 2026
 **Last Updated**: April 5, 2026
 
 ---
 
-MAM Wellness Pvt. Ltd. ("MAM," "we," "us," or "our") operates the MAM - Meditation & Wellness mobile application (the "App") and the website at https://mamapp.com (the "Website"). This Privacy Policy describes how we collect, use, store, and protect your personal information when you use our services.
+MAA Wellness Pvt. Ltd. ("MAA," "we," "us," or "our") operates the MAA - Meditation & Wellness mobile application (the "App") and the website at https://mamapp.com (the "Website"). This Privacy Policy describes how we collect, use, store, and protect your personal information when you use our services.
 
 By using the App, you agree to the collection and use of information as described in this Privacy Policy. If you do not agree with the terms of this policy, please do not use our services.
 
@@ -186,7 +186,7 @@ You may withdraw your consent for data collection by deleting your account. Cert
 
 ## 7. Children's Privacy
 
-MAM is not directed at children under the age of 13. We do not knowingly collect personal information from children under 13 years of age.
+MAA is not directed at children under the age of 13. We do not knowingly collect personal information from children under 13 years of age.
 
 If you are a parent or guardian and believe that your child under 13 has provided us with personal information, please contact us at privacy@mamapp.com. We will take steps to delete such information from our systems within a reasonable timeframe.
 
@@ -208,12 +208,12 @@ Our primary services are hosted on cloud infrastructure that may process data in
 
 ## 9. Cookies and Tracking Technologies
 
-The MAM mobile app does not use browser cookies. However:
+The MAA mobile app does not use browser cookies. However:
 - **Mixpanel SDK** uses device identifiers to track anonymized app usage events
 - **Firebase** uses instance IDs for push notification delivery
 - **Sentry** uses session identifiers for crash grouping
 
-The MAM website (https://mamapp.com) may use cookies for essential functionality (session management) and analytics. A separate cookie notice is provided on the website.
+The MAA website (https://mamapp.com) may use cookies for essential functionality (session management) and analytics. A separate cookie notice is provided on the website.
 
 ---
 
@@ -243,11 +243,11 @@ If you have any questions, concerns, or requests regarding this Privacy Policy o
 | **Email** | privacy@mamapp.com |
 | **Support** | support@mamapp.com |
 | **Website** | https://mamapp.com/contact |
-| **Mailing Address** | MAM Wellness Pvt. Ltd., Pune, Maharashtra, India |
+| **Mailing Address** | MAA Wellness Pvt. Ltd., Pune, Maharashtra, India |
 
 We aim to respond to all privacy-related inquiries within 7 business days.
 
 ---
 
-**MAM Wellness Pvt. Ltd.**
+**MAA Wellness Pvt. Ltd.**
 Pune, Maharashtra, India

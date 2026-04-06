@@ -12,7 +12,7 @@ appId: com.mam.meditation
     clearState: true
 
 # Verify the welcome screen renders with branding and CTA
-- assertVisible: "Mata Amritanandamayi Math"
+- assertVisible: "Mata Amritanandamayi App"
 - assertVisible:
     text: "Begin your\njourney within"
 - assertVisible: "Discover peace through meditation, yoga, pranayama, and spiritual wisdom guided by ancient traditions."

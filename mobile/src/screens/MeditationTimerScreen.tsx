@@ -1,3 +1,12 @@
+/**
+ * File: MeditationTimerScreen.tsx
+ *
+ * Description: Full-screen meditation timer with animated countdown circle,
+ * ambient sound selection, session type picker, and session logging on completion.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import React, { useEffect, useRef, useCallback, useState } from 'react';
 import {
   View,

@@ -1,6 +1,6 @@
-# MAM Spiritual Wellness & Meditation App - Master Implementation Plan
+# MAA Spiritual Wellness & Meditation App - Master Implementation Plan
 
-> **Project**: MAM Meditation App
+> **Project**: MAA Meditation App
 > **Team Lead**: Navnit
 > **Team**: Prachi Shirode, Aayush Tolmare, Lavanya Veni, Krupal Warale, Vineet Wathurkar
 > **Document Version**: 2.0 | April 2026 (Updated after Figma review)
@@ -75,7 +75,7 @@ A cross-platform mobile application (iOS + Android) for spiritual wellness and m
 ## 2. Folder Structure & Monorepo Layout
 
 ```
-MAM-Project/
+MAA-Project/
 ├── mobile/                          # React Native CLI mobile app
 │   ├── src/
 │   │   ├── assets/                  # Images, fonts, sounds
@@ -445,7 +445,7 @@ Establish the project infrastructure, authentication system, navigation skeleton
 **What**: Initialize the React Native project using the bare CLI workflow (not Expo).
 
 **Steps**:
-1. Run `npx @react-native-community/cli init MAMApp --template react-native-template-typescript` inside `mobile/`
+1. Run `npx @react-native-community/cli init MAAApp --template react-native-template-typescript` inside `mobile/`
 2. Verify the app builds and runs on both iOS simulator and Android emulator
 3. Configure TypeScript strict mode in `tsconfig.json`:
    ```json
@@ -690,7 +690,7 @@ Establish the project infrastructure, authentication system, navigation skeleton
 
 **Mobile (auth screens)**:
 1. `WelcomeScreen.tsx` (NEW - from Figma):
-   - MAM branding + flower logo
+   - MAA branding + flower logo
    - "Begin your journey within"
    - "Get Started" button → Login screen
    - "I already have an account" link → Login screen
@@ -1407,7 +1407,7 @@ Comprehensive QA, beta testing, bug fixes, app store preparation, and production
 #### 8.9.1 App Store Listing Preparation
 
 **App Store (iOS)**:
-- App name: "MAM - Meditation & Wellness"
+- App name: "MAA - Meditation & Wellness"
 - Subtitle: "Daily meditation, yoga & spiritual growth"
 - Screenshots: 6.7" (iPhone 14 Pro Max) + 5.5" (iPhone 8 Plus)
 - App preview video (optional, 30s)
@@ -1878,7 +1878,7 @@ CLOUDFLARE_R2_BUCKET=mam-media
 
 # OTP Service
 OTP_SERVICE_API_KEY=xxx
-OTP_SERVICE_SENDER_ID=MAMAPP
+OTP_SERVICE_SENDER_ID=MAAAPP
 
 # Sentry
 SENTRY_DSN=xxx
@@ -1890,4 +1890,4 @@ MOBILE_DEEP_LINK_PREFIX=mamapp://
 
 ---
 
-*This document is the single source of truth for the MAM project implementation. Update it as decisions change. Each phase's detailed post-completion documentation lives in `docs/phases/`.*
+*This document is the single source of truth for the MAA project implementation. Update it as decisions change. Each phase's detailed post-completion documentation lives in `docs/phases/`.*

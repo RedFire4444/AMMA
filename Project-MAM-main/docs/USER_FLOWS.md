@@ -1,4 +1,4 @@
-# MAM Meditation App - User Flow Diagrams
+# MAA Meditation App - User Flow Diagrams
 
 > These diagrams use Mermaid syntax and render directly on GitHub.
 > **Updated**: 2026-04-02 (post-Figma review — auth methods, tab structure, new features)

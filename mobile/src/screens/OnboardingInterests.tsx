@@ -1,3 +1,12 @@
+/**
+ * File: OnboardingInterests.tsx
+ *
+ * Description: Second onboarding screen where users select their spiritual
+ * interests (meditation, yoga, pranayama, etc.) to personalize their experience.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';

@@ -61,7 +61,7 @@ appId: com.mam.meditation
 
 # --- Step 7: Verify Paywall screen ---
 - assertVisible: "Enhance Your Practice"
-- assertVisible: "Unlock the full MAM experience with premium access to all meditations, courses, and exclusive content."
+- assertVisible: "Unlock the full MAA experience with premium access to all meditations, courses, and exclusive content."
 
 # Verify feature comparison table header
 - assertVisible: "Feature"

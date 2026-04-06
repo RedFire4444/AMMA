@@ -1,4 +1,4 @@
-# iOS App Store Listing — MAM Meditation & Wellness
+# iOS App Store Listing — MAA Meditation & Wellness
 
 > **Last Updated**: 2026-04-05
 > **App Store Connect Team**: Navnit (Team Lead)
@@ -10,15 +10,15 @@
 
 | Field | Value |
 |-------|-------|
-| **App Name** | MAM - Meditation & Wellness |
+| **App Name** | MAA - Meditation & Wellness |
 | **Subtitle** | Daily meditation, yoga & spiritual growth |
 | **Bundle ID** | com.mam.meditation |
-| **SKU** | MAM-MEDITATION-001 |
+| **SKU** | MAA-MEDITATION-001 |
 | **Primary Language** | English (U.S.) |
 | **Category** | Health & Fitness |
 | **Secondary Category** | Lifestyle |
 | **Age Rating** | 4+ (No objectionable content) |
-| **Copyright** | 2026 MAM Wellness Pvt. Ltd. |
+| **Copyright** | 2026 MAA Wellness Pvt. Ltd. |
 
 ---
 
@@ -27,10 +27,10 @@
 ### Full Description (4000 characters max)
 
 ```
-MAM - Meditation & Wellness is your complete spiritual companion for daily sadhana, meditation, yoga, and inner growth. Rooted in timeless Indian spiritual traditions and designed for modern practitioners, MAM helps you build a consistent practice that transforms your mind, body, and spirit.
+MAA - Meditation & Wellness is your complete spiritual companion for daily sadhana, meditation, yoga, and inner growth. Rooted in timeless Indian spiritual traditions and designed for modern practitioners, MAA helps you build a consistent practice that transforms your mind, body, and spirit.
 
 GUIDED MEDITATIONS
-Choose from a rich library of 500+ guided meditation sessions led by experienced teachers. Whether you are a beginner learning to sit still or an advanced practitioner deepening your awareness, MAM offers sessions ranging from 5 minutes to 60 minutes across styles including Vipassana, Transcendental, Body Scan, Loving-Kindness, and Breath Awareness.
+Choose from a rich library of 500+ guided meditation sessions led by experienced teachers. Whether you are a beginner learning to sit still or an advanced practitioner deepening your awareness, MAA offers sessions ranging from 5 minutes to 60 minutes across styles including Vipassana, Transcendental, Body Scan, Loving-Kindness, and Breath Awareness.
 
 STRUCTURED COURSES
 Follow step-by-step courses designed to take you from curiosity to mastery. Each course includes video and audio lessons with progress tracking, so you always know where you left off. Courses cover meditation fundamentals, pranayama breathing techniques, yoga philosophy, stress management, better sleep, and spiritual growth.
@@ -57,9 +57,9 @@ STREAK TRACKING & GAMIFICATION
 Stay consistent with visual streak tracking, daily check-ins, and progress milestones. Your journey dashboard shows your longest streak, total meditation minutes, sessions completed, and current level — turning discipline into a rewarding daily ritual.
 
 PREMIUM FEATURES
-Unlock the full MAM experience with Premium. Get access to the complete meditation library, all courses, advanced pranayama sessions, offline downloads, live event replays, detailed insights, and an ad-free experience. Choose Monthly (₹199) or Annual (₹1,499 — save 37%) plans.
+Unlock the full MAA experience with Premium. Get access to the complete meditation library, all courses, advanced pranayama sessions, offline downloads, live event replays, detailed insights, and an ad-free experience. Choose Monthly (₹199) or Annual (₹1,499 — save 37%) plans.
 
-Your spiritual journey begins with a single breath. Download MAM today and commit to a practice that brings lasting peace, clarity, and well-being into your life.
+Your spiritual journey begins with a single breath. Download MAA today and commit to a practice that brings lasting peace, clarity, and well-being into your life.
 ```
 
 **Character count**: ~3,847
@@ -174,7 +174,7 @@ Password: <REVIEW_ACCOUNT_PASSWORD>
 ### Notes for Reviewers
 
 ```
-MAM is a meditation and spiritual wellness app. Key features to test:
+MAA is a meditation and spiritual wellness app. Key features to test:
 
 1. AUTHENTICATION: Use the test phone number above. Enter the OTP code 123456 to verify.
 
@@ -261,8 +261,8 @@ https://mamapp.com
 | Field | Value |
 |-------|-------|
 | Price | Free (with in-app purchases) |
-| In-App Purchases | MAM Premium Monthly — ₹199/month |
-| | MAM Premium Annual — ₹1,499/year |
+| In-App Purchases | MAA Premium Monthly — ₹199/month |
+| | MAA Premium Annual — ₹1,499/year |
 | Availability | India (initial launch) |
 | Pre-Order | No |
 

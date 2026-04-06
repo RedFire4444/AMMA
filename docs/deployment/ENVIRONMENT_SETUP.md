@@ -1,4 +1,4 @@
-# Environment Setup Guide — MAM Meditation & Wellness
+# Environment Setup Guide — MAA Meditation & Wellness
 
 > **Last Updated**: 2026-04-05
 > **Owner**: Navnit (Team Lead)
@@ -8,7 +8,7 @@
 
 ## Overview
 
-This document defines every environment variable used across the MAM project. Each service (backend, mobile, admin) has its own `.env` file with variables scoped to its needs. The document covers three environments: **development**, **staging**, and **production**.
+This document defines every environment variable used across the MAA project. Each service (backend, mobile, admin) has its own `.env` file with variables scoped to its needs. The document covers three environments: **development**, **staging**, and **production**.
 
 **Critical Rules**:
 - Never commit `.env` files to version control
@@ -20,7 +20,7 @@ This document defines every environment variable used across the MAM project. Ea
 
 ## 1. Backend Environment Variables
 
-**File location**: `MAM-Meditation-App/backend/.env`
+**File location**: `MAA-Meditation-App/backend/.env`
 
 ### Complete Variable Reference
 
@@ -95,7 +95,7 @@ ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
 
 ## 2. Mobile App Environment Variables
 
-**File location**: `MAM-Meditation-App/mobile/.env`
+**File location**: `MAA-Meditation-App/mobile/.env`
 
 ### Complete Variable Reference
 
@@ -158,7 +158,7 @@ ENVFILE=.env.production npx react-native run-android --variant=release
 
 ## 3. Admin Panel Environment Variables
 
-**File location**: `MAM-Meditation-App/admin/.env`
+**File location**: `MAA-Meditation-App/admin/.env`
 
 ### Complete Variable Reference
 

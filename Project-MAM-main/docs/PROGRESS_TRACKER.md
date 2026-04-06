@@ -1,4 +1,4 @@
-# MAM Meditation App - Progress Tracker
+# MAA Meditation App - Progress Tracker
 
 > **Status Legend**: Not Started | In Progress | Testing | Completed | Blocked
 > **Last Updated**: 2026-03-28

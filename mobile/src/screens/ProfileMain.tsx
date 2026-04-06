@@ -1,3 +1,12 @@
+/**
+ * File: ProfileMain.tsx
+ *
+ * Description: User profile screen showing avatar, stats grid, premium upsell
+ * card, and settings rows for subscription, notifications, and logout.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import React, { useEffect, useState } from 'react';
 import {
   View,

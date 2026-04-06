@@ -1,4 +1,4 @@
-# MAM Meditation App - Team Work Assignments
+# MAA Meditation App - Team Work Assignments
 
 > **Last Updated**: 2026-03-29
 

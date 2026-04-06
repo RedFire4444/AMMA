@@ -1,3 +1,12 @@
+/**
+ * File: PaywallScreen.tsx
+ *
+ * Description: Premium subscription paywall displaying feature comparison table,
+ * monthly/annual plan selection cards, and Razorpay-integrated checkout flow.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import React, { useState } from 'react';
 import {
   View,
@@ -101,7 +110,7 @@ const PaywallScreen = () => {
             Enhance Your Practice
           </Text>
           <Text className="text-sm text-text-secondary mt-2 leading-5">
-            Unlock the full MAM experience with premium access to all meditations,
+            Unlock the full MAA experience with premium access to all meditations,
             courses, and exclusive content.
           </Text>
         </View>

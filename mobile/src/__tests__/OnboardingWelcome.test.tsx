@@ -9,9 +9,9 @@ jest.mock('@react-navigation/native', () => ({
 }));
 
 describe('OnboardingWelcome', () => {
-  it('renders MAM branding text', () => {
+  it('renders MAA branding text', () => {
     const { getByText } = render(<OnboardingWelcome />);
-    expect(getByText('Mata Amritanandamayi Math')).toBeTruthy();
+    expect(getByText('Mata Amritanandamayi App')).toBeTruthy();
   });
 
   it('renders journey heading', () => {

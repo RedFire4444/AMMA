@@ -1,3 +1,12 @@
+/**
+ * File: JourneyMain.tsx
+ *
+ * Description: Journey tracking screen displaying meditation streaks, habit
+ * grids, weekly progress stats, and session history for the user.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,

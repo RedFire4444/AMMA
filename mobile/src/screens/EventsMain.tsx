@@ -1,3 +1,12 @@
+/**
+ * File: EventsMain.tsx
+ *
+ * Description: Events listing screen displaying upcoming satsangs, retreats,
+ * and spiritual events with date, location, and registration details.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 

@@ -1,3 +1,12 @@
+/**
+ * File: CoursesMain.tsx
+ *
+ * Description: Courses listing screen with search, category filtering,
+ * difficulty badges, and navigation to individual course details.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   View,

@@ -75,7 +75,7 @@ Phase 1 established the entire project infrastructure from scratch: three-part a
 ## Sprint 2 Implementation (Week 3-4)
 
 ### Onboarding Flow (3 Screens)
-- **WelcomeScreen**: MAM branding with flower logo, "Begin your journey within" heading, "Get Started" CTA, Skip button (sets defaults: meditation+mindfulness interests, 10 min goal), page indicator dots
+- **WelcomeScreen**: MAA branding with flower logo, "Begin your journey within" heading, "Get Started" CTA, Skip button (sets defaults: meditation+mindfulness interests, 10 min goal), page indicator dots
 - **InterestsScreen**: 8 interest category chips in 2-column grid (Meditation, Yoga, Pranayama, Chanting, Sleep, Stress Relief, Focus, Spirituality), multi-select with min 1 validation, Next/Skip buttons
 - **OnboardingGoal**: 6 duration pills (3, 5, 10, 15, 20, 30 min), notification toggle with description, "Start My Journey" CTA, completes onboarding via PATCH /api/users/me
 

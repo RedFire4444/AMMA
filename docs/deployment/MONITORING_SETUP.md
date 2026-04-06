@@ -1,4 +1,4 @@
-# Monitoring Setup Guide — MAM Meditation & Wellness
+# Monitoring Setup Guide — MAA Meditation & Wellness
 
 > **Last Updated**: 2026-04-05
 > **Owner**: Navnit (Team Lead)
@@ -8,7 +8,7 @@
 
 ## Overview
 
-This document covers the complete monitoring and observability setup for the MAM application in production. Monitoring is organized into four layers:
+This document covers the complete monitoring and observability setup for the MAA application in production. Monitoring is organized into four layers:
 
 1. **Crash Reporting** — Sentry for real-time error and crash tracking
 2. **Infrastructure Monitoring** — Supabase dashboard for database, auth, and storage health

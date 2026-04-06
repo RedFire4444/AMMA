@@ -1,4 +1,4 @@
-# MAM Meditation App - Design Updates (Post-Figma Review)
+# MAA Meditation App - Design Updates (Post-Figma Review)
 
 > **Date**: 2026-04-02
 > **Reason**: Figma mockups reviewed — new features and layout changes identified

@@ -1,3 +1,12 @@
+/**
+ * File: OnboardingWelcome.tsx
+ *
+ * Description: First screen of the onboarding flow displaying app branding,
+ * mission statement, and entry point to begin personalization or skip ahead.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import React from 'react';
 import { View, Text, TouchableOpacity, SafeAreaView } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -28,7 +37,7 @@ const OnboardingWelcome = () => {
           </View>
 
           <Text className="text-sm tracking-widest text-text-secondary mb-4 uppercase">
-            Mata Amritanandamayi Math
+            Mata Amritanandamayi App
           </Text>
 
           <Text className="text-3xl font-serif font-bold text-primary text-center mb-4">

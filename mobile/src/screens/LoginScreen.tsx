@@ -1,3 +1,12 @@
+/**
+ * File: LoginScreen.tsx
+ *
+ * Description: Handles user authentication via phone OTP, email/password,
+ * and Google OAuth. Provides toggle between phone and email login modes.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import React, { useState } from 'react';
 import {
   View,

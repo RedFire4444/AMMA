@@ -1,3 +1,12 @@
+/**
+ * File: OTPScreen.tsx
+ *
+ * Description: OTP verification screen with 6-digit input fields, auto-verify
+ * on completion, countdown-based resend functionality, and session establishment.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View,

@@ -1,6 +1,6 @@
-# MAM Meditation App — Final Project Summary
+# MAA Meditation App — Final Project Summary
 
-> **Project**: MAM Spiritual Wellness & Meditation Application
+> **Project**: MAA Spiritual Wellness & Meditation Application
 > **Course**: EDAI 6 — Group Project
 > **Team Lead**: Navnit
 > **Team**: Prachi Shirode, Aayush Tolmare, Lavanya Veni, Krupal Warale, Vineet Wathurkar
@@ -11,10 +11,10 @@
 
 ## Project Overview
 
-MAM (Mata Amritanandamayi Math) is a cross-platform mobile application for spiritual wellness and meditation, targeting the Indian and South Asian market. The app combines traditional meditation practices with modern habit-tracking technology, offering culturally relevant content including guided meditations, yoga, pranayama, bhajans, and satsangs.
+MAA (Mata Amritanandamayi App) is a cross-platform mobile application for spiritual wellness and meditation, targeting the Indian and South Asian market. The app combines traditional meditation practices with modern habit-tracking technology, offering culturally relevant content including guided meditations, yoga, pranayama, bhajans, and satsangs.
 
 ### Problem Solved
-Existing meditation apps (Calm, Headspace) are Western-centric in approach and pricing. MAM fills the gap with affordable, culturally relevant spiritual content, multi-habit tracking (not just meditation), and community features.
+Existing meditation apps (Calm, Headspace) are Western-centric in approach and pricing. MAA fills the gap with affordable, culturally relevant spiritual content, multi-habit tracking (not just meditation), and community features.
 
 ### Key Differentiators
 - Indian spiritual content (bhajans, satsangs, pranayama, chanting)
@@ -332,4 +332,4 @@ Existing meditation apps (Calm, Headspace) are Western-centric in approach and p
 
 ---
 
-*MAM Meditation App — EDAI 6 Group Project — April 2026*
+*MAA Meditation App — EDAI 6 Group Project — April 2026*

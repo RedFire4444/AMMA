@@ -1,3 +1,12 @@
+/**
+ * File: HomeMain.tsx
+ *
+ * Description: Main home screen displaying personalized greeting, daily quote,
+ * meditation streak, quick-start actions, and featured content sections.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,

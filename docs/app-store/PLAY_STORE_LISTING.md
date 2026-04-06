@@ -1,4 +1,4 @@
-# Google Play Store Listing — MAM Meditation & Wellness
+# Google Play Store Listing — MAA Meditation & Wellness
 
 > **Last Updated**: 2026-04-05
 > **Play Console Team**: Navnit (Team Lead)
@@ -10,13 +10,13 @@
 
 | Field | Value |
 |-------|-------|
-| **Title** | MAM - Meditation & Wellness |
+| **Title** | MAA - Meditation & Wellness |
 | **Package Name** | com.mam.meditation |
 | **Default Language** | English (United States) – en-US |
 | **Application Type** | Application |
 | **Category** | Health & Fitness |
 | **Content Rating** | Everyone |
-| **Developer Name** | MAM Wellness |
+| **Developer Name** | MAA Wellness |
 | **Developer Email** | developer@mamapp.com |
 | **Developer Website** | https://mamapp.com |
 | **Privacy Policy URL** | https://mamapp.com/privacy |
@@ -28,7 +28,7 @@
 ### Title (30 characters max)
 
 ```
-MAM - Meditation & Wellness
+MAA - Meditation & Wellness
 ```
 
 **Character count**: 28/30
@@ -44,10 +44,10 @@ Guided meditation, yoga courses, pranayama, daily sadhana tracking & live events
 ### Full Description (4000 characters max)
 
 ```
-MAM - Meditation & Wellness is your complete spiritual companion for daily sadhana, meditation, yoga, and inner growth. Rooted in timeless Indian spiritual traditions and designed for modern practitioners, MAM helps you build a consistent practice that transforms your mind, body, and spirit.
+MAA - Meditation & Wellness is your complete spiritual companion for daily sadhana, meditation, yoga, and inner growth. Rooted in timeless Indian spiritual traditions and designed for modern practitioners, MAA helps you build a consistent practice that transforms your mind, body, and spirit.
 
 ★ GUIDED MEDITATIONS
-Choose from a rich library of 500+ guided meditation sessions led by experienced teachers. Whether you are a beginner learning to sit still or an advanced practitioner deepening your awareness, MAM offers sessions ranging from 5 minutes to 60 minutes across styles including Vipassana, Transcendental, Body Scan, Loving-Kindness, and Breath Awareness.
+Choose from a rich library of 500+ guided meditation sessions led by experienced teachers. Whether you are a beginner learning to sit still or an advanced practitioner deepening your awareness, MAA offers sessions ranging from 5 minutes to 60 minutes across styles including Vipassana, Transcendental, Body Scan, Loving-Kindness, and Breath Awareness.
 
 ★ STRUCTURED COURSES
 Follow step-by-step courses designed to take you from curiosity to mastery. Each course includes video and audio lessons with progress tracking, so you always know where you left off. Courses cover meditation fundamentals, pranayama techniques, yoga philosophy, stress management, better sleep, and spiritual growth.
@@ -74,11 +74,11 @@ Explore a searchable library of bhajans, guided meditations, satsang recordings,
 Stay consistent with visual streak tracking, daily check-ins, and progress milestones. Your journey dashboard shows your longest streak, total meditation minutes, sessions completed, and current level — turning discipline into a rewarding daily ritual.
 
 ★ PREMIUM FEATURES
-Unlock the full MAM experience with Premium. Get access to the complete meditation library, all courses, advanced pranayama sessions, offline downloads, live event replays, detailed insights, and an ad-free experience.
+Unlock the full MAA experience with Premium. Get access to the complete meditation library, all courses, advanced pranayama sessions, offline downloads, live event replays, detailed insights, and an ad-free experience.
 
 Monthly: ₹199 | Annual: ₹1,499 (save 37%)
 
-Your spiritual journey begins with a single breath. Download MAM today.
+Your spiritual journey begins with a single breath. Download MAA today.
 ```
 
 **Character count**: ~3,780
@@ -95,7 +95,7 @@ Your spiritual journey begins with a single breath. Download MAM today.
 | Format | 32-bit PNG (with alpha) |
 | Shape | Full bleed — Google applies rounded mask |
 | Background | Solid `#1B4332` (forest green) |
-| Foreground | MAM lotus/meditation symbol in white |
+| Foreground | MAA lotus/meditation symbol in white |
 
 ### Feature Graphic
 
@@ -276,8 +276,8 @@ No user data is shared with third parties for advertising, marketing, or data br
 | Field | Value |
 |-------|-------|
 | **Price** | Free |
-| **In-App Products** | MAM Premium Monthly — ₹199/month |
-| | MAM Premium Annual — ₹1,499/year |
+| **In-App Products** | MAA Premium Monthly — ₹199/month |
+| | MAA Premium Annual — ₹1,499/year |
 | **Countries** | India (initial launch) |
 | **Contains Ads** | No |
 | **Content Guidelines** | This app complies with all Google Play Developer Program Policies |

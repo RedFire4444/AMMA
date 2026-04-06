@@ -1,3 +1,12 @@
+/**
+ * File: OnboardingGoal.tsx
+ *
+ * Description: Third onboarding screen where users set their daily meditation
+ * goal duration and configure daily reminder preferences.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import React, { useState } from 'react';
 import {
   View,

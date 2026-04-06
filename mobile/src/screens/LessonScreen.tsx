@@ -1,3 +1,12 @@
+/**
+ * File: LessonScreen.tsx
+ *
+ * Description: Individual lesson player screen with video/audio content,
+ * progress tracking, lesson completion marking, and navigation between lessons.
+ *
+ * Author: Navnit(Ninjacode911)
+ */
+
 import React, { useState, useCallback } from 'react';
 import {
   View,

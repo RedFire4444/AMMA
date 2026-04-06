@@ -1,11 +1,11 @@
-# Terms of Service — MAM Meditation & Wellness
+# Terms of Service — MAA Meditation & Wellness
 
 **Effective Date**: April 5, 2026
 **Last Updated**: April 5, 2026
 
 ---
 
-Please read these Terms of Service ("Terms") carefully before using the MAM - Meditation & Wellness mobile application (the "App") operated by MAM Wellness Pvt. Ltd. ("MAM," "we," "us," or "our").
+Please read these Terms of Service ("Terms") carefully before using the MAA - Meditation & Wellness mobile application (the "App") operated by MAA Wellness Pvt. Ltd. ("MAA," "we," "us," or "our").
 
 By creating an account or using the App, you agree to be bound by these Terms. If you do not agree to these Terms, do not use the App.
 
@@ -13,9 +13,9 @@ By creating an account or using the App, you agree to be bound by these Terms. I
 
 ## 1. Service Description
 
-### 1.1 What MAM Provides
+### 1.1 What MAA Provides
 
-MAM is a spiritual wellness and meditation platform that offers:
+MAA is a spiritual wellness and meditation platform that offers:
 
 - **Guided Meditations**: Audio and video meditation sessions across multiple styles and durations
 - **Structured Courses**: Step-by-step learning programs covering meditation, yoga, pranayama, and spiritual growth
@@ -28,7 +28,7 @@ MAM is a spiritual wellness and meditation platform that offers:
 
 ### 1.2 Service Availability
 
-MAM is available on iOS and Android devices. We strive to maintain continuous availability but do not guarantee uninterrupted access. The App requires an active internet connection for most features. We reserve the right to modify, suspend, or discontinue any part of the service with reasonable notice.
+MAA is available on iOS and Android devices. We strive to maintain continuous availability but do not guarantee uninterrupted access. The App requires an active internet connection for most features. We reserve the right to modify, suspend, or discontinue any part of the service with reasonable notice.
 
 ### 1.3 Eligibility
 
@@ -40,7 +40,7 @@ You must be at least 13 years of age to create an account and use the App. If yo
 
 ### 2.1 Account Registration
 
-To use MAM, you must create an account using one of the following methods:
+To use MAA, you must create an account using one of the following methods:
 - Phone number with OTP verification
 - Email address with password
 - Google OAuth sign-in
@@ -70,7 +70,7 @@ Your account stores your meditation sessions, course progress, habit tracking da
 
 ### 3.1 Free Tier
 
-MAM offers a free tier that includes:
+MAA offers a free tier that includes:
 - Access to a limited selection of guided meditations (10 sessions)
 - 1 free course
 - Basic meditation timer with selected ambient sounds
@@ -80,7 +80,7 @@ MAM offers a free tier that includes:
 
 ### 3.2 Premium Subscription
 
-MAM Premium unlocks the full experience:
+MAA Premium unlocks the full experience:
 - Complete meditation library (500+ sessions)
 - All courses with video and audio lessons
 - Advanced pranayama sessions
@@ -107,7 +107,7 @@ Payments are processed securely through Razorpay, a PCI DSS Level 1 compliant pa
 - Net Banking
 - Wallets
 
-MAM does not store your payment card details. All payment information is handled directly by Razorpay.
+MAA does not store your payment card details. All payment information is handled directly by Razorpay.
 
 ### 3.5 Subscription Renewal
 
@@ -146,9 +146,9 @@ We reserve the right to change subscription prices. If we change prices:
 
 ## 4. Content and Intellectual Property
 
-### 4.1 MAM Content
+### 4.1 MAA Content
 
-All content available through the App — including but not limited to guided meditation audio, course videos, music, bhajans, satsang recordings, text, images, graphics, logos, and software — is owned by MAM Wellness Pvt. Ltd. or licensed from content creators and is protected by copyright, trademark, and other intellectual property laws.
+All content available through the App — including but not limited to guided meditation audio, course videos, music, bhajans, satsang recordings, text, images, graphics, logos, and software — is owned by MAA Wellness Pvt. Ltd. or licensed from content creators and is protected by copyright, trademark, and other intellectual property laws.
 
 ### 4.2 Limited License
 
@@ -173,7 +173,7 @@ Currently, the App does not support public user-generated content (posts, review
 
 ### 4.5 Trademarks
 
-"MAM," the MAM logo, and "MAM - Meditation & Wellness" are trademarks of MAM Wellness Pvt. Ltd. You may not use our trademarks without prior written permission.
+"MAA," the MAA logo, and "MAA - Meditation & Wellness" are trademarks of MAA Wellness Pvt. Ltd. You may not use our trademarks without prior written permission.
 
 ---
 
@@ -199,7 +199,7 @@ Violation of these prohibitions may result in immediate account suspension or te
 
 ### 6.1 No Medical Advice
 
-MAM provides meditation, yoga, and spiritual wellness content for general well-being purposes only. The content in the App:
+MAA provides meditation, yoga, and spiritual wellness content for general well-being purposes only. The content in the App:
 - Is not a substitute for professional medical advice, diagnosis, or treatment
 - Should not be used to treat any medical or psychological condition
 - Does not establish a therapist-patient or doctor-patient relationship
@@ -222,7 +222,7 @@ We do not warrant that:
 
 ### 7.1 Cap on Liability
 
-TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL MAM WELLNESS PVT. LTD., ITS DIRECTORS, EMPLOYEES, PARTNERS, OR AFFILIATES BE LIABLE FOR:
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL MAA WELLNESS PVT. LTD., ITS DIRECTORS, EMPLOYEES, PARTNERS, OR AFFILIATES BE LIABLE FOR:
 
 - Any indirect, incidental, special, consequential, or punitive damages
 - Any loss of profits, revenue, data, or goodwill
@@ -242,7 +242,7 @@ Nothing in these Terms shall limit our liability for:
 
 ## 8. Indemnification
 
-You agree to indemnify, defend, and hold harmless MAM Wellness Pvt. Ltd., its officers, directors, employees, and agents from and against any claims, liabilities, damages, losses, and expenses (including reasonable legal fees) arising out of or related to:
+You agree to indemnify, defend, and hold harmless MAA Wellness Pvt. Ltd., its officers, directors, employees, and agents from and against any claims, liabilities, damages, losses, and expenses (including reasonable legal fees) arising out of or related to:
 - Your use of the App
 - Your violation of these Terms
 - Your violation of any rights of a third party
@@ -310,7 +310,7 @@ These Terms shall be governed by and construed in accordance with the laws of In
 
 ### 12.1 Entire Agreement
 
-These Terms, together with the Privacy Policy, constitute the entire agreement between you and MAM regarding the use of the App and supersede all prior agreements and understandings.
+These Terms, together with the Privacy Policy, constitute the entire agreement between you and MAA regarding the use of the App and supersede all prior agreements and understandings.
 
 ### 12.2 Severability
 
@@ -362,12 +362,12 @@ For questions, concerns, or feedback regarding these Terms:
 | **General Support** | support@mamapp.com |
 | **Legal Inquiries** | legal@mamapp.com |
 | **Privacy Concerns** | privacy@mamapp.com |
-| **Mailing Address** | MAM Wellness Pvt. Ltd., Pune, Maharashtra, India |
+| **Mailing Address** | MAA Wellness Pvt. Ltd., Pune, Maharashtra, India |
 | **Website** | https://mamapp.com |
 
 We aim to respond to all inquiries within 7 business days.
 
 ---
 
-**MAM Wellness Pvt. Ltd.**
+**MAA Wellness Pvt. Ltd.**
 Pune, Maharashtra, India
