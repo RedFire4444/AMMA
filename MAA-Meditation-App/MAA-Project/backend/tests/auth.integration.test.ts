@@ -85,7 +85,7 @@ describe('Auth Integration Tests', () => {
 
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
-      expect(res.body.error).toContain('Failed to send SMS message');
+      expect(res.body.error.message).toContain('Failed to send SMS message');
     });
   });
 
@@ -133,7 +133,7 @@ describe('Auth Integration Tests', () => {
 
       expect(res.status).toBe(401);
       expect(res.body.success).toBe(false);
-      expect(res.body.error).toContain('Invalid or expired OTP');
+      expect(res.body.error.message).toContain('Invalid or expired OTP');
       expect(supabase.from).not.toHaveBeenCalled();
     });
   });

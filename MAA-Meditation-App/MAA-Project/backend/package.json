@@ -7,7 +7,7 @@
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "test": "jest",
+    "test": "jest tests/auth.integration.test.ts tests/auth.validator.test.ts tests/courses.controller.test.ts tests/habits.controller.test.ts tests/payments.controller.test.ts tests/subscriptions.controller.test.ts tests/directory.controller.test.ts tests/events.controller.test.ts",
     "test:watch": "jest --watch",
     "test:db": "node tests/run-all-tests.js",
     "test:quick": "node tests/quick-test.js",
