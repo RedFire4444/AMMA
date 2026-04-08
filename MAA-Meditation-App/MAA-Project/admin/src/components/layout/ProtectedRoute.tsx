@@ -11,9 +11,14 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { supabase } from '../../services/supabase';
 
 export function ProtectedRoute() {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  // DEV MODE: bypass auth when no Supabase is configured
+  const isDev = !import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL === 'https://placeholder.supabase.co';
+
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(isDev ? true : null);
 
   useEffect(() => {
+    if (isDev) return; // Skip auth check in dev without Supabase
+
     async function checkAuth() {
       try {
         const { data: { session } } = await supabase.auth.getSession();
@@ -22,7 +27,6 @@ export function ProtectedRoute() {
           return;
         }
 
-        // Verify the user has admin role
         const { data: profile } = await supabase
           .from('users')
           .select('role')
@@ -37,7 +41,6 @@ export function ProtectedRoute() {
 
     checkAuth();
 
-    // Listen for auth state changes to keep session fresh
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
         if (!session) {
@@ -56,7 +59,7 @@ export function ProtectedRoute() {
     );
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [isDev]);
 
   if (isAuthenticated === null) {
     return (
