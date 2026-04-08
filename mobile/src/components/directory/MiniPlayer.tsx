@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 interface MiniPlayerProps {
   title: string;
@@ -17,19 +17,19 @@ export const MiniPlayer = ({
   onClose,
 }: MiniPlayerProps) => {
   return (
-    <View className="flex-row items-center bg-primary px-4 py-3 border-t border-primary-light">
+    <View style={s.container}>
       {/* Thumbnail */}
-      <View className="w-10 h-10 rounded-button bg-white/20 items-center justify-center mr-3">
-        <Text className="text-lg text-white">{'\u{1F3B5}'}</Text>
+      <View style={s.thumbnailCircle}>
+        <Text style={s.thumbnailIcon}>{'\u{1F3B5}'}</Text>
       </View>
 
       {/* Info */}
-      <View className="flex-1 mr-3">
-        <Text className="text-white text-sm font-semibold" numberOfLines={1}>
+      <View style={s.info}>
+        <Text style={s.title} numberOfLines={1}>
           {title}
         </Text>
         {artist && (
-          <Text className="text-white/60 text-xs" numberOfLines={1}>
+          <Text style={s.artist} numberOfLines={1}>
             {artist}
           </Text>
         )}
@@ -38,9 +38,9 @@ export const MiniPlayer = ({
       {/* Controls */}
       <TouchableOpacity
         onPress={onPlayPause}
-        className="w-10 h-10 rounded-full bg-white/20 items-center justify-center mr-2"
+        style={s.playButton}
       >
-        <Text className="text-white text-lg">
+        <Text style={s.playIcon}>
           {isPlaying ? '\u{23F8}' : '\u{25B6}'}
         </Text>
       </TouchableOpacity>
@@ -49,13 +49,81 @@ export const MiniPlayer = ({
         onPress={onClose}
         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
       >
-        <Text className="text-white/60 text-lg">{'\u{2715}'}</Text>
+        <Text style={s.closeIcon}>{'\u{2715}'}</Text>
       </TouchableOpacity>
 
       {/* Progress bar */}
-      <View className="absolute bottom-0 left-0 right-0 h-0.5 bg-white/20">
-        <View className="h-full w-1/3 bg-accent" />
+      <View style={s.progressTrack}>
+        <View style={s.progressFill} />
       </View>
     </View>
   );
 };
+
+const s = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1B4332',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#2D6A4F',
+  },
+  thumbnailCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  thumbnailIcon: {
+    fontSize: 18,
+    color: '#FFFFFF',
+  },
+  info: {
+    flex: 1,
+    marginRight: 12,
+  },
+  title: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  artist: {
+    color: 'rgba(255, 255, 255, 0.6)',
+    fontSize: 12,
+  },
+  playButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
+  },
+  playIcon: {
+    color: '#FFFFFF',
+    fontSize: 18,
+  },
+  closeIcon: {
+    color: 'rgba(255, 255, 255, 0.6)',
+    fontSize: 18,
+  },
+  progressTrack: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 2,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  progressFill: {
+    height: '100%',
+    width: '33%',
+    backgroundColor: '#40916C',
+  },
+});

@@ -15,6 +15,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -90,7 +91,7 @@ const EventDetailScreen = ({ route, navigation }: Props) => {
 
   if (loading) {
     return (
-      <SafeAreaView className="flex-1 bg-background items-center justify-center">
+      <SafeAreaView style={s.loadingContainer}>
         <ActivityIndicator size="large" color="#1B4332" />
       </SafeAreaView>
     );
@@ -98,72 +99,72 @@ const EventDetailScreen = ({ route, navigation }: Props) => {
 
   if (!event) {
     return (
-      <SafeAreaView className="flex-1 bg-background items-center justify-center px-6">
-        <Text className="text-text-secondary">Event not found</Text>
+      <SafeAreaView style={s.emptyContainer}>
+        <Text style={s.emptyText}>Event not found</Text>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-background" edges={['top']}>
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={s.container} edges={['top']}>
+      <ScrollView style={s.flex1} showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <View className="px-4 pt-4 flex-row items-center">
-          <TouchableOpacity onPress={() => navigation.goBack()} className="mr-3">
-            <Text className="text-2xl text-primary">{'\u{2190}'}</Text>
+        <View style={s.headerRow}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={s.backButton}>
+            <Text style={s.backButtonText}>{'\u{2190}'}</Text>
           </TouchableOpacity>
-          <Text className="text-lg font-bold text-text-primary flex-1" numberOfLines={1}>
+          <Text style={s.headerTitle} numberOfLines={1}>
             Event Details
           </Text>
         </View>
 
         {/* Hero */}
-        <View className="mx-4 mt-4 h-48 bg-primary rounded-card items-center justify-center">
+        <View style={s.hero}>
           {event.is_live && (
-            <View className="absolute top-3 left-3 bg-red-500 rounded-pill px-3 py-1">
-              <Text className="text-white text-xs font-bold">LIVE</Text>
+            <View style={s.liveBadge}>
+              <Text style={s.liveBadgeText}>LIVE</Text>
             </View>
           )}
-          <Text className="text-4xl">{'\u{1F3B5}'}</Text>
+          <Text style={s.heroIcon}>{'\u{1F3B5}'}</Text>
         </View>
 
         {/* Event Info */}
-        <View className="px-4 mt-4">
-          <Text className="text-2xl font-serif font-bold text-text-primary">
+        <View style={s.infoSection}>
+          <Text style={s.eventTitle}>
             {event.title}
           </Text>
 
-          <View className="flex-row items-center mt-3">
-            <View className="w-10 h-10 rounded-full bg-primary-light/30 items-center justify-center mr-3">
-              <Text className="text-lg">{'\u{1F9D1}'}</Text>
+          <View style={s.instructorRow}>
+            <View style={s.instructorAvatar}>
+              <Text style={s.instructorAvatarIcon}>{'\u{1F9D1}'}</Text>
             </View>
             <View>
-              <Text className="text-base font-semibold text-text-primary">
+              <Text style={s.instructorName}>
                 {event.instructor_name}
               </Text>
-              <Text className="text-sm text-text-secondary">Instructor</Text>
+              <Text style={s.instructorLabel}>Instructor</Text>
             </View>
           </View>
 
           {/* Details */}
-          <View className="mt-6 space-y-3">
-            <View className="flex-row items-center">
-              <Text className="text-lg mr-3">{'\u{1F4C5}'}</Text>
-              <Text className="text-base text-text-primary">
+          <View style={s.detailsSection}>
+            <View style={s.detailRow}>
+              <Text style={s.detailIcon}>{'\u{1F4C5}'}</Text>
+              <Text style={s.detailText}>
                 {formatDate(event.event_date)}
               </Text>
             </View>
 
-            <View className="flex-row items-center mt-2">
-              <Text className="text-lg mr-3">{'\u{23F1}'}</Text>
-              <Text className="text-base text-text-primary">
+            <View style={[s.detailRow, s.detailRowSpaced]}>
+              <Text style={s.detailIcon}>{'\u{23F1}'}</Text>
+              <Text style={s.detailText}>
                 {event.duration_minutes} minutes
               </Text>
             </View>
 
-            <View className="flex-row items-center mt-2">
-              <Text className="text-lg mr-3">{'\u{1F465}'}</Text>
-              <Text className="text-base text-text-primary">
+            <View style={[s.detailRow, s.detailRowSpaced]}>
+              <Text style={s.detailIcon}>{'\u{1F465}'}</Text>
+              <Text style={s.detailText}>
                 {event.registration_count} registered
                 {event.max_participants
                   ? ` / ${event.max_participants} spots`
@@ -171,16 +172,16 @@ const EventDetailScreen = ({ route, navigation }: Props) => {
               </Text>
             </View>
 
-            <View className="flex-row items-center mt-2">
-              <Text className="text-lg mr-3">{'\u{1F3F7}'}</Text>
-              <View className="bg-accent/20 rounded-pill px-3 py-1">
-                <Text className="text-accent text-sm font-semibold capitalize">
+            <View style={[s.detailRow, s.detailRowSpaced]}>
+              <Text style={s.detailIcon}>{'\u{1F3F7}'}</Text>
+              <View style={s.categoryBadge}>
+                <Text style={s.categoryBadgeText}>
                   {event.category}
                 </Text>
               </View>
               {event.is_premium && (
-                <View className="bg-primary/10 rounded-pill px-3 py-1 ml-2">
-                  <Text className="text-primary text-sm font-semibold">Premium</Text>
+                <View style={s.premiumBadge}>
+                  <Text style={s.premiumBadgeText}>Premium</Text>
                 </View>
               )}
             </View>
@@ -188,47 +189,48 @@ const EventDetailScreen = ({ route, navigation }: Props) => {
 
           {/* Description */}
           {event.description && (
-            <View className="mt-6">
-              <Text className="text-lg font-bold text-text-primary mb-2">
+            <View style={s.descriptionSection}>
+              <Text style={s.descriptionTitle}>
                 About this event
               </Text>
-              <Text className="text-base text-text-secondary leading-6">
+              <Text style={s.descriptionBody}>
                 {event.description}
               </Text>
             </View>
           )}
         </View>
 
-        <View className="h-24" />
+        <View style={s.footerSpacer} />
       </ScrollView>
 
       {/* Sticky Footer */}
-      <View className="absolute bottom-0 left-0 right-0 bg-surface border-t border-border px-4 py-4 pb-8">
+      <View style={s.stickyFooter}>
         {event.is_live && isRegistered ? (
           <TouchableOpacity
-            className="w-full py-4 rounded-button bg-red-500 items-center"
+            style={s.liveStreamButton}
             onPress={handleJoinLive}
           >
-            <Text className="text-white font-bold text-lg">Join Live Stream</Text>
+            <Text style={s.liveStreamButtonText}>Join Live Stream</Text>
           </TouchableOpacity>
         ) : isRegistered ? (
-          <View className="w-full py-4 rounded-button bg-accent/20 items-center">
-            <Text className="text-accent font-bold text-lg">
+          <View style={s.registeredBadge}>
+            <Text style={s.registeredBadgeText}>
               {'\u{2713}'} Registered
             </Text>
           </View>
         ) : (
           <TouchableOpacity
-            className={`w-full py-4 rounded-button items-center ${
-              registering ? 'bg-primary-light' : 'bg-primary'
-            }`}
+            style={[
+              s.registerButton,
+              registering ? s.registerButtonDisabled : null,
+            ]}
             onPress={handleRegister}
             disabled={registering}
           >
             {registering ? (
               <ActivityIndicator color="white" />
             ) : (
-              <Text className="text-white font-bold text-lg">Register Now</Text>
+              <Text style={s.registerButtonText}>Register Now</Text>
             )}
           </TouchableOpacity>
         )}
@@ -238,3 +240,219 @@ const EventDetailScreen = ({ route, navigation }: Props) => {
 };
 
 export default EventDetailScreen;
+
+const s = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: '#FAFAF5',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyContainer: {
+    flex: 1,
+    backgroundColor: '#FAFAF5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  emptyText: {
+    color: '#6B7280',
+  },
+  container: {
+    flex: 1,
+    backgroundColor: '#FAFAF5',
+  },
+  flex1: {
+    flex: 1,
+  },
+  headerRow: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  backButton: {
+    marginRight: 12,
+  },
+  backButtonText: {
+    fontSize: 24,
+    color: '#1B4332',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1A1A2E',
+    flex: 1,
+  },
+  hero: {
+    marginHorizontal: 16,
+    marginTop: 16,
+    height: 192,
+    backgroundColor: '#1B4332',
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  liveBadge: {
+    position: 'absolute',
+    top: 12,
+    left: 12,
+    backgroundColor: '#DC2626',
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+  },
+  liveBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  heroIcon: {
+    fontSize: 36,
+  },
+  infoSection: {
+    paddingHorizontal: 16,
+    marginTop: 16,
+  },
+  eventTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1A1A2E',
+  },
+  instructorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  instructorAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(45,106,79,0.3)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  instructorAvatarIcon: {
+    fontSize: 18,
+  },
+  instructorName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1A1A2E',
+  },
+  instructorLabel: {
+    fontSize: 14,
+    color: '#6B7280',
+  },
+  detailsSection: {
+    marginTop: 24,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  detailRowSpaced: {
+    marginTop: 8,
+  },
+  detailIcon: {
+    fontSize: 18,
+    marginRight: 12,
+  },
+  detailText: {
+    fontSize: 16,
+    color: '#1A1A2E',
+  },
+  categoryBadge: {
+    backgroundColor: 'rgba(64,145,108,0.2)',
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+  },
+  categoryBadgeText: {
+    color: '#40916C',
+    fontSize: 14,
+    fontWeight: '600',
+    textTransform: 'capitalize',
+  },
+  premiumBadge: {
+    backgroundColor: 'rgba(27,67,50,0.1)',
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    marginLeft: 8,
+  },
+  premiumBadgeText: {
+    color: '#1B4332',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  descriptionSection: {
+    marginTop: 24,
+  },
+  descriptionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1A1A2E',
+    marginBottom: 8,
+  },
+  descriptionBody: {
+    fontSize: 16,
+    color: '#6B7280',
+    lineHeight: 24,
+  },
+  footerSpacer: {
+    height: 96,
+  },
+  stickyFooter: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: '#E5E7EB',
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 32,
+  },
+  liveStreamButton: {
+    width: '100%',
+    paddingVertical: 16,
+    borderRadius: 8,
+    backgroundColor: '#DC2626',
+    alignItems: 'center',
+  },
+  liveStreamButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 18,
+  },
+  registeredBadge: {
+    width: '100%',
+    paddingVertical: 16,
+    borderRadius: 8,
+    backgroundColor: 'rgba(64,145,108,0.2)',
+    alignItems: 'center',
+  },
+  registeredBadgeText: {
+    color: '#40916C',
+    fontWeight: '700',
+    fontSize: 18,
+  },
+  registerButton: {
+    width: '100%',
+    paddingVertical: 16,
+    borderRadius: 8,
+    backgroundColor: '#1B4332',
+    alignItems: 'center',
+  },
+  registerButtonDisabled: {
+    backgroundColor: '#2D6A4F',
+  },
+  registerButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 18,
+  },
+});

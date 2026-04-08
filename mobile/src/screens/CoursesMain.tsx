@@ -17,6 +17,7 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -25,6 +26,7 @@ import { CourseCard } from '../components/course/CourseCard';
 import { coursesService } from '../services/courses.service';
 import { Course, CourseFilters } from '../types/course.types';
 import { CoursesStackParamList } from '../navigation/types';
+import { colors } from '../utils/styles';
 
 type CoursesNav = NativeStackNavigationProp<CoursesStackParamList, 'CoursesMain'>;
 
@@ -41,7 +43,7 @@ const CATEGORIES = [
 ] as const;
 
 const SkeletonCard = () => (
-  <View className="bg-gray-200 rounded-card h-56 mx-6 mb-4 animate-pulse" />
+  <View style={s.skeletonCard} />
 );
 
 const CoursesMain = () => {
@@ -115,23 +117,23 @@ const CoursesMain = () => {
   const renderHeader = () => (
     <View>
       {/* Title */}
-      <View className="px-6 pt-4 pb-2">
-        <Text className="text-2xl font-serif font-bold text-primary">
+      <View style={s.titleWrap}>
+        <Text style={s.pageTitle}>
           Courses
         </Text>
-        <Text className="text-sm text-text-secondary mt-1">
+        <Text style={s.pageSubtitle}>
           Explore meditation, yoga, and wellness programs
         </Text>
       </View>
 
       {/* Search bar */}
-      <View className="px-6 mt-3">
-        <View className="flex-row items-center bg-surface border border-border rounded-button px-4 py-2.5">
-          <Text className="text-base mr-2 text-text-secondary">
+      <View style={s.searchWrap}>
+        <View style={s.searchBar}>
+          <Text style={s.searchIcon}>
             {'\u{1F50D}'}
           </Text>
           <TextInput
-            className="flex-1 text-sm text-text-primary"
+            style={s.searchInput}
             placeholder="Search courses..."
             placeholderTextColor="#9CA3AF"
             value={searchText}
@@ -140,7 +142,7 @@ const CoursesMain = () => {
           />
           {searchText.length > 0 && (
             <TouchableOpacity onPress={() => handleSearch('')}>
-              <Text className="text-text-secondary text-base">
+              <Text style={s.searchClear}>
                 {'\u2715'}
               </Text>
             </TouchableOpacity>
@@ -149,7 +151,7 @@ const CoursesMain = () => {
       </View>
 
       {/* Difficulty filter pills */}
-      <View className="mt-4">
+      <View style={s.filterSection}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -158,20 +160,18 @@ const CoursesMain = () => {
           {DIFFICULTY_FILTERS.map((level) => (
             <TouchableOpacity
               key={level}
-              className={`mr-2 px-4 py-2 rounded-pill border ${
-                selectedDifficulty === level
-                  ? 'bg-primary border-primary'
-                  : 'bg-surface border-border'
-              }`}
+              style={[
+                s.filterPill,
+                selectedDifficulty === level ? s.filterPillActive : s.filterPillInactive,
+              ]}
               onPress={() => setSelectedDifficulty(level)}
               activeOpacity={0.7}
             >
               <Text
-                className={`text-sm font-semibold ${
-                  selectedDifficulty === level
-                    ? 'text-white'
-                    : 'text-text-secondary'
-                }`}
+                style={[
+                  s.filterPillText,
+                  selectedDifficulty === level ? s.filterPillTextActive : s.filterPillTextInactive,
+                ]}
               >
                 {level}
               </Text>
@@ -181,7 +181,7 @@ const CoursesMain = () => {
       </View>
 
       {/* Category filter pills */}
-      <View className="mt-3 mb-4">
+      <View style={s.categorySection}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -190,20 +190,18 @@ const CoursesMain = () => {
           {CATEGORIES.map((cat) => (
             <TouchableOpacity
               key={cat}
-              className={`mr-2 px-4 py-2 rounded-pill border ${
-                selectedCategory === cat
-                  ? 'bg-accent border-accent'
-                  : 'bg-surface border-border'
-              }`}
+              style={[
+                s.filterPill,
+                selectedCategory === cat ? s.catPillActive : s.filterPillInactive,
+              ]}
               onPress={() => setSelectedCategory(cat)}
               activeOpacity={0.7}
             >
               <Text
-                className={`text-sm font-medium ${
-                  selectedCategory === cat
-                    ? 'text-white'
-                    : 'text-text-secondary'
-                }`}
+                style={[
+                  s.catPillText,
+                  selectedCategory === cat ? s.filterPillTextActive : s.filterPillTextInactive,
+                ]}
               >
                 {cat}
               </Text>
@@ -217,12 +215,12 @@ const CoursesMain = () => {
   const renderEmpty = () => {
     if (loading) return null;
     return (
-      <View className="items-center justify-center py-16 px-6">
-        <Text className="text-3xl mb-3">{'\u{1F4DA}'}</Text>
-        <Text className="text-lg font-bold text-text-primary mb-1">
+      <View style={s.emptyWrap}>
+        <Text style={s.emptyIcon}>{'\u{1F4DA}'}</Text>
+        <Text style={s.emptyTitle}>
           No courses found
         </Text>
-        <Text className="text-sm text-text-secondary text-center">
+        <Text style={s.emptyDesc}>
           Try adjusting your filters or search terms
         </Text>
       </View>
@@ -230,7 +228,7 @@ const CoursesMain = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+    <SafeAreaView style={s.safeArea} edges={['top']}>
       {loading && courses.length === 0 ? (
         <FlatList
           data={[1, 2, 3]}
@@ -248,7 +246,7 @@ const CoursesMain = () => {
           )}
           ListHeaderComponent={renderHeader}
           ListEmptyComponent={renderEmpty}
-          ListFooterComponent={<View className="h-8" />}
+          ListFooterComponent={<View style={s.footerSpacer} />}
           showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl
@@ -260,12 +258,141 @@ const CoursesMain = () => {
         />
       )}
       {loading && courses.length > 0 && (
-        <View className="absolute bottom-4 left-0 right-0 items-center">
+        <View style={s.loadingOverlay}>
           <ActivityIndicator color="#1B4332" />
         </View>
       )}
     </SafeAreaView>
   );
 };
+
+const s = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  titleWrap: {
+    paddingHorizontal: 24,
+    paddingTop: 16,
+    paddingBottom: 8,
+  },
+  pageTitle: {
+    fontSize: 24,
+    fontFamily: 'PlayfairDisplay',
+    fontWeight: 'bold',
+    color: colors.primary,
+  },
+  pageSubtitle: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginTop: 4,
+  },
+  searchWrap: {
+    paddingHorizontal: 24,
+    marginTop: 12,
+  },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
+  searchIcon: {
+    fontSize: 16,
+    marginRight: 8,
+    color: colors.textSecondary,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    color: colors.textPrimary,
+  },
+  searchClear: {
+    color: colors.textSecondary,
+    fontSize: 16,
+  },
+  filterSection: {
+    marginTop: 16,
+  },
+  categorySection: {
+    marginTop: 12,
+    marginBottom: 16,
+  },
+  filterPill: {
+    marginRight: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 24,
+    borderWidth: 1,
+  },
+  filterPillActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  catPillActive: {
+    backgroundColor: colors.accent,
+    borderColor: colors.accent,
+  },
+  filterPillInactive: {
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+  },
+  filterPillText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  catPillText: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  filterPillTextActive: {
+    color: colors.white,
+  },
+  filterPillTextInactive: {
+    color: colors.textSecondary,
+  },
+  emptyWrap: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 64,
+    paddingHorizontal: 24,
+  },
+  emptyIcon: {
+    fontSize: 30,
+    marginBottom: 12,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: colors.textPrimary,
+    marginBottom: 4,
+  },
+  emptyDesc: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    textAlign: 'center',
+  },
+  footerSpacer: {
+    height: 32,
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    bottom: 16,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+  },
+  skeletonCard: {
+    backgroundColor: colors.gray200,
+    borderRadius: 12,
+    height: 224,
+    marginHorizontal: 24,
+    marginBottom: 16,
+  },
+});
 
 export default CoursesMain;

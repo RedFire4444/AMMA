@@ -14,6 +14,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -153,25 +154,25 @@ const MeditationTimerScreen = () => {
 
   if (showCompletion) {
     return (
-      <SafeAreaView className="flex-1 bg-[#0B2B1F]" edges={['top', 'bottom']}>
-        <View className="flex-1 items-center justify-center px-6">
-          <Text className="text-5xl mb-6">{'\u{1F514}'}</Text>
-          <Text className="text-2xl font-serif font-bold text-white mb-3">
+      <SafeAreaView style={s.darkContainer} edges={['top', 'bottom']}>
+        <View style={s.completionWrap}>
+          <Text style={s.completionIcon}>{'\u{1F514}'}</Text>
+          <Text style={s.completionTitle}>
             Session Complete
           </Text>
-          <Text className="text-base text-white/70 text-center mb-2">
+          <Text style={s.completionSubtitle}>
             You meditated for {selectedMinutes} minutes
           </Text>
-          <Text className="text-sm text-white/50 text-center mb-8">
+          <Text style={s.completionNote}>
             Your practice has been logged. Namaste.
           </Text>
 
           <TouchableOpacity
-            className="bg-accent rounded-button px-8 py-3.5"
+            style={s.doneButton}
             onPress={handleDismissCompletion}
             activeOpacity={0.8}
           >
-            <Text className="text-white font-bold text-base">Done</Text>
+            <Text style={s.doneButtonText}>Done</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -179,11 +180,11 @@ const MeditationTimerScreen = () => {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-[#0B2B1F]" edges={['top', 'bottom']}>
+    <SafeAreaView style={s.darkContainer} edges={['top', 'bottom']}>
       {/* Header */}
-      <View className="flex-row items-center px-6 pt-3 pb-2">
+      <View style={s.header}>
         <TouchableOpacity
-          className="w-10 h-10 rounded-full bg-white/10 items-center justify-center mr-3"
+          style={s.headerBackButton}
           onPress={() => {
             if (isActive) {
               handleStop();
@@ -192,21 +193,21 @@ const MeditationTimerScreen = () => {
             }
           }}
         >
-          <Text className="text-lg text-white">{'\u2190'}</Text>
+          <Text style={s.headerBackText}>{'\u2190'}</Text>
         </TouchableOpacity>
-        <Text className="text-lg font-bold text-white flex-1">
+        <Text style={s.headerTitle}>
           Meditation
         </Text>
       </View>
 
       <ScrollView
-        className="flex-1"
+        style={s.flex1}
         showsVerticalScrollIndicator={false}
         scrollEnabled={!isActive}
         contentContainerStyle={{ alignItems: 'center', paddingBottom: 32 }}
       >
         {/* Timer circle */}
-        <View className="mt-8 mb-8">
+        <View style={s.timerWrap}>
           <TimerCircle
             remaining={remaining}
             total={duration}
@@ -216,28 +217,30 @@ const MeditationTimerScreen = () => {
 
         {/* Duration presets */}
         {!isActive && (
-          <View className="mb-6">
-            <Text className="text-sm text-white/60 text-center mb-3">
+          <View style={s.durationSection}>
+            <Text style={s.sectionLabel}>
               Duration (minutes)
             </Text>
-            <View className="flex-row justify-center flex-wrap px-6">
+            <View style={s.durationRow}>
               {DURATION_PRESETS.map((mins) => (
                 <TouchableOpacity
                   key={mins}
-                  className={`w-14 h-14 rounded-full items-center justify-center mx-1.5 mb-2 ${
+                  style={[
+                    s.durationPreset,
                     selectedMinutes === mins
-                      ? 'bg-accent'
-                      : 'bg-white/10'
-                  }`}
+                      ? s.durationPresetActive
+                      : s.durationPresetInactive,
+                  ]}
                   onPress={() => setDuration(mins)}
                   activeOpacity={0.7}
                 >
                   <Text
-                    className={`text-base font-bold ${
+                    style={[
+                      s.durationPresetText,
                       selectedMinutes === mins
-                        ? 'text-white'
-                        : 'text-white/70'
-                    }`}
+                        ? s.durationPresetTextActive
+                        : s.durationPresetTextInactive,
+                    ]}
                   >
                     {mins}
                   </Text>
@@ -249,8 +252,8 @@ const MeditationTimerScreen = () => {
 
         {/* Ambient sound picker */}
         {!isActive && (
-          <View className="mb-6 w-full">
-            <Text className="text-sm text-white/60 text-center mb-3">
+          <View style={s.soundSection}>
+            <Text style={s.sectionLabel}>
               Ambient Sound
             </Text>
             <ScrollView
@@ -261,21 +264,23 @@ const MeditationTimerScreen = () => {
               {SOUND_OPTIONS.map((opt) => (
                 <TouchableOpacity
                   key={opt.key}
-                  className={`items-center mr-4 px-3 py-2 rounded-card ${
+                  style={[
+                    s.soundOption,
                     selectedSound === opt.key
-                      ? 'bg-accent/20 border border-accent'
-                      : 'bg-white/5 border border-white/10'
-                  }`}
+                      ? s.soundOptionActive
+                      : s.soundOptionInactive,
+                  ]}
                   onPress={() => setSound(opt.key)}
                   activeOpacity={0.7}
                 >
-                  <Text className="text-2xl mb-1">{opt.icon}</Text>
+                  <Text style={s.soundOptionIcon}>{opt.icon}</Text>
                   <Text
-                    className={`text-xs font-medium ${
+                    style={[
+                      s.soundOptionLabel,
                       selectedSound === opt.key
-                        ? 'text-accent'
-                        : 'text-white/60'
-                    }`}
+                        ? s.soundOptionLabelActive
+                        : s.soundOptionLabelInactive,
+                    ]}
                   >
                     {opt.label}
                   </Text>
@@ -287,26 +292,28 @@ const MeditationTimerScreen = () => {
 
         {/* Session type picker */}
         {!isActive && (
-          <View className="mb-8 px-6">
-            <Text className="text-sm text-white/60 text-center mb-3">
+          <View style={s.sessionTypeSection}>
+            <Text style={s.sectionLabel}>
               Session Type
             </Text>
-            <View className="flex-row bg-white/10 rounded-pill p-1">
+            <View style={s.sessionTypeRow}>
               {SESSION_TYPES.map((type) => (
                 <TouchableOpacity
                   key={type.key}
-                  className={`flex-1 py-2.5 rounded-pill items-center ${
-                    sessionType === type.key ? 'bg-accent' : ''
-                  }`}
+                  style={[
+                    s.sessionTypeOption,
+                    sessionType === type.key ? s.sessionTypeOptionActive : null,
+                  ]}
                   onPress={() => setSessionType(type.key)}
                   activeOpacity={0.7}
                 >
                   <Text
-                    className={`text-sm font-semibold ${
+                    style={[
+                      s.sessionTypeText,
                       sessionType === type.key
-                        ? 'text-white'
-                        : 'text-white/60'
-                    }`}
+                        ? s.sessionTypeTextActive
+                        : s.sessionTypeTextInactive,
+                    ]}
                   >
                     {type.label}
                   </Text>
@@ -317,33 +324,33 @@ const MeditationTimerScreen = () => {
         )}
 
         {/* Controls */}
-        <View className="flex-row items-center justify-center px-6">
+        <View style={s.controlsRow}>
           {!isActive ? (
             <TouchableOpacity
-              className="bg-accent rounded-full w-20 h-20 items-center justify-center"
+              style={s.startButton}
               onPress={start}
               activeOpacity={0.8}
             >
-              <Text className="text-3xl text-white">{'\u25B6'}</Text>
+              <Text style={s.startButtonText}>{'\u25B6'}</Text>
             </TouchableOpacity>
           ) : (
-            <View className="flex-row items-center">
+            <View style={s.activeControlsRow}>
               {/* Stop button */}
               <TouchableOpacity
-                className="bg-red-500/20 border border-red-500 rounded-full w-14 h-14 items-center justify-center mr-6"
+                style={s.stopButton}
                 onPress={handleStop}
                 activeOpacity={0.8}
               >
-                <Text className="text-xl text-red-400">{'\u25A0'}</Text>
+                <Text style={s.stopButtonText}>{'\u25A0'}</Text>
               </TouchableOpacity>
 
               {/* Pause/Resume */}
               <TouchableOpacity
-                className="bg-accent rounded-full w-20 h-20 items-center justify-center"
+                style={s.startButton}
                 onPress={isRunning ? pause : resume}
                 activeOpacity={0.8}
               >
-                <Text className="text-3xl text-white">
+                <Text style={s.startButtonText}>
                   {isRunning ? '\u23F8' : '\u25B6'}
                 </Text>
               </TouchableOpacity>
@@ -356,3 +363,222 @@ const MeditationTimerScreen = () => {
 };
 
 export default MeditationTimerScreen;
+
+const s = StyleSheet.create({
+  darkContainer: {
+    flex: 1,
+    backgroundColor: '#0B2B1F',
+  },
+  flex1: {
+    flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingTop: 12,
+    paddingBottom: 8,
+  },
+  headerBackButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  headerBackText: {
+    fontSize: 18,
+    color: '#FFFFFF',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    flex: 1,
+  },
+  timerWrap: {
+    marginTop: 32,
+    marginBottom: 32,
+  },
+  sectionLabel: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.6)',
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  durationSection: {
+    marginBottom: 24,
+  },
+  durationRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    paddingHorizontal: 24,
+  },
+  durationPreset: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 6,
+    marginBottom: 8,
+  },
+  durationPresetActive: {
+    backgroundColor: '#40916C',
+  },
+  durationPresetInactive: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+  },
+  durationPresetText: {
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  durationPresetTextActive: {
+    color: '#FFFFFF',
+  },
+  durationPresetTextInactive: {
+    color: 'rgba(255,255,255,0.7)',
+  },
+  soundSection: {
+    marginBottom: 24,
+    width: '100%',
+  },
+  soundOption: {
+    alignItems: 'center',
+    marginRight: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  soundOptionActive: {
+    backgroundColor: 'rgba(64,145,108,0.2)',
+    borderColor: '#40916C',
+  },
+  soundOptionInactive: {
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  soundOptionIcon: {
+    fontSize: 24,
+    marginBottom: 4,
+  },
+  soundOptionLabel: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  soundOptionLabelActive: {
+    color: '#40916C',
+  },
+  soundOptionLabelInactive: {
+    color: 'rgba(255,255,255,0.6)',
+  },
+  sessionTypeSection: {
+    marginBottom: 32,
+    paddingHorizontal: 24,
+  },
+  sessionTypeRow: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 999,
+    padding: 4,
+  },
+  sessionTypeOption: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 999,
+    alignItems: 'center',
+  },
+  sessionTypeOptionActive: {
+    backgroundColor: '#40916C',
+  },
+  sessionTypeText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  sessionTypeTextActive: {
+    color: '#FFFFFF',
+  },
+  sessionTypeTextInactive: {
+    color: 'rgba(255,255,255,0.6)',
+  },
+  controlsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  activeControlsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  startButton: {
+    backgroundColor: '#40916C',
+    borderRadius: 40,
+    width: 80,
+    height: 80,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  startButtonText: {
+    fontSize: 30,
+    color: '#FFFFFF',
+  },
+  stopButton: {
+    backgroundColor: 'rgba(220,38,38,0.2)',
+    borderWidth: 1,
+    borderColor: '#DC2626',
+    borderRadius: 28,
+    width: 56,
+    height: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 24,
+  },
+  stopButtonText: {
+    fontSize: 20,
+    color: '#F87171',
+  },
+  completionWrap: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  completionIcon: {
+    fontSize: 48,
+    marginBottom: 24,
+  },
+  completionTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginBottom: 12,
+  },
+  completionSubtitle: {
+    fontSize: 16,
+    color: 'rgba(255,255,255,0.7)',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  completionNote: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.5)',
+    textAlign: 'center',
+    marginBottom: 32,
+  },
+  doneButton: {
+    backgroundColor: '#40916C',
+    borderRadius: 8,
+    paddingHorizontal: 32,
+    paddingVertical: 14,
+  },
+  doneButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 16,
+  },
+});

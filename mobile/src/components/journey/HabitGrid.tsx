@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { StreakBadge } from './StreakBadge';
 
 interface HabitLogEntry {
@@ -55,12 +55,12 @@ export const HabitGrid = ({
   const gridDays = buildGridDays(logs);
 
   return (
-    <View className="bg-surface rounded-card border border-border mx-6 mb-4 p-4">
+    <View style={s.card}>
       {/* Header */}
-      <View className="flex-row items-center justify-between mb-3">
-        <View className="flex-row items-center">
-          <Text className="text-lg mr-2">{habitIcon}</Text>
-          <Text className="text-base font-bold text-text-primary">
+      <View style={s.header}>
+        <View style={s.headerLeft}>
+          <Text style={s.habitIcon}>{habitIcon}</Text>
+          <Text style={s.habitName}>
             {habitName}
           </Text>
         </View>
@@ -68,9 +68,9 @@ export const HabitGrid = ({
       </View>
 
       {/* Grid */}
-      <View className="mb-3">
+      <View style={s.gridContainer}>
         {Array.from({ length: GRID_ROWS }).map((_rowItem, row) => (
-          <View key={`row-${row}`} className="flex-row justify-between mb-1">
+          <View key={`row-${row}`} style={s.gridRow}>
             {Array.from({ length: GRID_COLS }).map((_colItem, col) => {
               const index = row * GRID_COLS + col;
               const day = gridDays[index];
@@ -79,16 +79,16 @@ export const HabitGrid = ({
               return (
                 <View
                   key={day.date}
-                  className={`w-8 h-8 rounded-sm items-center justify-center ${
-                    day.completed ? 'bg-accent' : 'bg-gray-100'
-                  }`}
+                  style={[
+                    s.gridCell,
+                    day.completed ? s.gridCellCompleted : s.gridCellEmpty,
+                  ]}
                 >
                   <Text
-                    className={`text-xs ${
-                      day.completed
-                        ? 'text-white font-bold'
-                        : 'text-gray-400'
-                    }`}
+                    style={[
+                      s.gridCellText,
+                      day.completed ? s.gridCellTextCompleted : s.gridCellTextEmpty,
+                    ]}
                   >
                     {new Date(day.date).getDate()}
                   </Text>
@@ -101,14 +101,87 @@ export const HabitGrid = ({
 
       {/* Log Today button */}
       <TouchableOpacity
-        className="bg-primary/10 rounded-button py-2.5 items-center"
+        style={s.logButton}
         onPress={onLogToday}
         activeOpacity={0.7}
       >
-        <Text className="text-primary font-semibold text-sm">
+        <Text style={s.logButtonText}>
           + Log Today
         </Text>
       </TouchableOpacity>
     </View>
   );
 };
+
+const s = StyleSheet.create({
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    marginHorizontal: 24,
+    marginBottom: 16,
+    padding: 16,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  habitIcon: {
+    fontSize: 18,
+    marginRight: 8,
+  },
+  habitName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#1A1A2E',
+  },
+  gridContainer: {
+    marginBottom: 12,
+  },
+  gridRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  gridCell: {
+    width: 32,
+    height: 32,
+    borderRadius: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  gridCellCompleted: {
+    backgroundColor: '#40916C',
+  },
+  gridCellEmpty: {
+    backgroundColor: '#F3F4F6',
+  },
+  gridCellText: {
+    fontSize: 12,
+  },
+  gridCellTextCompleted: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+  },
+  gridCellTextEmpty: {
+    color: '#9CA3AF',
+  },
+  logButton: {
+    backgroundColor: 'rgba(27, 67, 50, 0.1)',
+    borderRadius: 8,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  logButtonText: {
+    color: '#1B4332',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+});

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 
 interface StreakBadgeProps {
   count: number;
@@ -8,10 +8,37 @@ interface StreakBadgeProps {
 
 export const StreakBadge = ({ count, label }: StreakBadgeProps) => {
   return (
-    <View className="flex-row items-center bg-amber-50 border border-amber-200 rounded-pill px-3 py-1.5">
-      <Text className="text-sm mr-1">{'\u{1F525}'}</Text>
-      <Text className="text-sm font-bold text-amber-700">{count}</Text>
-      <Text className="text-xs text-amber-600 ml-1">{label}</Text>
+    <View style={s.badge}>
+      <Text style={s.fireIcon}>{'\u{1F525}'}</Text>
+      <Text style={s.count}>{count}</Text>
+      <Text style={s.label}>{label}</Text>
     </View>
   );
 };
+
+const s = StyleSheet.create({
+  badge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFBEB',
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  fireIcon: {
+    fontSize: 14,
+    marginRight: 4,
+  },
+  count: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#B45309',
+  },
+  label: {
+    fontSize: 12,
+    color: '#D97706',
+    marginLeft: 4,
+  },
+});

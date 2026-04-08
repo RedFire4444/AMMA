@@ -15,9 +15,11 @@ import {
   RefreshControl,
   TouchableOpacity,
   FlatList,
+  StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { homeService, HomeFeedData } from '../services/home.service';
+import { colors } from '../utils/styles';
 
 const getGreetingTime = (): string => {
   const hour = new Date().getHours();
@@ -34,7 +36,7 @@ const formatMinutes = (minutes: number): string => {
 };
 
 const SkeletonCard = () => (
-  <View className="bg-gray-200 rounded-card h-32 w-48 mr-3 animate-pulse" />
+  <View style={s.skeletonCard} />
 );
 
 const HomeMain = () => {
@@ -64,9 +66,9 @@ const HomeMain = () => {
   }, [loadFeed]);
 
   return (
-    <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+    <SafeAreaView style={s.safeArea} edges={['top']}>
       <ScrollView
-        className="flex-1"
+        style={s.flex1}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -77,40 +79,40 @@ const HomeMain = () => {
         }
       >
         {/* Header */}
-        <View className="flex-row items-center justify-between px-6 pt-4 pb-2">
+        <View style={s.headerRow}>
           <View>
-            <Text className="text-2xl font-serif font-bold text-primary">
+            <Text style={s.greeting}>
               {getGreetingTime()},{' '}
               {loading ? '...' : feed?.greeting || 'Friend'}
             </Text>
           </View>
-          <TouchableOpacity className="w-10 h-10 rounded-full bg-surface border border-border items-center justify-center">
-            <Text className="text-lg">{'\u{1F514}'}</Text>
+          <TouchableOpacity style={s.bellBtn}>
+            <Text style={s.bellIcon}>{'\u{1F514}'}</Text>
           </TouchableOpacity>
         </View>
 
         {/* Stats Pills */}
-        <View className="flex-row px-6 mt-4 space-x-3">
-          <View className="flex-row items-center bg-surface rounded-pill px-4 py-2 border border-border">
-            <Text className="text-sm mr-1">{'\u{23F1}'}</Text>
-            <Text className="text-sm font-semibold text-text-primary">
+        <View style={s.statsRow}>
+          <View style={s.statPill}>
+            <Text style={s.statIcon}>{'\u{23F1}'}</Text>
+            <Text style={s.statValue}>
               {loading ? '--' : formatMinutes(feed?.stats.totalMinutes ?? 0)}
             </Text>
-            <Text className="text-xs text-text-secondary ml-1">Total Time</Text>
+            <Text style={s.statLabel}>Total Time</Text>
           </View>
-          <View className="flex-row items-center bg-surface rounded-pill px-4 py-2 border border-border">
-            <Text className="text-sm mr-1">{'\u{1F525}'}</Text>
-            <Text className="text-sm font-semibold text-text-primary">
+          <View style={[s.statPill, { marginLeft: 12 }]}>
+            <Text style={s.statIcon}>{'\u{1F525}'}</Text>
+            <Text style={s.statValue}>
               {loading ? '--' : feed?.stats.currentStreak ?? 0}
             </Text>
-            <Text className="text-xs text-text-secondary ml-1">Day Streak</Text>
+            <Text style={s.statLabel}>Day Streak</Text>
           </View>
         </View>
 
         {/* Live Events Banner */}
         {feed?.upcomingEvents && feed.upcomingEvents.length > 0 && (
-          <View className="mt-6">
-            <Text className="text-lg font-bold text-text-primary px-6 mb-3">
+          <View style={s.sectionWrap}>
+            <Text style={s.sectionTitle}>
               Upcoming Events
             </Text>
             <FlatList
@@ -120,16 +122,16 @@ const HomeMain = () => {
               data={feed.upcomingEvents}
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
-                <TouchableOpacity className="bg-primary rounded-card w-64 h-36 mr-3 p-4 justify-end">
+                <TouchableOpacity style={s.eventCard}>
                   {item.is_live && (
-                    <View className="absolute top-3 left-3 bg-red-500 rounded-pill px-2 py-1">
-                      <Text className="text-white text-xs font-bold">LIVE</Text>
+                    <View style={s.liveBadge}>
+                      <Text style={s.liveBadgeText}>LIVE</Text>
                     </View>
                   )}
-                  <Text className="text-white font-bold text-base" numberOfLines={2}>
+                  <Text style={s.eventTitle} numberOfLines={2}>
                     {item.title}
                   </Text>
-                  <Text className="text-white/70 text-xs mt-1">
+                  <Text style={s.eventDate}>
                     {new Date(item.event_date).toLocaleDateString('en-IN', {
                       day: 'numeric',
                       month: 'short',
@@ -144,17 +146,17 @@ const HomeMain = () => {
         )}
 
         {/* Trending Videos / Courses */}
-        <View className="mt-6">
-          <View className="flex-row items-center justify-between px-6 mb-3">
-            <Text className="text-lg font-bold text-text-primary">
+        <View style={s.sectionWrap}>
+          <View style={s.sectionHeaderRow}>
+            <Text style={s.sectionTitle}>
               Trending Videos
             </Text>
             <TouchableOpacity>
-              <Text className="text-accent text-sm font-semibold">See All</Text>
+              <Text style={s.seeAllText}>See All</Text>
             </TouchableOpacity>
           </View>
           {loading ? (
-            <View className="flex-row px-6">
+            <View style={s.skeletonRow}>
               <SkeletonCard />
               <SkeletonCard />
             </View>
@@ -166,23 +168,23 @@ const HomeMain = () => {
               data={feed?.trendingCourses || []}
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
-                <TouchableOpacity className="bg-surface rounded-card w-48 mr-3 border border-border overflow-hidden">
-                  <View className="h-28 bg-primary-light/20 items-center justify-center">
-                    <Text className="text-3xl">{'\u{1F3AC}'}</Text>
-                    <View className="absolute bottom-2 right-2 bg-black/60 rounded-pill px-2 py-0.5">
-                      <Text className="text-white text-xs">
+                <TouchableOpacity style={s.trendingCard}>
+                  <View style={s.trendingThumb}>
+                    <Text style={s.trendingThumbIcon}>{'\u{1F3AC}'}</Text>
+                    <View style={s.durationBadge}>
+                      <Text style={s.durationBadgeText}>
                         {formatMinutes(item.estimated_duration_minutes)}
                       </Text>
                     </View>
                   </View>
-                  <View className="p-3">
+                  <View style={s.trendingInfo}>
                     <Text
-                      className="text-sm font-semibold text-text-primary"
+                      style={s.trendingTitle}
                       numberOfLines={2}
                     >
                       {item.title}
                     </Text>
-                    <Text className="text-xs text-text-secondary mt-1">
+                    <Text style={s.trendingInstructor}>
                       {item.instructor_name}
                     </Text>
                   </View>
@@ -194,23 +196,232 @@ const HomeMain = () => {
 
         {/* Daily Quote */}
         {feed?.dailyQuote && (
-          <View className="mx-6 mt-6 mb-2 p-5 bg-primary/5 rounded-card border border-primary/20">
-            <Text className="text-xs uppercase tracking-widest text-accent mb-3 font-semibold">
+          <View style={s.quoteCard}>
+            <Text style={s.quoteLabel}>
               Daily Affirmation
             </Text>
-            <Text className="text-base font-serif text-text-primary leading-6 italic">
+            <Text style={s.quoteText}>
               "{feed.dailyQuote.quote_text}"
             </Text>
-            <Text className="text-sm text-text-secondary mt-3">
+            <Text style={s.quoteAuthor}>
               — {feed.dailyQuote.author || 'Unknown'}
             </Text>
           </View>
         )}
 
-        <View className="h-8" />
+        <View style={s.bottomSpacer} />
       </ScrollView>
     </SafeAreaView>
   );
 };
+
+const s = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  flex1: {
+    flex: 1,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 24,
+    paddingTop: 16,
+    paddingBottom: 8,
+  },
+  greeting: {
+    fontSize: 24,
+    fontFamily: 'PlayfairDisplay',
+    fontWeight: 'bold',
+    color: colors.primary,
+  },
+  bellBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bellIcon: {
+    fontSize: 18,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    paddingHorizontal: 24,
+    marginTop: 16,
+  },
+  statPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.surface,
+    borderRadius: 24,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  statIcon: {
+    fontSize: 14,
+    marginRight: 4,
+  },
+  statValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.textPrimary,
+  },
+  statLabel: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginLeft: 4,
+  },
+  sectionWrap: {
+    marginTop: 24,
+  },
+  sectionHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 24,
+    marginBottom: 12,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: colors.textPrimary,
+    paddingHorizontal: 24,
+    marginBottom: 12,
+  },
+  seeAllText: {
+    color: colors.accent,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  skeletonRow: {
+    flexDirection: 'row',
+    paddingHorizontal: 24,
+  },
+  skeletonCard: {
+    backgroundColor: colors.gray200,
+    borderRadius: 12,
+    height: 128,
+    width: 192,
+    marginRight: 12,
+  },
+  eventCard: {
+    backgroundColor: colors.primary,
+    borderRadius: 12,
+    width: 256,
+    height: 144,
+    marginRight: 12,
+    padding: 16,
+    justifyContent: 'flex-end',
+  },
+  liveBadge: {
+    position: 'absolute',
+    top: 12,
+    left: 12,
+    backgroundColor: '#DC2626',
+    borderRadius: 24,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  liveBadgeText: {
+    color: colors.white,
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  eventTitle: {
+    color: colors.white,
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  eventDate: {
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontSize: 12,
+    marginTop: 4,
+  },
+  trendingCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    width: 192,
+    marginRight: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+    overflow: 'hidden',
+  },
+  trendingThumb: {
+    height: 112,
+    backgroundColor: 'rgba(45, 106, 79, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  trendingThumbIcon: {
+    fontSize: 30,
+  },
+  durationBadge: {
+    position: 'absolute',
+    bottom: 8,
+    right: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    borderRadius: 24,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  durationBadgeText: {
+    color: colors.white,
+    fontSize: 12,
+  },
+  trendingInfo: {
+    padding: 12,
+  },
+  trendingTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.textPrimary,
+  },
+  trendingInstructor: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginTop: 4,
+  },
+  quoteCard: {
+    marginHorizontal: 24,
+    marginTop: 24,
+    marginBottom: 8,
+    padding: 20,
+    backgroundColor: 'rgba(27, 67, 50, 0.05)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(27, 67, 50, 0.2)',
+  },
+  quoteLabel: {
+    fontSize: 12,
+    textTransform: 'uppercase',
+    letterSpacing: 2,
+    color: colors.accent,
+    marginBottom: 12,
+    fontWeight: '600',
+  },
+  quoteText: {
+    fontSize: 16,
+    fontFamily: 'PlayfairDisplay',
+    color: colors.textPrimary,
+    lineHeight: 24,
+    fontStyle: 'italic',
+  },
+  quoteAuthor: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginTop: 12,
+  },
+  bottomSpacer: {
+    height: 32,
+  },
+});
 
 export default HomeMain;

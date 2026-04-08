@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 
 interface ContentCardProps {
   id: string;
@@ -38,46 +38,46 @@ export const ContentCard = ({
   return (
     <TouchableOpacity
       onPress={onPress}
-      className="flex-row bg-surface rounded-card mb-3 border border-border overflow-hidden"
+      style={s.card}
     >
       {/* Thumbnail */}
-      <View className="w-32 h-24 bg-primary-light/20 items-center justify-center relative">
+      <View style={s.thumbnail}>
         {thumbnailUrl ? (
           <Image
             source={{ uri: thumbnailUrl }}
-            className="w-full h-full"
+            style={s.thumbnailImage}
             resizeMode="cover"
           />
         ) : (
-          <Text className="text-2xl">{'\u{1F3B5}'}</Text>
+          <Text style={s.thumbnailEmoji}>{'\u{1F3B5}'}</Text>
         )}
         {durationSeconds ? (
-          <View className="absolute bottom-1 right-1 bg-black/70 rounded-pill px-2 py-0.5">
-            <Text className="text-white text-xs font-semibold">
+          <View style={s.durationBadge}>
+            <Text style={s.durationText}>
               {formatDuration(durationSeconds)}
             </Text>
           </View>
         ) : null}
         {isPremium && (
-          <View className="absolute top-1 left-1 bg-accent rounded-pill px-2 py-0.5">
-            <Text className="text-white text-xs font-bold">PRO</Text>
+          <View style={s.proBadge}>
+            <Text style={s.proText}>PRO</Text>
           </View>
         )}
       </View>
 
       {/* Info */}
-      <View className="flex-1 p-3 justify-between">
-        <Text className="text-sm font-semibold text-text-primary" numberOfLines={2}>
+      <View style={s.info}>
+        <Text style={s.title} numberOfLines={2}>
           {title}
         </Text>
-        <View className="flex-row items-center justify-between mt-2">
-          <View className="flex-row items-center">
-            <Text className="text-xs text-text-secondary">
+        <View style={s.footer}>
+          <View style={s.viewRow}>
+            <Text style={s.viewText}>
               {'\u{25B6}'} {viewCount >= 1000 ? `${Math.floor(viewCount / 1000)}k` : viewCount}
             </Text>
           </View>
           <TouchableOpacity onPress={onBookmark} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-            <Text className={`text-lg ${isBookmarked ? 'text-accent' : 'text-gray-300'}`}>
+            <Text style={[s.bookmarkIcon, isBookmarked ? s.bookmarkActive : s.bookmarkInactive]}>
               {isBookmarked ? '\u{1F516}' : '\u{1F517}'}
             </Text>
           </TouchableOpacity>
@@ -86,3 +86,90 @@ export const ContentCard = ({
     </TouchableOpacity>
   );
 };
+
+const s = StyleSheet.create({
+  card: {
+    flexDirection: 'row',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    overflow: 'hidden',
+  },
+  thumbnail: {
+    width: 128,
+    height: 96,
+    backgroundColor: 'rgba(45, 106, 79, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  thumbnailImage: {
+    width: '100%',
+    height: '100%',
+  },
+  thumbnailEmoji: {
+    fontSize: 24,
+  },
+  durationBadge: {
+    position: 'absolute',
+    bottom: 4,
+    right: 4,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    borderRadius: 999,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  durationText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  proBadge: {
+    position: 'absolute',
+    top: 4,
+    left: 4,
+    backgroundColor: '#40916C',
+    borderRadius: 999,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  proText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  info: {
+    flex: 1,
+    padding: 12,
+    justifyContent: 'space-between',
+  },
+  title: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1A1A2E',
+  },
+  footer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 8,
+  },
+  viewRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  viewText: {
+    fontSize: 12,
+    color: '#6B7280',
+  },
+  bookmarkIcon: {
+    fontSize: 18,
+  },
+  bookmarkActive: {
+    color: '#40916C',
+  },
+  bookmarkInactive: {
+    color: '#D1D5DB',
+  },
+});

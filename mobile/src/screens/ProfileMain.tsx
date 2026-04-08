@@ -14,6 +14,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -21,6 +22,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuthStore } from '../store/authStore';
 import { userService } from '../services/user.service';
 import { ProfileStackParamList } from '../navigation/types';
+import { colors } from '../utils/styles';
 
 type ProfileNavProp = NativeStackNavigationProp<ProfileStackParamList, 'ProfileMain'>;
 
@@ -35,9 +37,9 @@ interface UserProfile {
 }
 
 const StatCard = ({ label, value }: { label: string; value: string }) => (
-  <View className="w-[48%] bg-surface rounded-card border border-border p-4 mb-3 items-center">
-    <Text className="text-xl font-bold text-primary">{value}</Text>
-    <Text className="text-xs text-text-secondary mt-1">{label}</Text>
+  <View style={s.statCard}>
+    <Text style={s.statCardValue}>{value}</Text>
+    <Text style={s.statCardLabel}>{label}</Text>
   </View>
 );
 
@@ -52,14 +54,14 @@ const SettingsRow = ({
 }) => (
   <TouchableOpacity
     onPress={onPress}
-    className="flex-row items-center justify-between py-4 border-b border-border"
+    style={s.settingsRow}
   >
     <Text
-      className={`text-base ${danger ? 'text-red-500' : 'text-text-primary'}`}
+      style={[s.settingsLabel, danger ? s.settingsLabelDanger : s.settingsLabelNormal]}
     >
       {label}
     </Text>
-    <Text className="text-text-secondary text-lg">{'\u{203A}'}</Text>
+    <Text style={s.settingsChevron}>{'\u{203A}'}</Text>
   </TouchableOpacity>
 );
 
@@ -95,31 +97,31 @@ const ProfileMain = () => {
   const level = profile?.level || 'beginner';
 
   return (
-    <SafeAreaView className="flex-1 bg-background" edges={['top']}>
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={s.safeArea} edges={['top']}>
+      <ScrollView style={s.flex1} showsVerticalScrollIndicator={false}>
         {/* Avatar + Name */}
-        <View className="items-center pt-6 pb-4">
-          <View className="w-20 h-20 rounded-full bg-primary items-center justify-center mb-3">
-            <Text className="text-3xl font-bold text-white">{initials}</Text>
+        <View style={s.avatarSection}>
+          <View style={s.avatarCircle}>
+            <Text style={s.avatarInitials}>{initials}</Text>
           </View>
-          <Text className="text-xl font-bold text-text-primary">
+          <Text style={s.displayName}>
             {displayName}
           </Text>
-          <View className="bg-accent/20 rounded-pill px-3 py-1 mt-2">
-            <Text className="text-xs font-semibold text-accent capitalize">
+          <View style={s.levelBadge}>
+            <Text style={s.levelText}>
               {level}
             </Text>
           </View>
-          <TouchableOpacity className="mt-2">
-            <Text className="text-accent text-sm font-semibold">
+          <TouchableOpacity style={s.editProfileBtn}>
+            <Text style={s.editProfileText}>
               Edit Profile
             </Text>
           </TouchableOpacity>
         </View>
 
         {/* Stats Grid */}
-        <View className="px-6 mt-2">
-          <View className="flex-row flex-wrap justify-between">
+        <View style={s.statsSection}>
+          <View style={s.statsGrid}>
             <StatCard label="Member Since" value={memberSince} />
             <StatCard label="Longest Streak" value="0 Days" />
             <StatCard label="Total Duration" value="0h" />
@@ -131,28 +133,28 @@ const ProfileMain = () => {
 
         {/* Premium Upsell (Free users) */}
         {profile?.subscription_status !== 'active' && (
-          <View className="mx-6 mt-4 p-4 bg-primary/5 rounded-card border border-primary/20">
-            <Text className="text-xs text-text-secondary uppercase tracking-wider mb-1">
+          <View style={s.premiumCard}>
+            <Text style={s.premiumPlanLabel}>
               Current Plan: Free
             </Text>
-            <Text className="text-base font-bold text-text-primary mb-2">
+            <Text style={s.premiumTitle}>
               Enhance Your Practice
             </Text>
-            <Text className="text-sm text-text-secondary mb-3">
+            <Text style={s.premiumDesc}>
               Access all premium courses, ad-free meditations, and exclusive
               satsangs.
             </Text>
             <TouchableOpacity
               onPress={() => navigation.navigate('Paywall')}
-              className="bg-primary py-3 rounded-button items-center"
+              style={s.premiumBtn}
             >
-              <Text className="text-white font-bold">Upgrade to Premium</Text>
+              <Text style={s.premiumBtnText}>Upgrade to Premium</Text>
             </TouchableOpacity>
           </View>
         )}
 
         {/* Settings List */}
-        <View className="px-6 mt-6 mb-8">
+        <View style={s.settingsSection}>
           <SettingsRow label="Subscription" onPress={() => navigation.navigate('Subscription')} />
           <SettingsRow label="Notifications" onPress={() => {}} />
           <SettingsRow label="Invite a Friend" onPress={() => {}} />
@@ -165,5 +167,152 @@ const ProfileMain = () => {
     </SafeAreaView>
   );
 };
+
+const s = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  flex1: {
+    flex: 1,
+  },
+  avatarSection: {
+    alignItems: 'center',
+    paddingTop: 24,
+    paddingBottom: 16,
+  },
+  avatarCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  avatarInitials: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    color: colors.white,
+  },
+  displayName: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.textPrimary,
+  },
+  levelBadge: {
+    backgroundColor: 'rgba(64, 145, 108, 0.2)',
+    borderRadius: 24,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    marginTop: 8,
+  },
+  levelText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.accent,
+    textTransform: 'capitalize',
+  },
+  editProfileBtn: {
+    marginTop: 8,
+  },
+  editProfileText: {
+    color: colors.accent,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  statsSection: {
+    paddingHorizontal: 24,
+    marginTop: 8,
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  statCard: {
+    width: '48%',
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: 16,
+    marginBottom: 12,
+    alignItems: 'center',
+  },
+  statCardValue: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.primary,
+  },
+  statCardLabel: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginTop: 4,
+  },
+  premiumCard: {
+    marginHorizontal: 24,
+    marginTop: 16,
+    padding: 16,
+    backgroundColor: 'rgba(27, 67, 50, 0.05)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(27, 67, 50, 0.2)',
+  },
+  premiumPlanLabel: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginBottom: 4,
+  },
+  premiumTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: colors.textPrimary,
+    marginBottom: 8,
+  },
+  premiumDesc: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginBottom: 12,
+  },
+  premiumBtn: {
+    backgroundColor: colors.primary,
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  premiumBtnText: {
+    color: colors.white,
+    fontWeight: 'bold',
+  },
+  settingsSection: {
+    paddingHorizontal: 24,
+    marginTop: 24,
+    marginBottom: 32,
+  },
+  settingsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  settingsLabel: {
+    fontSize: 16,
+  },
+  settingsLabelNormal: {
+    color: colors.textPrimary,
+  },
+  settingsLabelDanger: {
+    color: colors.error,
+  },
+  settingsChevron: {
+    color: colors.textSecondary,
+    fontSize: 18,
+  },
+});
 
 export default ProfileMain;

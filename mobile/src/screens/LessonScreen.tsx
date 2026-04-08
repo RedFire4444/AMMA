@@ -14,6 +14,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
@@ -141,8 +142,8 @@ const LessonScreen = () => {
 
   if (loading || !lesson) {
     return (
-      <SafeAreaView className="flex-1 bg-background items-center justify-center">
-        <Text className="text-text-secondary">Loading lesson...</Text>
+      <SafeAreaView style={s.loadingContainer}>
+        <Text style={s.loadingText}>Loading lesson...</Text>
       </SafeAreaView>
     );
   }
@@ -155,97 +156,98 @@ const LessonScreen = () => {
         : '\u{1F4C4}';
 
   return (
-    <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+    <SafeAreaView style={s.container} edges={['top']}>
       {/* Header */}
-      <View className="flex-row items-center px-6 pt-3 pb-2 border-b border-border">
+      <View style={s.header}>
         <TouchableOpacity
-          className="w-10 h-10 rounded-full bg-surface border border-border items-center justify-center mr-3"
+          style={s.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Text className="text-lg">{'\u2190'}</Text>
+          <Text style={s.backButtonText}>{'\u2190'}</Text>
         </TouchableOpacity>
-        <View className="flex-1">
+        <View style={s.headerTitleWrap}>
           <Text
-            className="text-base font-bold text-text-primary"
+            style={s.headerTitle}
             numberOfLines={1}
           >
             {lesson.title}
           </Text>
-          <Text className="text-xs text-text-secondary">
+          <Text style={s.headerSubtitle}>
             Lesson {lesson.lesson_number}
           </Text>
         </View>
       </View>
 
       <ScrollView
-        className="flex-1"
+        style={s.flex1}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 32 }}
       >
         {/* Media placeholder */}
-        <View className="mx-6 mt-4 h-56 bg-primary-dark rounded-card items-center justify-center">
-          <Text className="text-5xl mb-2">{mediaIcon}</Text>
-          <Text className="text-white/70 text-sm">
+        <View style={s.mediaPlaceholder}>
+          <Text style={s.mediaIcon}>{mediaIcon}</Text>
+          <Text style={s.mediaLabel}>
             {lesson.lesson_type === 'video'
               ? 'Video Player'
               : lesson.lesson_type === 'audio'
                 ? 'Audio Player'
                 : 'Reading Material'}
           </Text>
-          <Text className="text-white/40 text-xs mt-1">
+          <Text style={s.mediaSubLabel}>
             Media playback requires native integration
           </Text>
         </View>
 
         {/* Progress bar */}
-        <View className="mx-6 mt-4">
-          <View className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+        <View style={s.progressWrap}>
+          <View style={s.progressTrack}>
             <View
-              className="h-full bg-accent rounded-full"
-              style={{ width: `${progress * 100}%` }}
+              style={[s.progressFill, { width: `${progress * 100}%` }]}
             />
           </View>
-          <View className="flex-row justify-between mt-1">
-            <Text className="text-xs text-text-secondary">
+          <View style={s.progressTimeRow}>
+            <Text style={s.progressTimeText}>
               {formatTime(currentTime)}
             </Text>
-            <Text className="text-xs text-text-secondary">
+            <Text style={s.progressTimeText}>
               {formatTime(totalDuration)}
             </Text>
           </View>
         </View>
 
         {/* Controls row */}
-        <View className="flex-row items-center justify-center mx-6 mt-6 mb-6">
+        <View style={s.controlsRow}>
           {/* Playback speed */}
-          <View className="relative">
+          <View style={s.speedMenuWrap}>
             <TouchableOpacity
-              className="bg-surface border border-border rounded-button px-3 py-2 mr-6"
+              style={s.speedButton}
               onPress={() => setSpeedMenuOpen((prev) => !prev)}
             >
-              <Text className="text-sm font-semibold text-text-primary">
+              <Text style={s.speedButtonText}>
                 {playbackSpeed}x
               </Text>
             </TouchableOpacity>
             {speedMenuOpen && (
-              <View className="absolute top-12 left-0 bg-white border border-border rounded-card shadow-lg z-10 py-1">
+              <View style={s.speedDropdown}>
                 {PLAYBACK_SPEEDS.map((speed) => (
                   <TouchableOpacity
                     key={speed}
-                    className={`px-4 py-2 ${
-                      playbackSpeed === speed ? 'bg-primary/10' : ''
-                    }`}
+                    style={[
+                      s.speedOption,
+                      playbackSpeed === speed ? s.speedOptionActive : null,
+                    ]}
                     onPress={() => {
                       setPlaybackSpeed(speed);
                       setSpeedMenuOpen(false);
                     }}
                   >
                     <Text
-                      className={`text-sm ${
+                      style={[
+                        s.speedOptionText,
                         playbackSpeed === speed
-                          ? 'text-primary font-bold'
-                          : 'text-text-primary'
-                      }`}
+                          ? s.speedOptionTextActive
+                          : null,
+                      ]}
                     >
                       {speed}x
                     </Text>
@@ -257,70 +259,70 @@ const LessonScreen = () => {
 
           {/* Skip back */}
           <TouchableOpacity
-            className="w-12 h-12 rounded-full bg-surface border border-border items-center justify-center mr-4"
+            style={s.skipButton}
             onPress={handleSkipBack}
           >
-            <Text className="text-base text-text-primary">{'\u23EA'}</Text>
+            <Text style={s.skipButtonText}>{'\u23EA'}</Text>
           </TouchableOpacity>
 
           {/* Play/Pause */}
           <TouchableOpacity
-            className="w-16 h-16 rounded-full bg-primary items-center justify-center mx-2"
+            style={s.playPauseButton}
             onPress={handlePlayPause}
           >
-            <Text className="text-2xl text-white">
+            <Text style={s.playPauseText}>
               {isPlaying ? '\u23F8' : '\u25B6'}
             </Text>
           </TouchableOpacity>
 
           {/* Skip forward */}
           <TouchableOpacity
-            className="w-12 h-12 rounded-full bg-surface border border-border items-center justify-center ml-4"
+            style={s.skipForwardButton}
             onPress={handleSkipForward}
           >
-            <Text className="text-base text-text-primary">{'\u23E9'}</Text>
+            <Text style={s.skipButtonText}>{'\u23E9'}</Text>
           </TouchableOpacity>
         </View>
 
         {/* Lesson info */}
-        <View className="mx-6 mb-6">
-          <Text className="text-lg font-bold text-text-primary mb-2">
+        <View style={s.lessonInfo}>
+          <Text style={s.lessonTitle}>
             {lesson.title}
           </Text>
-          <View className="flex-row items-center mb-3">
-            <Text className="text-xs text-text-secondary mr-3">
+          <View style={s.lessonMeta}>
+            <Text style={s.lessonMetaText}>
               {'\u23F1'} {lesson.duration_minutes} min
             </Text>
-            <Text className="text-xs text-text-secondary capitalize">
+            <Text style={[s.lessonMetaText, s.lessonMetaType]}>
               {lesson.lesson_type}
             </Text>
           </View>
           {lesson.description ? (
-            <Text className="text-sm text-text-secondary leading-5">
+            <Text style={s.lessonDescription}>
               {lesson.description}
             </Text>
           ) : null}
         </View>
 
         {/* Action buttons */}
-        <View className="mx-6">
+        <View style={s.actions}>
           <TouchableOpacity
-            className="bg-primary rounded-button py-3.5 items-center mb-3"
+            style={s.completeButton}
             onPress={handleComplete}
             activeOpacity={0.8}
           >
-            <Text className="text-white font-bold text-base">
+            <Text style={s.completeButtonText}>
               Mark as Complete
             </Text>
           </TouchableOpacity>
 
           {hasNextLesson && (
             <TouchableOpacity
-              className="bg-accent/10 border border-accent rounded-button py-3.5 items-center"
+              style={s.nextLessonButton}
               onPress={handleNextLesson}
               activeOpacity={0.8}
             >
-              <Text className="text-accent font-bold text-base">
+              <Text style={s.nextLessonButtonText}>
                 Next Lesson {'\u2192'}
               </Text>
             </TouchableOpacity>
@@ -332,3 +334,254 @@ const LessonScreen = () => {
 };
 
 export default LessonScreen;
+
+const s = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: '#FAFAF5',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingText: {
+    color: '#6B7280',
+  },
+  container: {
+    flex: 1,
+    backgroundColor: '#FAFAF5',
+  },
+  flex1: {
+    flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingTop: 12,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  backButtonText: {
+    fontSize: 18,
+  },
+  headerTitleWrap: {
+    flex: 1,
+  },
+  headerTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1A1A2E',
+  },
+  headerSubtitle: {
+    fontSize: 12,
+    color: '#6B7280',
+  },
+  mediaPlaceholder: {
+    marginHorizontal: 24,
+    marginTop: 16,
+    height: 224,
+    backgroundColor: '#0B2B1F',
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  mediaIcon: {
+    fontSize: 48,
+    marginBottom: 8,
+  },
+  mediaLabel: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 14,
+  },
+  mediaSubLabel: {
+    color: 'rgba(255,255,255,0.4)',
+    fontSize: 12,
+    marginTop: 4,
+  },
+  progressWrap: {
+    marginHorizontal: 24,
+    marginTop: 16,
+  },
+  progressTrack: {
+    height: 6,
+    backgroundColor: '#E5E7EB',
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: '#40916C',
+    borderRadius: 3,
+  },
+  progressTimeRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 4,
+  },
+  progressTimeText: {
+    fontSize: 12,
+    color: '#6B7280',
+  },
+  controlsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 24,
+    marginTop: 24,
+    marginBottom: 24,
+  },
+  speedMenuWrap: {
+    position: 'relative',
+  },
+  speedButton: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginRight: 24,
+  },
+  speedButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1A1A2E',
+  },
+  speedDropdown: {
+    position: 'absolute',
+    top: 48,
+    left: 0,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 12,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    zIndex: 10,
+    paddingVertical: 4,
+  },
+  speedOption: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  speedOptionActive: {
+    backgroundColor: 'rgba(27,67,50,0.1)',
+  },
+  speedOptionText: {
+    fontSize: 14,
+    color: '#1A1A2E',
+  },
+  speedOptionTextActive: {
+    color: '#1B4332',
+    fontWeight: '700',
+  },
+  skipButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  skipForwardButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 16,
+  },
+  skipButtonText: {
+    fontSize: 16,
+    color: '#1A1A2E',
+  },
+  playPauseButton: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#1B4332',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 8,
+  },
+  playPauseText: {
+    fontSize: 24,
+    color: '#FFFFFF',
+  },
+  lessonInfo: {
+    marginHorizontal: 24,
+    marginBottom: 24,
+  },
+  lessonTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1A1A2E',
+    marginBottom: 8,
+  },
+  lessonMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  lessonMetaText: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginRight: 12,
+  },
+  lessonMetaType: {
+    textTransform: 'capitalize',
+  },
+  lessonDescription: {
+    fontSize: 14,
+    color: '#6B7280',
+    lineHeight: 20,
+  },
+  actions: {
+    marginHorizontal: 24,
+  },
+  completeButton: {
+    backgroundColor: '#1B4332',
+    borderRadius: 8,
+    paddingVertical: 14,
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  completeButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 16,
+  },
+  nextLessonButton: {
+    backgroundColor: 'rgba(64,145,108,0.1)',
+    borderWidth: 1,
+    borderColor: '#40916C',
+    borderRadius: 8,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  nextLessonButtonText: {
+    color: '#40916C',
+    fontWeight: '700',
+    fontSize: 16,
+  },
+});

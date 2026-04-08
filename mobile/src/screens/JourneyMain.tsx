@@ -16,6 +16,7 @@ import {
   TouchableOpacity,
   FlatList,
   Alert,
+  StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -68,8 +69,7 @@ interface JourneyData {
 
 const SkeletonBlock = ({ height }: { height: number }) => (
   <View
-    className="bg-gray-200 rounded-card mx-6 mb-4 animate-pulse"
-    style={{ height }}
+    style={[s.skeletonBlock, { height }]}
   />
 );
 
@@ -82,12 +82,11 @@ const PerformanceBar = ({
 }) => {
   const barHeight = Math.max(rating * 10, 4);
   return (
-    <View className="items-center flex-1">
+    <View style={s.perfBarWrap}>
       <View
-        className="w-6 bg-accent rounded-t-sm"
-        style={{ height: barHeight }}
+        style={[s.perfBar, { height: barHeight }]}
       />
-      <Text className="text-xs text-text-secondary mt-1">{dayLabel}</Text>
+      <Text style={s.perfBarLabel}>{dayLabel}</Text>
     </View>
   );
 };
@@ -197,10 +196,10 @@ const JourneyMain = () => {
 
   if (loading) {
     return (
-      <SafeAreaView className="flex-1 bg-background" edges={['top']}>
-        <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-          <View className="px-6 pt-4 pb-2">
-            <View className="bg-gray-200 h-8 w-40 rounded-card animate-pulse" />
+      <SafeAreaView style={s.container} edges={['top']}>
+        <ScrollView style={s.flex1} showsVerticalScrollIndicator={false}>
+          <View style={s.skeletonHeaderWrap}>
+            <View style={s.skeletonHeaderBar} />
           </View>
           <SkeletonBlock height={200} />
           <SkeletonBlock height={200} />
@@ -212,9 +211,9 @@ const JourneyMain = () => {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+    <SafeAreaView style={s.container} edges={['top']}>
       <ScrollView
-        className="flex-1"
+        style={s.flex1}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -225,34 +224,34 @@ const JourneyMain = () => {
         }
       >
         {/* Header */}
-        <View className="px-6 pt-4 pb-2">
-          <Text className="text-2xl font-serif font-bold text-primary">
+        <View style={s.headerWrap}>
+          <Text style={s.headerTitle}>
             My Journey
           </Text>
-          <Text className="text-sm text-text-secondary mt-1">
+          <Text style={s.headerSubtitle}>
             Track your daily sadhana
           </Text>
         </View>
 
         {/* Start Meditation button */}
         <TouchableOpacity
-          className="mx-6 mt-3 mb-4 bg-primary rounded-card py-4 px-5 flex-row items-center justify-between"
+          style={s.meditationCta}
           onPress={() => navigation.navigate('MeditationTimer')}
           activeOpacity={0.8}
         >
-          <View className="flex-row items-center">
-            <Text className="text-2xl mr-3">{'\u{1F9D8}'}</Text>
+          <View style={s.meditationCtaLeft}>
+            <Text style={s.meditationCtaIcon}>{'\u{1F9D8}'}</Text>
             <View>
-              <Text className="text-white font-bold text-base">
+              <Text style={s.meditationCtaTitle}>
                 Start Meditation
               </Text>
-              <Text className="text-white/70 text-xs mt-0.5">
+              <Text style={s.meditationCtaSubtitle}>
                 Begin your daily practice
               </Text>
             </View>
           </View>
-          <View className="bg-white/20 rounded-full w-10 h-10 items-center justify-center">
-            <Text className="text-white text-lg">{'\u25B6'}</Text>
+          <View style={s.meditationCtaPlayWrap}>
+            <Text style={s.meditationCtaPlayText}>{'\u25B6'}</Text>
           </View>
         </TouchableOpacity>
 
@@ -270,15 +269,15 @@ const JourneyMain = () => {
         ))}
 
         {/* Performance Tracker */}
-        <View className="bg-surface rounded-card border border-border mx-6 mb-4 p-4">
-          <Text className="text-base font-bold text-text-primary mb-1">
+        <View style={s.perfCard}>
+          <Text style={s.perfCardTitle}>
             Performance Tracker
           </Text>
-          <Text className="text-xs text-text-secondary mb-4">
+          <Text style={s.perfCardSubtitle}>
             Rate your daily performance
           </Text>
 
-          <View className="flex-row items-end h-28 border-b border-border pb-2">
+          <View style={s.perfChartRow}>
             {getWeekDayLabels().map((dayLabel, index) => (
               <PerformanceBar
                 key={`perf-${index}`}
@@ -289,7 +288,7 @@ const JourneyMain = () => {
           </View>
 
           <TouchableOpacity
-            className="bg-primary/10 rounded-button py-2.5 items-center mt-3"
+            style={s.rateTodayButton}
             onPress={async () => {
               try {
                 await habitsService.ratePerformance(8);
@@ -301,7 +300,7 @@ const JourneyMain = () => {
             }}
             activeOpacity={0.7}
           >
-            <Text className="text-primary font-semibold text-sm">
+            <Text style={s.rateTodayText}>
               Rate Today
             </Text>
           </TouchableOpacity>
@@ -309,23 +308,23 @@ const JourneyMain = () => {
 
         {/* Daily Affirmation */}
         {data?.dailyQuote && (
-          <View className="mx-6 mb-4 p-5 bg-primary/5 rounded-card border border-primary/20">
-            <Text className="text-xs uppercase tracking-widest text-accent mb-3 font-semibold">
+          <View style={s.affirmationCard}>
+            <Text style={s.affirmationLabel}>
               Daily Affirmation
             </Text>
-            <Text className="text-base font-serif text-text-primary leading-6 italic">
+            <Text style={s.affirmationQuote}>
               "{data.dailyQuote.quote_text}"
             </Text>
-            <Text className="text-sm text-text-secondary mt-3">
+            <Text style={s.affirmationAuthor}>
               — {data.dailyQuote.author || 'Unknown'}
             </Text>
           </View>
         )}
 
         {/* Vision Board */}
-        <View className="mb-4">
-          <View className="flex-row items-center justify-between px-6 mb-3">
-            <Text className="text-base font-bold text-text-primary">
+        <View style={s.visionBoardSection}>
+          <View style={s.visionBoardHeader}>
+            <Text style={s.visionBoardTitle}>
               Vision Board
             </Text>
             <TouchableOpacity
@@ -336,7 +335,7 @@ const JourneyMain = () => {
                 );
               }}
             >
-              <Text className="text-accent text-sm font-semibold">
+              <Text style={s.visionBoardAdd}>
                 + Add
               </Text>
             </TouchableOpacity>
@@ -350,14 +349,14 @@ const JourneyMain = () => {
               data={data.visionBoard}
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
-                <View className="bg-surface border border-border rounded-card w-36 h-44 mr-3 overflow-hidden">
-                  <View className="flex-1 bg-primary/10 items-center justify-center">
-                    <Text className="text-3xl">{'\u{1F5BC}'}</Text>
+                <View style={s.visionCard}>
+                  <View style={s.visionCardImage}>
+                    <Text style={s.visionCardIcon}>{'\u{1F5BC}'}</Text>
                   </View>
                   {item.caption && (
-                    <View className="p-2">
+                    <View style={s.visionCardCaption}>
                       <Text
-                        className="text-xs text-text-secondary"
+                        style={s.visionCardCaptionText}
                         numberOfLines={2}
                       >
                         {item.caption}
@@ -368,9 +367,9 @@ const JourneyMain = () => {
               )}
             />
           ) : (
-            <View className="mx-6 bg-surface border border-dashed border-border rounded-card py-8 items-center">
-              <Text className="text-2xl mb-2">{'\u{1F5BC}'}</Text>
-              <Text className="text-sm text-text-secondary">
+            <View style={s.visionBoardEmpty}>
+              <Text style={s.visionBoardEmptyIcon}>{'\u{1F5BC}'}</Text>
+              <Text style={s.visionBoardEmptyText}>
                 Add images to your vision board
               </Text>
             </View>
@@ -378,8 +377,8 @@ const JourneyMain = () => {
         </View>
 
         {/* Day Journey */}
-        <View className="mb-4">
-          <Text className="text-base font-bold text-text-primary px-6 mb-3">
+        <View style={s.dayJourneySection}>
+          <Text style={s.dayJourneyTitle}>
             Day Journey
           </Text>
           <FlatList
@@ -396,28 +395,29 @@ const JourneyMain = () => {
 
               return (
                 <View
-                  className={`w-40 mr-3 rounded-card border p-4 ${
+                  style={[
+                    s.dayJourneyCard,
                     isCompleted
-                      ? 'bg-accent/10 border-accent/30'
-                      : 'bg-surface border-border'
-                  }`}
+                      ? s.dayJourneyCardCompleted
+                      : s.dayJourneyCardPending,
+                  ]}
                 >
-                  <Text className="text-2xl mb-2">{item.icon}</Text>
-                  <Text className="text-sm font-bold text-text-primary mb-0.5">
+                  <Text style={s.dayJourneyCardIcon}>{item.icon}</Text>
+                  <Text style={s.dayJourneyCardLabel}>
                     {item.label}
                   </Text>
-                  <Text className="text-xs text-text-secondary mb-2">
+                  <Text style={s.dayJourneyCardTime}>
                     {item.timeRange}
                   </Text>
                   {isCompleted ? (
-                    <View className="bg-accent rounded-pill px-2 py-0.5 self-start">
-                      <Text className="text-white text-xs font-semibold">
+                    <View style={s.dayJourneyBadgeDone}>
+                      <Text style={s.dayJourneyBadgeDoneText}>
                         Done
                       </Text>
                     </View>
                   ) : (
-                    <View className="bg-gray-100 rounded-pill px-2 py-0.5 self-start">
-                      <Text className="text-text-secondary text-xs">
+                    <View style={s.dayJourneyBadgePending}>
+                      <Text style={s.dayJourneyBadgePendingText}>
                         Pending
                       </Text>
                     </View>
@@ -428,10 +428,307 @@ const JourneyMain = () => {
           />
         </View>
 
-        <View className="h-8" />
+        <View style={s.bottomSpacer} />
       </ScrollView>
     </SafeAreaView>
   );
 };
 
 export default JourneyMain;
+
+const s = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#FAFAF5',
+  },
+  flex1: {
+    flex: 1,
+  },
+  skeletonBlock: {
+    backgroundColor: '#E5E7EB',
+    borderRadius: 12,
+    marginHorizontal: 24,
+    marginBottom: 16,
+  },
+  skeletonHeaderWrap: {
+    paddingHorizontal: 24,
+    paddingTop: 16,
+    paddingBottom: 8,
+  },
+  skeletonHeaderBar: {
+    backgroundColor: '#E5E7EB',
+    height: 32,
+    width: 160,
+    borderRadius: 12,
+  },
+  headerWrap: {
+    paddingHorizontal: 24,
+    paddingTop: 16,
+    paddingBottom: 8,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1B4332',
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: '#6B7280',
+    marginTop: 4,
+  },
+  meditationCta: {
+    marginHorizontal: 24,
+    marginTop: 12,
+    marginBottom: 16,
+    backgroundColor: '#1B4332',
+    borderRadius: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  meditationCtaLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  meditationCtaIcon: {
+    fontSize: 24,
+    marginRight: 12,
+  },
+  meditationCtaTitle: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 16,
+  },
+  meditationCtaSubtitle: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 12,
+    marginTop: 2,
+  },
+  meditationCtaPlayWrap: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderRadius: 20,
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  meditationCtaPlayText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+  },
+  perfCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    marginHorizontal: 24,
+    marginBottom: 16,
+    padding: 16,
+  },
+  perfCardTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1A1A2E',
+    marginBottom: 4,
+  },
+  perfCardSubtitle: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginBottom: 16,
+  },
+  perfChartRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    height: 112,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+    paddingBottom: 8,
+  },
+  perfBarWrap: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  perfBar: {
+    width: 24,
+    backgroundColor: '#40916C',
+    borderTopLeftRadius: 2,
+    borderTopRightRadius: 2,
+  },
+  perfBarLabel: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginTop: 4,
+  },
+  rateTodayButton: {
+    backgroundColor: 'rgba(27,67,50,0.1)',
+    borderRadius: 8,
+    paddingVertical: 10,
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  rateTodayText: {
+    color: '#1B4332',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  affirmationCard: {
+    marginHorizontal: 24,
+    marginBottom: 16,
+    padding: 20,
+    backgroundColor: 'rgba(27,67,50,0.05)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(27,67,50,0.2)',
+  },
+  affirmationLabel: {
+    fontSize: 12,
+    textTransform: 'uppercase',
+    letterSpacing: 2,
+    color: '#40916C',
+    marginBottom: 12,
+    fontWeight: '600',
+  },
+  affirmationQuote: {
+    fontSize: 16,
+    color: '#1A1A2E',
+    lineHeight: 24,
+    fontStyle: 'italic',
+  },
+  affirmationAuthor: {
+    fontSize: 14,
+    color: '#6B7280',
+    marginTop: 12,
+  },
+  visionBoardSection: {
+    marginBottom: 16,
+  },
+  visionBoardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 24,
+    marginBottom: 12,
+  },
+  visionBoardTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1A1A2E',
+  },
+  visionBoardAdd: {
+    color: '#40916C',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  visionCard: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 12,
+    width: 144,
+    height: 176,
+    marginRight: 12,
+    overflow: 'hidden',
+  },
+  visionCardImage: {
+    flex: 1,
+    backgroundColor: 'rgba(27,67,50,0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  visionCardIcon: {
+    fontSize: 30,
+  },
+  visionCardCaption: {
+    padding: 8,
+  },
+  visionCardCaptionText: {
+    fontSize: 12,
+    color: '#6B7280',
+  },
+  visionBoardEmpty: {
+    marginHorizontal: 24,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: '#E5E7EB',
+    borderRadius: 12,
+    paddingVertical: 32,
+    alignItems: 'center',
+  },
+  visionBoardEmptyIcon: {
+    fontSize: 24,
+    marginBottom: 8,
+  },
+  visionBoardEmptyText: {
+    fontSize: 14,
+    color: '#6B7280',
+  },
+  dayJourneySection: {
+    marginBottom: 16,
+  },
+  dayJourneyTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1A1A2E',
+    paddingHorizontal: 24,
+    marginBottom: 12,
+  },
+  dayJourneyCard: {
+    width: 160,
+    marginRight: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    padding: 16,
+  },
+  dayJourneyCardCompleted: {
+    backgroundColor: 'rgba(64,145,108,0.1)',
+    borderColor: 'rgba(64,145,108,0.3)',
+  },
+  dayJourneyCardPending: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#E5E7EB',
+  },
+  dayJourneyCardIcon: {
+    fontSize: 24,
+    marginBottom: 8,
+  },
+  dayJourneyCardLabel: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#1A1A2E',
+    marginBottom: 2,
+  },
+  dayJourneyCardTime: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginBottom: 8,
+  },
+  dayJourneyBadgeDone: {
+    backgroundColor: '#40916C',
+    borderRadius: 999,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    alignSelf: 'flex-start',
+  },
+  dayJourneyBadgeDoneText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  dayJourneyBadgePending: {
+    backgroundColor: '#F3F4F6',
+    borderRadius: 999,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    alignSelf: 'flex-start',
+  },
+  dayJourneyBadgePendingText: {
+    color: '#6B7280',
+    fontSize: 12,
+  },
+  bottomSpacer: {
+    height: 32,
+  },
+});

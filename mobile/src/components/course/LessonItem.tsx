@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Lesson } from '../../types/course.types';
 
 interface LessonItemProps {
@@ -27,9 +27,7 @@ export const LessonItem = ({
 
   return (
     <TouchableOpacity
-      className={`flex-row items-center px-4 py-3 border-b border-border ${
-        isLocked ? 'opacity-50' : ''
-      }`}
+      style={[s.row, isLocked ? s.locked : undefined]}
       onPress={() => {
         if (!isLocked) {
           onPress(lesson.id);
@@ -40,31 +38,29 @@ export const LessonItem = ({
     >
       {/* Lesson number */}
       <View
-        className={`w-8 h-8 rounded-full items-center justify-center mr-3 ${
-          isCompleted ? 'bg-green-600' : 'bg-primary/10'
-        }`}
+        style={[
+          s.numberCircle,
+          isCompleted ? s.numberCompleted : s.numberDefault,
+        ]}
       >
         {isCompleted ? (
-          <Text className="text-white text-xs font-bold">{'\u2713'}</Text>
+          <Text style={s.checkText}>{'\u2713'}</Text>
         ) : (
-          <Text className="text-primary text-xs font-bold">
+          <Text style={s.numberText}>
             {lesson.lesson_number}
           </Text>
         )}
       </View>
 
       {/* Content */}
-      <View className="flex-1 mr-3">
-        <View className="flex-row items-center mb-0.5">
-          <Text className="text-sm mr-1">{icon}</Text>
-          <Text
-            className="text-sm font-semibold text-text-primary flex-1"
-            numberOfLines={1}
-          >
+      <View style={s.content}>
+        <View style={s.titleRow}>
+          <Text style={s.typeIcon}>{icon}</Text>
+          <Text style={s.lessonTitle} numberOfLines={1}>
             {lesson.title}
           </Text>
         </View>
-        <Text className="text-xs text-text-secondary">
+        <Text style={s.meta}>
           {lesson.duration_minutes} min {'\u00B7'}{' '}
           {lesson.lesson_type.charAt(0).toUpperCase() +
             lesson.lesson_type.slice(1)}
@@ -74,10 +70,79 @@ export const LessonItem = ({
 
       {/* Status icon */}
       {isLocked ? (
-        <Text className="text-base text-gray-400">{'\u{1F512}'}</Text>
+        <Text style={s.statusLocked}>{'\u{1F512}'}</Text>
       ) : (
-        <Text className="text-base text-accent">{'\u{25B6}'}</Text>
+        <Text style={s.statusPlay}>{'\u{25B6}'}</Text>
       )}
     </TouchableOpacity>
   );
 };
+
+const s = StyleSheet.create({
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+  },
+  locked: {
+    opacity: 0.5,
+  },
+  numberCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  numberCompleted: {
+    backgroundColor: '#16A34A',
+  },
+  numberDefault: {
+    backgroundColor: 'rgba(27, 67, 50, 0.1)',
+  },
+  checkText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  numberText: {
+    color: '#1B4332',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  content: {
+    flex: 1,
+    marginRight: 12,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 2,
+  },
+  typeIcon: {
+    fontSize: 14,
+    marginRight: 4,
+  },
+  lessonTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1A1A2E',
+    flex: 1,
+  },
+  meta: {
+    fontSize: 12,
+    color: '#6B7280',
+  },
+  statusLocked: {
+    fontSize: 16,
+    color: '#9CA3AF',
+  },
+  statusPlay: {
+    fontSize: 16,
+    color: '#40916C',
+  },
+});

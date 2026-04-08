@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 interface PremiumLockProps {
   children: React.ReactNode;
@@ -17,23 +17,23 @@ export const PremiumLock = ({
   }
 
   return (
-    <View className="relative overflow-hidden rounded-card">
+    <View style={s.wrapper}>
       {/* Render children underneath the overlay */}
-      <View className="opacity-40">{children}</View>
+      <View style={s.childrenDimmed}>{children}</View>
 
       {/* Dark overlay with lock and CTA */}
-      <View className="absolute inset-0 bg-black/50 rounded-card items-center justify-center px-4">
+      <View style={s.overlay}>
         {/* Lock Icon */}
-        <View className="w-12 h-12 rounded-full bg-white/20 items-center justify-center mb-3">
-          <Text className="text-2xl">{'\u{1F512}'}</Text>
+        <View style={s.lockCircle}>
+          <Text style={s.lockIcon}>{'\u{1F512}'}</Text>
         </View>
 
         {/* CTA Button */}
         <TouchableOpacity
           onPress={onUpgrade}
-          className="bg-primary py-2 px-5 rounded-button"
+          style={s.upgradeButton}
         >
-          <Text className="text-white font-bold text-sm">
+          <Text style={s.upgradeText}>
             Upgrade to Premium
           </Text>
         </TouchableOpacity>
@@ -41,3 +41,44 @@ export const PremiumLock = ({
     </View>
   );
 };
+
+const s = StyleSheet.create({
+  wrapper: {
+    overflow: 'hidden',
+    borderRadius: 12,
+  },
+  childrenDimmed: {
+    opacity: 0.4,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+  },
+  lockCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  lockIcon: {
+    fontSize: 24,
+  },
+  upgradeButton: {
+    backgroundColor: '#1B4332',
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  upgradeText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+});

@@ -91,6 +91,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isLoading: true });
     try {
       const stored = await SecureStore.getToken('supabase_session');
+      if (!stored) {
+        set({ session: null, user: null, onboardingComplete: false, isLoading: false });
+        return;
+      }
       if (stored) {
         const parsed: Session = JSON.parse(stored);
         // Verify the session is still valid

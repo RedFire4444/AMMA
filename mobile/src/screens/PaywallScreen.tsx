@@ -16,6 +16,7 @@ import {
   ActivityIndicator,
   Alert,
   Modal,
+  StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -42,15 +43,15 @@ const FEATURES: FeatureRow[] = [
 
 const FeatureTableRow = ({ row, isLast }: { row: FeatureRow; isLast: boolean }) => (
   <View
-    className={`flex-row py-3 ${isLast ? '' : 'border-b border-border'}`}
+    style={[s.tableRow, isLast ? null : s.tableRowBorder]}
   >
-    <Text className="flex-1 text-sm text-text-primary font-medium">
+    <Text style={s.tableFeatureCell}>
       {row.feature}
     </Text>
-    <Text className="w-24 text-xs text-text-secondary text-center">
+    <Text style={s.tableFreeCell}>
       {row.free}
     </Text>
-    <Text className="w-24 text-xs text-primary text-center font-semibold">
+    <Text style={s.tablePremiumCell}>
       {row.premium}
     </Text>
   </View>
@@ -91,41 +92,41 @@ const PaywallScreen = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background" edges={['top']}>
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={s.container} edges={['top']}>
+      <ScrollView style={s.flex1} showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <View className="flex-row items-center px-6 pt-4 pb-2">
+        <View style={s.headerRow}>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
-            className="w-10 h-10 items-center justify-center rounded-full bg-surface border border-border"
+            style={s.backButton}
           >
-            <Text className="text-lg text-text-primary">{'\u{2190}'}</Text>
+            <Text style={s.backButtonText}>{'\u{2190}'}</Text>
           </TouchableOpacity>
-          <View className="flex-1" />
+          <View style={s.flex1} />
         </View>
 
         {/* Title */}
-        <View className="px-6 mt-4">
-          <Text className="text-2xl font-serif font-bold text-primary">
+        <View style={s.titleSection}>
+          <Text style={s.pageTitle}>
             Enhance Your Practice
           </Text>
-          <Text className="text-sm text-text-secondary mt-2 leading-5">
+          <Text style={s.pageSubtitle}>
             Unlock the full MAA experience with premium access to all meditations,
             courses, and exclusive content.
           </Text>
         </View>
 
         {/* Feature Comparison Table */}
-        <View className="mx-6 mt-6 bg-surface rounded-card border border-border p-4">
+        <View style={s.featureTable}>
           {/* Table Header */}
-          <View className="flex-row pb-3 border-b border-border">
-            <Text className="flex-1 text-sm font-bold text-text-primary">
+          <View style={s.tableHeaderRow}>
+            <Text style={s.tableHeaderFeature}>
               Feature
             </Text>
-            <Text className="w-24 text-xs font-bold text-text-secondary text-center">
+            <Text style={s.tableHeaderFree}>
               Free
             </Text>
-            <Text className="w-24 text-xs font-bold text-primary text-center">
+            <Text style={s.tableHeaderPremium}>
               Premium
             </Text>
           </View>
@@ -140,34 +141,35 @@ const PaywallScreen = () => {
         </View>
 
         {/* Plan Cards */}
-        <View className="px-6 mt-6">
-          <Text className="text-lg font-bold text-text-primary mb-3">
+        <View style={s.planSection}>
+          <Text style={s.planSectionTitle}>
             Choose Your Plan
           </Text>
 
           {/* Monthly Plan */}
           <TouchableOpacity
             onPress={() => setSelectedPlan('monthly')}
-            className={`rounded-card border-2 p-4 mb-3 ${
+            style={[
+              s.planCard,
               selectedPlan === 'monthly'
-                ? 'border-primary bg-primary/5'
-                : 'border-border bg-surface'
-            }`}
+                ? s.planCardSelected
+                : s.planCardUnselected,
+            ]}
           >
-            <View className="flex-row items-center justify-between">
+            <View style={s.planCardRow}>
               <View>
-                <Text className="text-base font-bold text-text-primary">
+                <Text style={s.planName}>
                   Monthly
                 </Text>
-                <Text className="text-sm text-text-secondary mt-1">
+                <Text style={s.planBillingLabel}>
                   Billed monthly
                 </Text>
               </View>
-              <View className="items-end">
-                <Text className="text-xl font-bold text-primary">
+              <View style={s.planPriceWrap}>
+                <Text style={s.planPrice}>
                   {'\u{20B9}'}199
                 </Text>
-                <Text className="text-xs text-text-secondary">/month</Text>
+                <Text style={s.planPeriod}>/month</Text>
               </View>
             </View>
           </TouchableOpacity>
@@ -175,53 +177,55 @@ const PaywallScreen = () => {
           {/* Annual Plan */}
           <TouchableOpacity
             onPress={() => setSelectedPlan('annual')}
-            className={`rounded-card border-2 p-4 mb-3 ${
+            style={[
+              s.planCard,
               selectedPlan === 'annual'
-                ? 'border-primary bg-primary/5'
-                : 'border-border bg-surface'
-            }`}
+                ? s.planCardSelected
+                : s.planCardUnselected,
+            ]}
           >
             {/* Save Badge */}
-            <View className="absolute -top-3 right-4 bg-accent rounded-pill px-3 py-1">
-              <Text className="text-xs font-bold text-white">Save 37%</Text>
+            <View style={s.saveBadge}>
+              <Text style={s.saveBadgeText}>Save 37%</Text>
             </View>
-            <View className="flex-row items-center justify-between">
+            <View style={s.planCardRow}>
               <View>
-                <Text className="text-base font-bold text-text-primary">
+                <Text style={s.planName}>
                   Annual
                 </Text>
-                <Text className="text-sm text-text-secondary mt-1">
+                <Text style={s.planBillingLabel}>
                   Billed annually
                 </Text>
               </View>
-              <View className="items-end">
-                <Text className="text-xl font-bold text-primary">
+              <View style={s.planPriceWrap}>
+                <Text style={s.planPrice}>
                   {'\u{20B9}'}1,499
                 </Text>
-                <Text className="text-xs text-text-secondary">/year</Text>
+                <Text style={s.planPeriod}>/year</Text>
               </View>
             </View>
           </TouchableOpacity>
         </View>
 
         {/* Subscribe Button */}
-        <View className="px-6 mt-4 mb-8">
+        <View style={s.subscribeSection}>
           <TouchableOpacity
             onPress={handleSubscribe}
             disabled={isProcessing}
-            className={`py-4 rounded-button items-center ${
-              isProcessing ? 'bg-primary/50' : 'bg-primary'
-            }`}
+            style={[
+              s.subscribeButton,
+              isProcessing ? s.subscribeButtonDisabled : null,
+            ]}
           >
             {isProcessing ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (
-              <Text className="text-white font-bold text-base">
+              <Text style={s.subscribeButtonText}>
                 Subscribe Now
               </Text>
             )}
           </TouchableOpacity>
-          <Text className="text-xs text-text-secondary text-center mt-3 leading-4">
+          <Text style={s.subscribeDisclaimer}>
             Cancel anytime. You can manage your subscription from your profile
             settings.
           </Text>
@@ -235,23 +239,23 @@ const PaywallScreen = () => {
         animationType="fade"
         onRequestClose={handleSuccessDismiss}
       >
-        <View className="flex-1 bg-black/50 items-center justify-center px-8">
-          <View className="bg-surface rounded-card p-6 w-full items-center">
-            <View className="w-16 h-16 rounded-full bg-success/10 items-center justify-center mb-4">
-              <Text className="text-3xl">{'\u{2713}'}</Text>
+        <View style={s.modalOverlay}>
+          <View style={s.modalContent}>
+            <View style={s.modalCheckWrap}>
+              <Text style={s.modalCheckIcon}>{'\u{2713}'}</Text>
             </View>
-            <Text className="text-xl font-bold text-text-primary mb-2">
+            <Text style={s.modalTitle}>
               Welcome to Premium!
             </Text>
-            <Text className="text-sm text-text-secondary text-center mb-6 leading-5">
+            <Text style={s.modalBody}>
               Your subscription is now active. Enjoy unlimited access to all
               meditations, courses, and premium features.
             </Text>
             <TouchableOpacity
               onPress={handleSuccessDismiss}
-              className="bg-primary py-3 px-8 rounded-button"
+              style={s.modalButton}
             >
-              <Text className="text-white font-bold">Get Started</Text>
+              <Text style={s.modalButtonText}>Get Started</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -261,3 +265,251 @@ const PaywallScreen = () => {
 };
 
 export default PaywallScreen;
+
+const s = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#FAFAF5',
+  },
+  flex1: {
+    flex: 1,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingTop: 16,
+    paddingBottom: 8,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 20,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  backButtonText: {
+    fontSize: 18,
+    color: '#1A1A2E',
+  },
+  titleSection: {
+    paddingHorizontal: 24,
+    marginTop: 16,
+  },
+  pageTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1B4332',
+  },
+  pageSubtitle: {
+    fontSize: 14,
+    color: '#6B7280',
+    marginTop: 8,
+    lineHeight: 20,
+  },
+  featureTable: {
+    marginHorizontal: 24,
+    marginTop: 24,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    padding: 16,
+  },
+  tableHeaderRow: {
+    flexDirection: 'row',
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+  },
+  tableHeaderFeature: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#1A1A2E',
+  },
+  tableHeaderFree: {
+    width: 96,
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#6B7280',
+    textAlign: 'center',
+  },
+  tableHeaderPremium: {
+    width: 96,
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#1B4332',
+    textAlign: 'center',
+  },
+  tableRow: {
+    flexDirection: 'row',
+    paddingVertical: 12,
+  },
+  tableRowBorder: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+  },
+  tableFeatureCell: {
+    flex: 1,
+    fontSize: 14,
+    color: '#1A1A2E',
+    fontWeight: '500',
+  },
+  tableFreeCell: {
+    width: 96,
+    fontSize: 12,
+    color: '#6B7280',
+    textAlign: 'center',
+  },
+  tablePremiumCell: {
+    width: 96,
+    fontSize: 12,
+    color: '#1B4332',
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  planSection: {
+    paddingHorizontal: 24,
+    marginTop: 24,
+  },
+  planSectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1A1A2E',
+    marginBottom: 12,
+  },
+  planCard: {
+    borderRadius: 12,
+    borderWidth: 2,
+    padding: 16,
+    marginBottom: 12,
+  },
+  planCardSelected: {
+    borderColor: '#1B4332',
+    backgroundColor: 'rgba(27,67,50,0.05)',
+  },
+  planCardUnselected: {
+    borderColor: '#E5E7EB',
+    backgroundColor: '#FFFFFF',
+  },
+  planCardRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  planName: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1A1A2E',
+  },
+  planBillingLabel: {
+    fontSize: 14,
+    color: '#6B7280',
+    marginTop: 4,
+  },
+  planPriceWrap: {
+    alignItems: 'flex-end',
+  },
+  planPrice: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1B4332',
+  },
+  planPeriod: {
+    fontSize: 12,
+    color: '#6B7280',
+  },
+  saveBadge: {
+    position: 'absolute',
+    top: -12,
+    right: 16,
+    backgroundColor: '#40916C',
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+  },
+  saveBadgeText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  subscribeSection: {
+    paddingHorizontal: 24,
+    marginTop: 16,
+    marginBottom: 32,
+  },
+  subscribeButton: {
+    paddingVertical: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    backgroundColor: '#1B4332',
+  },
+  subscribeButtonDisabled: {
+    backgroundColor: 'rgba(27,67,50,0.5)',
+  },
+  subscribeButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 16,
+  },
+  subscribeDisclaimer: {
+    fontSize: 12,
+    color: '#6B7280',
+    textAlign: 'center',
+    marginTop: 12,
+    lineHeight: 16,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 32,
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 24,
+    width: '100%',
+    alignItems: 'center',
+  },
+  modalCheckWrap: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: 'rgba(64,145,108,0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  modalCheckIcon: {
+    fontSize: 30,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1A1A2E',
+    marginBottom: 8,
+  },
+  modalBody: {
+    fontSize: 14,
+    color: '#6B7280',
+    textAlign: 'center',
+    marginBottom: 24,
+    lineHeight: 20,
+  },
+  modalButton: {
+    backgroundColor: '#1B4332',
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 8,
+  },
+  modalButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+  },
+});

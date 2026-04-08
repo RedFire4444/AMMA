@@ -15,6 +15,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
@@ -23,6 +24,7 @@ import { LessonItem } from '../components/course/LessonItem';
 import { coursesService } from '../services/courses.service';
 import { Course, Lesson, Enrollment, CourseReview } from '../types/course.types';
 import { CoursesStackParamList } from '../navigation/types';
+import { colors } from '../utils/styles';
 
 type DetailRoute = RouteProp<CoursesStackParamList, 'CourseDetail'>;
 type DetailNav = NativeStackNavigationProp<CoursesStackParamList, 'CourseDetail'>;
@@ -52,24 +54,24 @@ const StarRating = ({ rating }: { rating: number }) => {
   const hasHalf = rating - fullStars >= 0.5;
 
   return (
-    <View className="flex-row items-center">
+    <View style={s.starRow}>
       {Array.from({ length: 5 }).map((_, i) => {
         if (i < fullStars) {
           return (
-            <Text key={`star-${i}`} className="text-sm text-amber-500">
+            <Text key={`star-${i}`} style={s.starFilled}>
               {'\u2605'}
             </Text>
           );
         }
         if (i === fullStars && hasHalf) {
           return (
-            <Text key={`star-${i}`} className="text-sm text-amber-500">
+            <Text key={`star-${i}`} style={s.starFilled}>
               {'\u2605'}
             </Text>
           );
         }
         return (
-          <Text key={`star-${i}`} className="text-sm text-gray-300">
+          <Text key={`star-${i}`} style={s.starEmpty}>
             {'\u2605'}
           </Text>
         );
@@ -79,22 +81,22 @@ const StarRating = ({ rating }: { rating: number }) => {
 };
 
 const ReviewCard = ({ review }: { review: CourseReview }) => (
-  <View className="bg-surface border border-border rounded-card p-4 mb-3 mx-6">
-    <View className="flex-row items-center justify-between mb-2">
-      <View className="flex-row items-center">
-        <View className="w-8 h-8 rounded-full bg-primary/10 items-center justify-center mr-2">
-          <Text className="text-xs font-bold text-primary">
+  <View style={s.reviewCard}>
+    <View style={s.reviewHeader}>
+      <View style={s.reviewUserRow}>
+        <View style={s.reviewAvatar}>
+          <Text style={s.reviewAvatarText}>
             {(review.user_name || 'U').charAt(0).toUpperCase()}
           </Text>
         </View>
-        <Text className="text-sm font-semibold text-text-primary">
+        <Text style={s.reviewUserName}>
           {review.user_name || 'Student'}
         </Text>
       </View>
       <StarRating rating={review.rating} />
     </View>
-    <Text className="text-sm text-text-secondary">{review.review_text}</Text>
-    <Text className="text-xs text-gray-400 mt-2">
+    <Text style={s.reviewText}>{review.review_text}</Text>
+    <Text style={s.reviewDate}>
       {new Date(review.created_at).toLocaleDateString('en-IN', {
         day: 'numeric',
         month: 'short',
@@ -167,25 +169,25 @@ const CourseDetailScreen = () => {
 
   if (loading) {
     return (
-      <SafeAreaView className="flex-1 bg-background items-center justify-center">
+      <SafeAreaView style={s.loadingContainer}>
         <ActivityIndicator size="large" color="#1B4332" />
-        <Text className="text-text-secondary mt-3">Loading course...</Text>
+        <Text style={s.loadingText}>Loading course...</Text>
       </SafeAreaView>
     );
   }
 
   if (!course) {
     return (
-      <SafeAreaView className="flex-1 bg-background items-center justify-center px-6">
-        <Text className="text-3xl mb-2">{'\u{26A0}'}</Text>
-        <Text className="text-lg font-bold text-text-primary">
+      <SafeAreaView style={s.errorContainer}>
+        <Text style={s.errorIcon}>{'\u{26A0}'}</Text>
+        <Text style={s.errorTitle}>
           Course not found
         </Text>
         <TouchableOpacity
-          className="mt-4 bg-primary rounded-button px-6 py-3"
+          style={s.goBackBtn}
           onPress={() => navigation.goBack()}
         >
-          <Text className="text-white font-semibold">Go Back</Text>
+          <Text style={s.goBackBtnText}>Go Back</Text>
         </TouchableOpacity>
       </SafeAreaView>
     );
@@ -208,18 +210,18 @@ const CourseDetailScreen = () => {
       : 0;
 
   return (
-    <SafeAreaView className="flex-1 bg-background" edges={['top']}>
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={s.safeArea} edges={['top']}>
+      <ScrollView style={s.flex1} showsVerticalScrollIndicator={false}>
         {/* Header / back */}
-        <View className="px-6 pt-3 pb-2 flex-row items-center">
+        <View style={s.navRow}>
           <TouchableOpacity
-            className="w-10 h-10 rounded-full bg-surface border border-border items-center justify-center mr-3"
+            style={s.backBtn}
             onPress={() => navigation.goBack()}
           >
-            <Text className="text-lg">{'\u2190'}</Text>
+            <Text style={s.backBtnIcon}>{'\u2190'}</Text>
           </TouchableOpacity>
           <Text
-            className="text-lg font-bold text-text-primary flex-1"
+            style={s.navTitle}
             numberOfLines={1}
           >
             Course Details
@@ -227,71 +229,69 @@ const CourseDetailScreen = () => {
         </View>
 
         {/* Hero image placeholder */}
-        <View className="mx-6 h-48 bg-primary/10 rounded-card items-center justify-center mb-4">
-          <Text className="text-5xl">{'\u{1F3AC}'}</Text>
-          <TouchableOpacity className="absolute bg-white/90 rounded-full w-14 h-14 items-center justify-center">
-            <Text className="text-2xl text-primary">{'\u25B6'}</Text>
+        <View style={s.heroWrap}>
+          <Text style={s.heroIcon}>{'\u{1F3AC}'}</Text>
+          <TouchableOpacity style={s.playBtn}>
+            <Text style={s.playBtnIcon}>{'\u25B6'}</Text>
           </TouchableOpacity>
           {course.is_premium && (
-            <View className="absolute top-3 right-3 bg-amber-500 rounded-pill px-2.5 py-1">
-              <Text className="text-white text-xs font-bold">PREMIUM</Text>
+            <View style={s.premiumBadge}>
+              <Text style={s.premiumBadgeText}>PREMIUM</Text>
             </View>
           )}
         </View>
 
         {/* Title & meta */}
-        <View className="px-6 mb-4">
-          <Text className="text-xl font-serif font-bold text-text-primary mb-1">
+        <View style={s.metaSection}>
+          <Text style={s.courseTitle}>
             {course.title}
           </Text>
-          <Text className="text-sm text-text-secondary mb-3">
+          <Text style={s.courseInstructor}>
             by {course.instructor_name}
           </Text>
 
-          <View className="flex-row items-center flex-wrap">
-            <View className="bg-green-100 rounded-pill px-2 py-0.5 mr-2 mb-1">
-              <Text className="text-xs font-semibold text-green-800 capitalize">
+          <View style={s.metaRow}>
+            <View style={s.difficultyBadge}>
+              <Text style={s.difficultyText}>
                 {course.difficulty_level}
               </Text>
             </View>
 
             {reviews.length > 0 && (
-              <View className="flex-row items-center mr-3 mb-1">
+              <View style={s.ratingRow}>
                 <StarRating rating={avgRating} />
-                <Text className="text-xs text-text-secondary ml-1">
+                <Text style={s.ratingCount}>
                   ({reviews.length})
                 </Text>
               </View>
             )}
 
-            <Text className="text-xs text-text-secondary mr-3 mb-1">
+            <Text style={s.metaText}>
               {'\u23F1'} {formatDuration(course.estimated_duration_minutes)}
             </Text>
 
-            <Text className="text-xs text-text-secondary mb-1">
+            <Text style={s.metaText}>
               {course.total_lessons} lessons
             </Text>
           </View>
         </View>
 
         {/* Tabs */}
-        <View className="flex-row border-b border-border mx-6">
+        <View style={s.tabBar}>
           {TABS.map((tab) => (
             <TouchableOpacity
               key={tab.key}
-              className={`flex-1 py-3 items-center border-b-2 ${
-                activeTab === tab.key
-                  ? 'border-primary'
-                  : 'border-transparent'
-              }`}
+              style={[
+                s.tab,
+                activeTab === tab.key ? s.tabActive : s.tabInactive,
+              ]}
               onPress={() => setActiveTab(tab.key)}
             >
               <Text
-                className={`text-sm font-semibold ${
-                  activeTab === tab.key
-                    ? 'text-primary'
-                    : 'text-text-secondary'
-                }`}
+                style={[
+                  s.tabText,
+                  activeTab === tab.key ? s.tabTextActive : s.tabTextInactive,
+                ]}
               >
                 {tab.label}
               </Text>
@@ -300,25 +300,25 @@ const CourseDetailScreen = () => {
         </View>
 
         {/* Tab content */}
-        <View className="mt-4 pb-28">
+        <View style={s.tabContent}>
           {activeTab === 'overview' && (
-            <View className="px-6">
-              <Text className="text-base text-text-primary leading-6 mb-4">
+            <View style={s.overviewPad}>
+              <Text style={s.descriptionText}>
                 {course.description}
               </Text>
 
-              <Text className="text-base font-bold text-text-primary mb-3">
+              <Text style={s.learnTitle}>
                 What you'll learn
               </Text>
               {(course.tags || []).map((tag, index) => (
                 <View
                   key={`learn-${index}`}
-                  className="flex-row items-start mb-2"
+                  style={s.learnRow}
                 >
-                  <Text className="text-accent mr-2 text-sm">
+                  <Text style={s.learnCheck}>
                     {'\u2713'}
                   </Text>
-                  <Text className="text-sm text-text-secondary flex-1">
+                  <Text style={s.learnText}>
                     {tag}
                   </Text>
                 </View>
@@ -326,27 +326,27 @@ const CourseDetailScreen = () => {
 
               {course.tags.length === 0 && (
                 <View>
-                  <View className="flex-row items-start mb-2">
-                    <Text className="text-accent mr-2 text-sm">
+                  <View style={s.learnRow}>
+                    <Text style={s.learnCheck}>
                       {'\u2713'}
                     </Text>
-                    <Text className="text-sm text-text-secondary flex-1">
+                    <Text style={s.learnText}>
                       Core techniques of {course.category.toLowerCase()}
                     </Text>
                   </View>
-                  <View className="flex-row items-start mb-2">
-                    <Text className="text-accent mr-2 text-sm">
+                  <View style={s.learnRow}>
+                    <Text style={s.learnCheck}>
                       {'\u2713'}
                     </Text>
-                    <Text className="text-sm text-text-secondary flex-1">
+                    <Text style={s.learnText}>
                       Build a consistent daily practice
                     </Text>
                   </View>
-                  <View className="flex-row items-start mb-2">
-                    <Text className="text-accent mr-2 text-sm">
+                  <View style={s.learnRow}>
+                    <Text style={s.learnCheck}>
                       {'\u2713'}
                     </Text>
-                    <Text className="text-sm text-text-secondary flex-1">
+                    <Text style={s.learnText}>
                       Progress from {course.difficulty_level} to the next level
                     </Text>
                   </View>
@@ -357,7 +357,7 @@ const CourseDetailScreen = () => {
 
           {activeTab === 'curriculum' && (
             <View>
-              <Text className="text-sm text-text-secondary px-6 mb-3">
+              <Text style={s.curriculumSummary}>
                 {lessons.length} lessons {'\u00B7'}{' '}
                 {formatDuration(course.estimated_duration_minutes)} total
               </Text>
@@ -371,8 +371,8 @@ const CourseDetailScreen = () => {
                 />
               ))}
               {lessons.length === 0 && (
-                <View className="items-center py-8">
-                  <Text className="text-text-secondary">
+                <View style={s.emptyLessons}>
+                  <Text style={s.emptyLessonsText}>
                     No lessons published yet
                   </Text>
                 </View>
@@ -383,14 +383,14 @@ const CourseDetailScreen = () => {
           {activeTab === 'reviews' && (
             <View>
               {reviews.length > 0 && (
-                <View className="px-6 mb-4">
-                  <View className="flex-row items-center">
-                    <Text className="text-3xl font-bold text-text-primary mr-2">
+                <View style={s.reviewSummary}>
+                  <View style={s.reviewSummaryRow}>
+                    <Text style={s.reviewAvgRating}>
                       {avgRating.toFixed(1)}
                     </Text>
                     <View>
                       <StarRating rating={avgRating} />
-                      <Text className="text-xs text-text-secondary mt-0.5">
+                      <Text style={s.reviewTotalCount}>
                         {reviews.length} reviews
                       </Text>
                     </View>
@@ -401,8 +401,8 @@ const CourseDetailScreen = () => {
                 <ReviewCard key={review.id} review={review} />
               ))}
               {reviews.length === 0 && (
-                <View className="items-center py-8 px-6">
-                  <Text className="text-text-secondary">
+                <View style={s.emptyReviews}>
+                  <Text style={s.emptyReviewsText}>
                     No reviews yet. Be the first to review!
                   </Text>
                 </View>
@@ -413,22 +413,20 @@ const CourseDetailScreen = () => {
       </ScrollView>
 
       {/* Sticky footer */}
-      <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-border px-6 py-4 pb-8">
-        <View className="flex-row items-center justify-between">
+      <View style={s.footer}>
+        <View style={s.footerInner}>
           <View>
-            <Text className="text-xl font-bold text-text-primary">
+            <Text style={s.priceText}>
               {formatPrice(course.price_cents)}
             </Text>
             {course.is_premium && course.price_cents > 0 && (
-              <Text className="text-xs text-text-secondary">
+              <Text style={s.priceSubtext}>
                 One-time purchase
               </Text>
             )}
           </View>
           <TouchableOpacity
-            className={`rounded-button px-8 py-3.5 ${
-              enrolling ? 'bg-gray-400' : 'bg-primary'
-            }`}
+            style={[s.enrollBtn, enrolling ? s.enrollBtnDisabled : s.enrollBtnActive]}
             onPress={isEnrolled ? () => setActiveTab('curriculum') : handleEnroll}
             disabled={enrolling}
             activeOpacity={0.8}
@@ -436,7 +434,7 @@ const CourseDetailScreen = () => {
             {enrolling ? (
               <ActivityIndicator color="#FFFFFF" size="small" />
             ) : (
-              <Text className="text-white font-bold text-base">
+              <Text style={s.enrollBtnText}>
                 {isEnrolled ? 'Continue Learning' : 'Enroll Now'}
               </Text>
             )}
@@ -446,5 +444,373 @@ const CourseDetailScreen = () => {
     </SafeAreaView>
   );
 };
+
+const s = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  flex1: {
+    flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: colors.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingText: {
+    color: colors.textSecondary,
+    marginTop: 12,
+  },
+  errorContainer: {
+    flex: 1,
+    backgroundColor: colors.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  errorIcon: {
+    fontSize: 30,
+    marginBottom: 8,
+  },
+  errorTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: colors.textPrimary,
+  },
+  goBackBtn: {
+    marginTop: 16,
+    backgroundColor: colors.primary,
+    borderRadius: 8,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+  },
+  goBackBtnText: {
+    color: colors.white,
+    fontWeight: '600',
+  },
+  navRow: {
+    paddingHorizontal: 24,
+    paddingTop: 12,
+    paddingBottom: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  backBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  backBtnIcon: {
+    fontSize: 18,
+  },
+  navTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: colors.textPrimary,
+    flex: 1,
+  },
+  heroWrap: {
+    marginHorizontal: 24,
+    height: 192,
+    backgroundColor: 'rgba(27, 67, 50, 0.1)',
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  heroIcon: {
+    fontSize: 48,
+  },
+  playBtn: {
+    position: 'absolute',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 28,
+    width: 56,
+    height: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  playBtnIcon: {
+    fontSize: 24,
+    color: colors.primary,
+  },
+  premiumBadge: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    backgroundColor: '#F59E0B',
+    borderRadius: 24,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  premiumBadgeText: {
+    color: colors.white,
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  metaSection: {
+    paddingHorizontal: 24,
+    marginBottom: 16,
+  },
+  courseTitle: {
+    fontSize: 20,
+    fontFamily: 'PlayfairDisplay',
+    fontWeight: 'bold',
+    color: colors.textPrimary,
+    marginBottom: 4,
+  },
+  courseInstructor: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginBottom: 12,
+  },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+  },
+  difficultyBadge: {
+    backgroundColor: '#DCFCE7',
+    borderRadius: 24,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    marginRight: 8,
+    marginBottom: 4,
+  },
+  difficultyText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#166534',
+    textTransform: 'capitalize',
+  },
+  ratingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 12,
+    marginBottom: 4,
+  },
+  ratingCount: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginLeft: 4,
+  },
+  metaText: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginRight: 12,
+    marginBottom: 4,
+  },
+  tabBar: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    marginHorizontal: 24,
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 12,
+    alignItems: 'center',
+    borderBottomWidth: 2,
+  },
+  tabActive: {
+    borderBottomColor: colors.primary,
+  },
+  tabInactive: {
+    borderBottomColor: 'transparent',
+  },
+  tabText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  tabTextActive: {
+    color: colors.primary,
+  },
+  tabTextInactive: {
+    color: colors.textSecondary,
+  },
+  tabContent: {
+    marginTop: 16,
+    paddingBottom: 112,
+  },
+  overviewPad: {
+    paddingHorizontal: 24,
+  },
+  descriptionText: {
+    fontSize: 16,
+    color: colors.textPrimary,
+    lineHeight: 24,
+    marginBottom: 16,
+  },
+  learnTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: colors.textPrimary,
+    marginBottom: 12,
+  },
+  learnRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 8,
+  },
+  learnCheck: {
+    color: colors.accent,
+    marginRight: 8,
+    fontSize: 14,
+  },
+  learnText: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    flex: 1,
+  },
+  curriculumSummary: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    paddingHorizontal: 24,
+    marginBottom: 12,
+  },
+  emptyLessons: {
+    alignItems: 'center',
+    paddingVertical: 32,
+  },
+  emptyLessonsText: {
+    color: colors.textSecondary,
+  },
+  reviewSummary: {
+    paddingHorizontal: 24,
+    marginBottom: 16,
+  },
+  reviewSummaryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  reviewAvgRating: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    color: colors.textPrimary,
+    marginRight: 8,
+  },
+  reviewTotalCount: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginTop: 2,
+  },
+  emptyReviews: {
+    alignItems: 'center',
+    paddingVertical: 32,
+    paddingHorizontal: 24,
+  },
+  emptyReviewsText: {
+    color: colors.textSecondary,
+  },
+  starRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  starFilled: {
+    fontSize: 14,
+    color: '#F59E0B',
+  },
+  starEmpty: {
+    fontSize: 14,
+    color: colors.gray300,
+  },
+  reviewCard: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    marginHorizontal: 24,
+  },
+  reviewHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  reviewUserRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  reviewAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(27, 67, 50, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
+  },
+  reviewAvatarText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: colors.primary,
+  },
+  reviewUserName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.textPrimary,
+  },
+  reviewText: {
+    fontSize: 14,
+    color: colors.textSecondary,
+  },
+  reviewDate: {
+    fontSize: 12,
+    color: colors.gray400,
+    marginTop: 8,
+  },
+  footer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: colors.white,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingHorizontal: 24,
+    paddingTop: 16,
+    paddingBottom: 32,
+  },
+  footerInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  priceText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.textPrimary,
+  },
+  priceSubtext: {
+    fontSize: 12,
+    color: colors.textSecondary,
+  },
+  enrollBtn: {
+    borderRadius: 8,
+    paddingHorizontal: 32,
+    paddingVertical: 14,
+  },
+  enrollBtnActive: {
+    backgroundColor: colors.primary,
+  },
+  enrollBtnDisabled: {
+    backgroundColor: colors.gray400,
+  },
+  enrollBtnText: {
+    color: colors.white,
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+});
 
 export default CourseDetailScreen;

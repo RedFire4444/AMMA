@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, Animated, Easing } from 'react-native';
+import { View, Text, Animated, Easing, StyleSheet } from 'react-native';
 
 interface TimerCircleProps {
   remaining: number;
@@ -46,19 +46,18 @@ export const TimerCircle = ({
     }
   }, [isRunning, pulseAnim]);
 
-  // Build progress segments (12 segments around the circle)
+  // Build progress segments (24 segments around the circle)
   const totalSegments = 24;
   const filledSegments = Math.round(progress * totalSegments);
 
   return (
     <Animated.View
-      style={{ transform: [{ scale: pulseAnim }] }}
-      className="items-center justify-center"
+      style={[s.outerWrapper, { transform: [{ scale: pulseAnim }] }]}
     >
       {/* Outer ring */}
-      <View className="w-64 h-64 rounded-full border-4 border-white/10 items-center justify-center">
+      <View style={s.outerRing}>
         {/* Progress ring using overlapping segments */}
-        <View className="absolute w-64 h-64 items-center justify-center">
+        <View style={s.segmentContainer}>
           {Array.from({ length: totalSegments }).map((_, i) => {
             const angle = (i * 360) / totalSegments - 90;
             const radian = (angle * Math.PI) / 180;
@@ -70,25 +69,25 @@ export const TimerCircle = ({
             return (
               <View
                 key={`seg-${i}`}
-                style={{
-                  position: 'absolute',
-                  left: 128 + x - 4,
-                  top: 128 + y - 4,
-                }}
-                className={`w-2 h-2 rounded-full ${
-                  isFilled ? 'bg-accent' : 'bg-white/20'
-                }`}
+                style={[
+                  s.segment,
+                  isFilled ? s.segmentFilled : s.segmentEmpty,
+                  {
+                    left: 128 + x - 4,
+                    top: 128 + y - 4,
+                  },
+                ]}
               />
             );
           })}
         </View>
 
         {/* Inner circle */}
-        <View className="w-48 h-48 rounded-full bg-white/5 items-center justify-center">
-          <Text className="text-5xl font-bold text-white tracking-wider">
+        <View style={s.innerCircle}>
+          <Text style={s.timerText}>
             {formatTime(remaining)}
           </Text>
-          <Text className="text-sm text-white/60 mt-2">
+          <Text style={s.statusText}>
             {isRunning ? 'Meditating...' : remaining === total ? 'Ready' : 'Paused'}
           </Text>
         </View>
@@ -96,3 +95,57 @@ export const TimerCircle = ({
     </Animated.View>
   );
 };
+
+const s = StyleSheet.create({
+  outerWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  outerRing: {
+    width: 256,
+    height: 256,
+    borderRadius: 128,
+    borderWidth: 4,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  segmentContainer: {
+    position: 'absolute',
+    width: 256,
+    height: 256,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  segment: {
+    position: 'absolute',
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  segmentFilled: {
+    backgroundColor: '#40916C',
+  },
+  segmentEmpty: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  innerCircle: {
+    width: 192,
+    height: 192,
+    borderRadius: 96,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  timerText: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    letterSpacing: 2,
+  },
+  statusText: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.6)',
+    marginTop: 8,
+  },
+});

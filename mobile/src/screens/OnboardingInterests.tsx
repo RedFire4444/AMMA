@@ -8,11 +8,12 @@
  */
 
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, SafeAreaView, ScrollView, StyleSheet } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import { OnboardingStackParamList } from '../navigation/types';
 import { useAuthStore } from '../store/authStore';
+import { colors } from '../utils/styles';
 
 type NavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'OnboardingInterests'>;
 
@@ -53,38 +54,38 @@ const OnboardingInterests = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
-      <View className="flex-1 px-6 py-8">
-        <TouchableOpacity onPress={handleSkip} className="self-end">
-          <Text className="text-text-secondary text-base">Skip</Text>
+    <SafeAreaView style={s.safeArea}>
+      <View style={s.container}>
+        <TouchableOpacity onPress={handleSkip} style={s.skipBtn}>
+          <Text style={s.skipText}>Skip</Text>
         </TouchableOpacity>
 
-        <Text className="text-2xl font-serif font-bold text-primary mt-4 mb-2">
+        <Text style={s.title}>
           What interests you?
         </Text>
-        <Text className="text-base text-text-secondary mb-6">
+        <Text style={s.subtitle}>
           Select topics you'd like to explore. You can always change these later.
         </Text>
 
-        <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-          <View className="flex-row flex-wrap justify-between">
+        <ScrollView style={s.flex1} showsVerticalScrollIndicator={false}>
+          <View style={s.grid}>
             {INTERESTS.map((interest) => {
               const isSelected = selected.includes(interest.id);
               return (
                 <TouchableOpacity
                   key={interest.id}
                   onPress={() => toggleInterest(interest.id)}
-                  className={`w-[48%] mb-3 p-4 rounded-card border-2 items-center ${
-                    isSelected
-                      ? 'border-primary bg-primary/10'
-                      : 'border-border bg-surface'
-                  }`}
+                  style={[
+                    s.chip,
+                    isSelected ? s.chipSelected : s.chipUnselected,
+                  ]}
                 >
-                  <Text className="text-3xl mb-2">{interest.icon}</Text>
+                  <Text style={s.chipIcon}>{interest.icon}</Text>
                   <Text
-                    className={`text-sm font-semibold ${
-                      isSelected ? 'text-primary' : 'text-text-primary'
-                    }`}
+                    style={[
+                      s.chipLabel,
+                      isSelected ? s.chipLabelSelected : s.chipLabelUnselected,
+                    ]}
                   >
                     {interest.label}
                   </Text>
@@ -95,26 +96,139 @@ const OnboardingInterests = () => {
         </ScrollView>
 
         {error ? (
-          <Text className="text-red-500 text-center text-sm mb-2">{error}</Text>
+          <Text style={s.errorText}>{error}</Text>
         ) : null}
 
         <TouchableOpacity
-          className={`w-full py-4 rounded-button items-center mt-4 ${
-            selected.length > 0 ? 'bg-primary' : 'bg-gray-300'
-          }`}
+          style={[
+            s.nextBtn,
+            selected.length > 0 ? s.nextBtnActive : s.nextBtnDisabled,
+          ]}
           onPress={handleNext}
         >
-          <Text className="text-white font-bold text-lg">Next</Text>
+          <Text style={s.nextBtnText}>Next</Text>
         </TouchableOpacity>
 
-        <View className="flex-row justify-center mt-4 space-x-2">
-          <View className="w-2 h-2 rounded-full bg-gray-300" />
-          <View className="w-8 h-2 rounded-full bg-primary" />
-          <View className="w-2 h-2 rounded-full bg-gray-300" />
+        <View style={s.dotsRow}>
+          <View style={s.dotInactive} />
+          <View style={s.dotActive} />
+          <View style={s.dotInactive} />
         </View>
       </View>
     </SafeAreaView>
   );
 };
+
+const s = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  container: {
+    flex: 1,
+    paddingHorizontal: 24,
+    paddingVertical: 32,
+  },
+  flex1: {
+    flex: 1,
+  },
+  skipBtn: {
+    alignSelf: 'flex-end',
+  },
+  skipText: {
+    color: colors.textSecondary,
+    fontSize: 16,
+  },
+  title: {
+    fontSize: 24,
+    fontFamily: 'PlayfairDisplay',
+    fontWeight: 'bold',
+    color: colors.primary,
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: colors.textSecondary,
+    marginBottom: 24,
+  },
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  chip: {
+    width: '48%',
+    marginBottom: 12,
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 2,
+    alignItems: 'center',
+  },
+  chipSelected: {
+    borderColor: colors.primary,
+    backgroundColor: 'rgba(27, 67, 50, 0.1)',
+  },
+  chipUnselected: {
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  chipIcon: {
+    fontSize: 30,
+    marginBottom: 8,
+  },
+  chipLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  chipLabelSelected: {
+    color: colors.primary,
+  },
+  chipLabelUnselected: {
+    color: colors.textPrimary,
+  },
+  errorText: {
+    color: colors.error,
+    textAlign: 'center',
+    fontSize: 14,
+    marginBottom: 8,
+  },
+  nextBtn: {
+    width: '100%',
+    paddingVertical: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  nextBtnActive: {
+    backgroundColor: colors.primary,
+  },
+  nextBtnDisabled: {
+    backgroundColor: colors.gray300,
+  },
+  nextBtnText: {
+    color: colors.white,
+    fontWeight: 'bold',
+    fontSize: 18,
+  },
+  dotsRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 16,
+    gap: 8,
+  },
+  dotActive: {
+    width: 32,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.primary,
+  },
+  dotInactive: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.gray300,
+  },
+});
 
 export default OnboardingInterests;

@@ -16,6 +16,7 @@ import {
   FlatList,
   ActivityIndicator,
   Alert,
+  StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -56,22 +57,24 @@ const StatusBadge = ({ status }: { status: string }) => {
 
   return (
     <View
-      className={`rounded-pill px-2 py-1 ${
+      style={[
+        s.statusBadge,
         isSuccess
-          ? 'bg-success/10'
+          ? s.statusBadgeSuccess
           : isPending
-            ? 'bg-yellow-100'
-            : 'bg-red-100'
-      }`}
+            ? s.statusBadgePending
+            : s.statusBadgeError,
+      ]}
     >
       <Text
-        className={`text-xs font-semibold capitalize ${
+        style={[
+          s.statusBadgeText,
           isSuccess
-            ? 'text-success'
+            ? s.statusBadgeTextSuccess
             : isPending
-              ? 'text-yellow-700'
-              : 'text-red-600'
-        }`}
+              ? s.statusBadgeTextPending
+              : s.statusBadgeTextError,
+        ]}
       >
         {status}
       </Text>
@@ -81,14 +84,16 @@ const StatusBadge = ({ status }: { status: string }) => {
 
 const PlanBadge = ({ planType }: { planType: string }) => (
   <View
-    className={`rounded-pill px-4 py-2 ${
-      planType === 'free' ? 'bg-border' : 'bg-primary/10'
-    }`}
+    style={[
+      s.planBadge,
+      planType === 'free' ? s.planBadgeFree : s.planBadgePremium,
+    ]}
   >
     <Text
-      className={`text-sm font-bold capitalize ${
-        planType === 'free' ? 'text-text-secondary' : 'text-primary'
-      }`}
+      style={[
+        s.planBadgeText,
+        planType === 'free' ? s.planBadgeTextFree : s.planBadgeTextPremium,
+      ]}
     >
       {planType === 'free' ? 'Free Plan' : `${planType} Premium`}
     </Text>
@@ -149,20 +154,20 @@ const SubscriptionScreen = () => {
   };
 
   const renderPaymentItem = ({ item }: { item: PaymentRecord }) => (
-    <View className="flex-row items-center justify-between py-4 border-b border-border">
-      <View className="flex-1 mr-3">
-        <Text className="text-sm font-medium text-text-primary capitalize">
+    <View style={s.paymentRow}>
+      <View style={s.paymentRowLeft}>
+        <Text style={s.paymentPlanLabel}>
           {item.plan_type} Plan
         </Text>
-        <Text className="text-xs text-text-secondary mt-1">
+        <Text style={s.paymentDate}>
           {formatDate(item.created_at)}
         </Text>
       </View>
-      <View className="items-end">
-        <Text className="text-sm font-bold text-text-primary">
+      <View style={s.paymentRowRight}>
+        <Text style={s.paymentAmount}>
           {formatAmount(item.amount, item.currency)}
         </Text>
-        <View className="mt-1">
+        <View style={s.paymentStatusWrap}>
           <StatusBadge status={item.status} />
         </View>
       </View>
@@ -171,8 +176,8 @@ const SubscriptionScreen = () => {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-background" edges={['top']}>
-        <View className="flex-1 items-center justify-center">
+      <SafeAreaView style={s.container} edges={['top']}>
+        <View style={s.loadingWrap}>
           <ActivityIndicator size="large" color="#1B4332" />
         </View>
       </SafeAreaView>
@@ -180,36 +185,36 @@ const SubscriptionScreen = () => {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-background" edges={['top']}>
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={s.container} edges={['top']}>
+      <ScrollView style={s.flex1} showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <View className="flex-row items-center px-6 pt-4 pb-2">
+        <View style={s.headerRow}>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
-            className="w-10 h-10 items-center justify-center rounded-full bg-surface border border-border"
+            style={s.backButton}
           >
-            <Text className="text-lg text-text-primary">{'\u{2190}'}</Text>
+            <Text style={s.backButtonText}>{'\u{2190}'}</Text>
           </TouchableOpacity>
-          <Text className="text-lg font-bold text-text-primary ml-3">
+          <Text style={s.headerTitle}>
             Subscription
           </Text>
-          <View className="flex-1" />
+          <View style={s.flex1} />
         </View>
 
         {/* Current Plan */}
-        <View className="mx-6 mt-6 bg-surface rounded-card border border-border p-5">
-          <Text className="text-xs text-text-secondary uppercase tracking-wider mb-3">
+        <View style={s.planCard}>
+          <Text style={s.planCardLabel}>
             Current Plan
           </Text>
-          <View className="flex-row items-center justify-between">
+          <View style={s.planCardBadgeRow}>
             <PlanBadge planType={planType} />
           </View>
 
           {isPremium && expiresAt && (
-            <View className="mt-4 pt-4 border-t border-border">
-              <View className="flex-row items-center justify-between">
-                <Text className="text-sm text-text-secondary">Expires</Text>
-                <Text className="text-sm font-semibold text-text-primary">
+            <View style={s.expirySection}>
+              <View style={s.expiryRow}>
+                <Text style={s.expiryLabel}>Expires</Text>
+                <Text style={s.expiryValue}>
                   {formatDate(expiresAt)}
                 </Text>
               </View>
@@ -217,17 +222,17 @@ const SubscriptionScreen = () => {
           )}
 
           {/* Actions */}
-          <View className="mt-4">
+          <View style={s.planActionsWrap}>
             {isPremium ? (
               <TouchableOpacity
                 onPress={handleCancel}
                 disabled={cancelling}
-                className="py-3 rounded-button items-center border border-red-300 bg-red-50"
+                style={s.cancelButton}
               >
                 {cancelling ? (
                   <ActivityIndicator color="#DC2626" />
                 ) : (
-                  <Text className="text-red-600 font-semibold text-sm">
+                  <Text style={s.cancelButtonText}>
                     Cancel Subscription
                   </Text>
                 )}
@@ -235,9 +240,9 @@ const SubscriptionScreen = () => {
             ) : (
               <TouchableOpacity
                 onPress={() => navigation.navigate('Paywall')}
-                className="bg-primary py-3 rounded-button items-center"
+                style={s.upgradeButton}
               >
-                <Text className="text-white font-bold text-sm">
+                <Text style={s.upgradeButtonText}>
                   Upgrade to Premium
                 </Text>
               </TouchableOpacity>
@@ -246,18 +251,18 @@ const SubscriptionScreen = () => {
         </View>
 
         {/* Billing History */}
-        <View className="mx-6 mt-6 mb-8">
-          <Text className="text-lg font-bold text-text-primary mb-3">
+        <View style={s.billingSection}>
+          <Text style={s.billingSectionTitle}>
             Billing History
           </Text>
-          <View className="bg-surface rounded-card border border-border px-4">
+          <View style={s.billingCard}>
             {paymentsLoading ? (
-              <View className="py-8 items-center">
+              <View style={s.billingEmpty}>
                 <ActivityIndicator color="#1B4332" />
               </View>
             ) : payments.length === 0 ? (
-              <View className="py-8 items-center">
-                <Text className="text-sm text-text-secondary">
+              <View style={s.billingEmpty}>
+                <Text style={s.billingEmptyText}>
                   No billing history yet
                 </Text>
               </View>
@@ -277,3 +282,223 @@ const SubscriptionScreen = () => {
 };
 
 export default SubscriptionScreen;
+
+const s = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#FAFAF5',
+  },
+  flex1: {
+    flex: 1,
+  },
+  loadingWrap: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingTop: 16,
+    paddingBottom: 8,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 20,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  backButtonText: {
+    fontSize: 18,
+    color: '#1A1A2E',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1A1A2E',
+    marginLeft: 12,
+  },
+  planCard: {
+    marginHorizontal: 24,
+    marginTop: 24,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    padding: 20,
+  },
+  planCardLabel: {
+    fontSize: 12,
+    color: '#6B7280',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginBottom: 12,
+  },
+  planCardBadgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  planBadge: {
+    borderRadius: 999,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  planBadgeFree: {
+    backgroundColor: '#E5E7EB',
+  },
+  planBadgePremium: {
+    backgroundColor: 'rgba(27,67,50,0.1)',
+  },
+  planBadgeText: {
+    fontSize: 14,
+    fontWeight: '700',
+    textTransform: 'capitalize',
+  },
+  planBadgeTextFree: {
+    color: '#6B7280',
+  },
+  planBadgeTextPremium: {
+    color: '#1B4332',
+  },
+  expirySection: {
+    marginTop: 16,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#E5E7EB',
+  },
+  expiryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  expiryLabel: {
+    fontSize: 14,
+    color: '#6B7280',
+  },
+  expiryValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1A1A2E',
+  },
+  planActionsWrap: {
+    marginTop: 16,
+  },
+  cancelButton: {
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#FCA5A5',
+    backgroundColor: '#FEF2F2',
+  },
+  cancelButtonText: {
+    color: '#DC2626',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  upgradeButton: {
+    backgroundColor: '#1B4332',
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  upgradeButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 14,
+  },
+  billingSection: {
+    marginHorizontal: 24,
+    marginTop: 24,
+    marginBottom: 32,
+  },
+  billingSectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1A1A2E',
+    marginBottom: 12,
+  },
+  billingCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    paddingHorizontal: 16,
+  },
+  billingEmpty: {
+    paddingVertical: 32,
+    alignItems: 'center',
+  },
+  billingEmptyText: {
+    fontSize: 14,
+    color: '#6B7280',
+  },
+  paymentRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+  },
+  paymentRowLeft: {
+    flex: 1,
+    marginRight: 12,
+  },
+  paymentPlanLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#1A1A2E',
+    textTransform: 'capitalize',
+  },
+  paymentDate: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginTop: 4,
+  },
+  paymentRowRight: {
+    alignItems: 'flex-end',
+  },
+  paymentAmount: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#1A1A2E',
+  },
+  paymentStatusWrap: {
+    marginTop: 4,
+  },
+  statusBadge: {
+    borderRadius: 999,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  statusBadgeSuccess: {
+    backgroundColor: 'rgba(64,145,108,0.1)',
+  },
+  statusBadgePending: {
+    backgroundColor: '#FEF9C3',
+  },
+  statusBadgeError: {
+    backgroundColor: '#FEE2E2',
+  },
+  statusBadgeText: {
+    fontSize: 12,
+    fontWeight: '600',
+    textTransform: 'capitalize',
+  },
+  statusBadgeTextSuccess: {
+    color: '#40916C',
+  },
+  statusBadgeTextPending: {
+    color: '#A16207',
+  },
+  statusBadgeTextError: {
+    color: '#DC2626',
+  },
+});

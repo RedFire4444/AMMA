@@ -8,11 +8,12 @@
  */
 
 import React from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, TouchableOpacity, SafeAreaView, StyleSheet } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import { OnboardingStackParamList } from '../navigation/types';
 import { useAuthStore } from '../store/authStore';
+import { colors } from '../utils/styles';
 
 type NavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'OnboardingWelcome'>;
 
@@ -25,47 +26,140 @@ const OnboardingWelcome = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
-      <View className="flex-1 justify-between px-6 py-8">
-        <TouchableOpacity onPress={handleSkip} className="self-end">
-          <Text className="text-text-secondary text-base">Skip</Text>
+    <SafeAreaView style={s.safeArea}>
+      <View style={s.container}>
+        <TouchableOpacity onPress={handleSkip} style={s.skipBtn}>
+          <Text style={s.skipText}>Skip</Text>
         </TouchableOpacity>
 
-        <View className="items-center flex-1 justify-center">
-          <View className="w-24 h-24 rounded-full bg-primary items-center justify-center mb-8">
-            <Text className="text-4xl text-white">{'\u{1F33A}'}</Text>
+        <View style={s.centerContent}>
+          <View style={s.iconCircle}>
+            <Text style={s.iconText}>{'\u{1F33A}'}</Text>
           </View>
 
-          <Text className="text-sm tracking-widest text-text-secondary mb-4 uppercase">
+          <Text style={s.brandLabel}>
             Mata Amritanandamayi App
           </Text>
 
-          <Text className="text-3xl font-serif font-bold text-primary text-center mb-4">
+          <Text style={s.headline}>
             Begin your{'\n'}journey within
           </Text>
 
-          <Text className="text-base text-text-secondary text-center px-8 leading-6">
+          <Text style={s.description}>
             Discover peace through meditation, yoga, pranayama, and spiritual wisdom guided by ancient traditions.
           </Text>
         </View>
 
-        <View className="space-y-3">
+        <View style={s.bottomSection}>
           <TouchableOpacity
-            className="w-full py-4 rounded-button bg-primary items-center"
+            style={s.getStartedBtn}
             onPress={() => navigation.navigate('OnboardingInterests')}
           >
-            <Text className="text-white font-bold text-lg">Get Started</Text>
+            <Text style={s.getStartedText}>Get Started</Text>
           </TouchableOpacity>
 
-          <View className="flex-row justify-center mt-4 space-x-2">
-            <View className="w-8 h-2 rounded-full bg-primary" />
-            <View className="w-2 h-2 rounded-full bg-gray-300" />
-            <View className="w-2 h-2 rounded-full bg-gray-300" />
+          <View style={s.dotsRow}>
+            <View style={s.dotActive} />
+            <View style={s.dotInactive} />
+            <View style={s.dotInactive} />
           </View>
         </View>
       </View>
     </SafeAreaView>
   );
 };
+
+const s = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  container: {
+    flex: 1,
+    justifyContent: 'space-between',
+    paddingHorizontal: 24,
+    paddingVertical: 32,
+  },
+  skipBtn: {
+    alignSelf: 'flex-end',
+  },
+  skipText: {
+    color: colors.textSecondary,
+    fontSize: 16,
+  },
+  centerContent: {
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'center',
+  },
+  iconCircle: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 32,
+  },
+  iconText: {
+    fontSize: 36,
+    color: colors.white,
+  },
+  brandLabel: {
+    fontSize: 14,
+    letterSpacing: 2,
+    color: colors.textSecondary,
+    marginBottom: 16,
+    textTransform: 'uppercase',
+  },
+  headline: {
+    fontSize: 30,
+    fontFamily: 'PlayfairDisplay',
+    fontWeight: 'bold',
+    color: colors.primary,
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  description: {
+    fontSize: 16,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    paddingHorizontal: 32,
+    lineHeight: 24,
+  },
+  bottomSection: {
+    gap: 12,
+  },
+  getStartedBtn: {
+    width: '100%',
+    paddingVertical: 16,
+    borderRadius: 8,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+  },
+  getStartedText: {
+    color: colors.white,
+    fontWeight: 'bold',
+    fontSize: 18,
+  },
+  dotsRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 16,
+    gap: 8,
+  },
+  dotActive: {
+    width: 32,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.primary,
+  },
+  dotInactive: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.gray300,
+  },
+});
 
 export default OnboardingWelcome;

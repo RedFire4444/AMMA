@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 
 const TAB_ICONS: Record<string, string> = {
@@ -16,7 +16,7 @@ export const CustomTabBar = ({
   navigation,
 }: BottomTabBarProps) => {
   return (
-    <View className="flex-row bg-white pb-6 pt-3 px-2 border-t border-border">
+    <View style={s.container}>
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
         const label =
@@ -50,27 +50,29 @@ export const CustomTabBar = ({
             accessibilityLabel={options.tabBarAccessibilityLabel}
             testID={`tab-${route.name}`}
             onPress={onPress}
-            className="flex-1 items-center justify-center"
+            style={s.tabButton}
           >
             {isCenter ? (
               <View
-                className={`w-12 h-12 rounded-full items-center justify-center -mt-4 ${
-                  isFocused ? 'bg-primary' : 'bg-primary-light'
-                }`}
+                style={[
+                  s.centerIcon,
+                  isFocused ? s.centerIconFocused : s.centerIconUnfocused,
+                ]}
               >
-                <Text className="text-xl text-white">{icon}</Text>
+                <Text style={s.centerIconText}>{icon}</Text>
               </View>
             ) : (
               <Text
-                className={`text-xl ${isFocused ? 'text-primary' : 'text-gray-400'}`}
+                style={[s.iconText, isFocused ? s.iconFocused : s.iconUnfocused]}
               >
                 {icon}
               </Text>
             )}
             <Text
-              className={`text-xs mt-1 ${
-                isFocused ? 'text-primary font-bold' : 'text-gray-400'
-              }`}
+              style={[
+                s.label,
+                isFocused ? s.labelFocused : s.labelUnfocused,
+              ]}
             >
               {label as string}
             </Text>
@@ -80,3 +82,58 @@ export const CustomTabBar = ({
     </View>
   );
 };
+
+const s = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    backgroundColor: '#FFFFFF',
+    paddingBottom: 24,
+    paddingTop: 12,
+    paddingHorizontal: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#E5E7EB',
+  },
+  tabButton: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  centerIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: -16,
+  },
+  centerIconFocused: {
+    backgroundColor: '#1B4332',
+  },
+  centerIconUnfocused: {
+    backgroundColor: '#2D6A4F',
+  },
+  centerIconText: {
+    fontSize: 20,
+    color: '#FFFFFF',
+  },
+  iconText: {
+    fontSize: 20,
+  },
+  iconFocused: {
+    color: '#1B4332',
+  },
+  iconUnfocused: {
+    color: '#9CA3AF',
+  },
+  label: {
+    fontSize: 12,
+    marginTop: 4,
+  },
+  labelFocused: {
+    color: '#1B4332',
+    fontWeight: 'bold',
+  },
+  labelUnfocused: {
+    color: '#9CA3AF',
+  },
+});

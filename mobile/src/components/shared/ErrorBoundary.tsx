@@ -1,5 +1,5 @@
 import React, { Component, ReactNode } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 interface Props {
   children: ReactNode;
@@ -37,19 +37,19 @@ export class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <View className="flex-1 bg-background items-center justify-center px-8">
-          <Text className="text-4xl mb-4">{'\u{26A0}'}</Text>
-          <Text className="text-xl font-serif font-bold text-primary mb-2 text-center">
+        <View style={s.container}>
+          <Text style={s.warningIcon}>{'\u{26A0}'}</Text>
+          <Text style={s.title}>
             Something went wrong
           </Text>
-          <Text className="text-base text-text-secondary text-center mb-6">
+          <Text style={s.message}>
             We're sorry for the inconvenience. Please try again.
           </Text>
           <TouchableOpacity
-            className="bg-primary px-8 py-3 rounded-button"
+            style={s.retryButton}
             onPress={this.handleRetry}
           >
-            <Text className="text-white font-bold text-base">Try Again</Text>
+            <Text style={s.retryText}>Try Again</Text>
           </TouchableOpacity>
         </View>
       );
@@ -58,3 +58,41 @@ export class ErrorBoundary extends Component<Props, State> {
     return this.props.children;
   }
 }
+
+const s = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#FAFAF5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 32,
+  },
+  warningIcon: {
+    fontSize: 32,
+    marginBottom: 16,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1B4332',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  message: {
+    fontSize: 16,
+    color: '#6B7280',
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  retryButton: {
+    backgroundColor: '#1B4332',
+    paddingHorizontal: 32,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  retryText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+});

@@ -16,12 +16,14 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  StyleSheet,
   NativeSyntheticEvent,
   TextInputKeyPressEventData,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../navigation/types';
 import { useAuthStore } from '../store/authStore';
+import { colors } from '../utils/styles';
 
 const OTP_LENGTH = 6;
 const RESEND_TIMER = 30;
@@ -110,36 +112,29 @@ const OTPScreen = ({ route }: Props) => {
     }
   };
 
-  const getOtpInputClassName = (digit: string): string => {
-    if (digit) {
-      return 'w-12 h-14 border rounded-xl text-center text-xl font-bold bg-white border-primary text-primary';
-    }
-    return 'w-12 h-14 border rounded-xl text-center text-xl font-bold bg-white border-gray-300 text-gray-800';
-  };
-
   const isResendDisabled = timer > 0 || isLoading;
 
   return (
     <KeyboardAvoidingView
-      className="flex-1 bg-background justify-center px-6"
+      style={s.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <View className="items-center mb-10">
-        <Text className="text-3xl font-serif font-bold text-primary-dark mb-2">Verification</Text>
-        <Text className="text-base text-gray-500 font-sans text-center">
+      <View style={s.header}>
+        <Text style={s.title}>Verification</Text>
+        <Text style={s.subtitle}>
           We've sent a 6-digit verification code to
         </Text>
-        <Text className="text-lg font-bold text-gray-800 mt-1">{phone || 'your phone'}</Text>
+        <Text style={s.phone}>{phone || 'your phone'}</Text>
       </View>
 
-      <View className="flex-row justify-between mb-4 mt-2 px-2">
+      <View style={s.otpRow}>
         {otp.map((digit, idx) => (
           <TextInput
             key={idx}
             ref={(ref) => {
               inputRefs.current[idx] = ref;
             }}
-            className={getOtpInputClassName(digit)}
+            style={[s.otpInput, digit ? s.otpInputFilled : s.otpInputEmpty]}
             keyboardType="number-pad"
             maxLength={1}
             value={digit}
@@ -151,27 +146,27 @@ const OTPScreen = ({ route }: Props) => {
       </View>
 
       {error ? (
-        <Text className="text-red-500 text-center mb-4 text-sm">{error}</Text>
+        <Text style={s.errorText}>{error}</Text>
       ) : (
-        <View className="h-4 mb-4" />
+        <View style={s.errorSpacer} />
       )}
 
       <TouchableOpacity
-        className={isLoading ? 'w-full py-4 rounded-xl items-center bg-primary-light' : 'w-full py-4 rounded-xl items-center bg-primary'}
+        style={[s.verifyBtn, isLoading ? s.verifyBtnLoading : s.verifyBtnActive]}
         onPress={handleVerify}
         disabled={isLoading}
       >
         {isLoading ? (
           <ActivityIndicator color="white" />
         ) : (
-          <Text className="text-white font-bold text-lg">Verify OTP</Text>
+          <Text style={s.verifyBtnText}>Verify OTP</Text>
         )}
       </TouchableOpacity>
 
-      <View className="flex-row justify-center items-center mt-6">
-        <Text className="text-gray-500 font-sans">Didn't receive the code? </Text>
+      <View style={s.resendRow}>
+        <Text style={s.resendLabel}>Didn't receive the code? </Text>
         <TouchableOpacity onPress={handleResend} disabled={isResendDisabled}>
-          <Text className={isResendDisabled ? 'font-bold text-gray-400' : 'font-bold text-primary'}>
+          <Text style={[s.resendAction, isResendDisabled ? s.resendDisabled : s.resendEnabled]}>
             {timer > 0 ? 'Resend in ' + timer + 's' : 'Resend OTP'}
           </Text>
         </TouchableOpacity>
@@ -179,5 +174,108 @@ const OTPScreen = ({ route }: Props) => {
     </KeyboardAvoidingView>
   );
 };
+
+const s = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 40,
+  },
+  title: {
+    fontSize: 30,
+    fontFamily: 'PlayfairDisplay',
+    fontWeight: 'bold',
+    color: colors.primaryDark,
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: colors.gray500,
+    fontFamily: 'Inter',
+    textAlign: 'center',
+  },
+  phone: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: colors.gray800,
+    marginTop: 4,
+  },
+  otpRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+    marginTop: 8,
+    paddingHorizontal: 8,
+  },
+  otpInput: {
+    width: 48,
+    height: 56,
+    borderWidth: 1,
+    borderRadius: 12,
+    textAlign: 'center',
+    fontSize: 20,
+    fontWeight: 'bold',
+    backgroundColor: colors.white,
+  },
+  otpInputFilled: {
+    borderColor: colors.primary,
+    color: colors.primary,
+  },
+  otpInputEmpty: {
+    borderColor: colors.gray300,
+    color: colors.gray800,
+  },
+  errorText: {
+    color: colors.error,
+    textAlign: 'center',
+    marginBottom: 16,
+    fontSize: 14,
+  },
+  errorSpacer: {
+    height: 16,
+    marginBottom: 16,
+  },
+  verifyBtn: {
+    width: '100%',
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  verifyBtnActive: {
+    backgroundColor: colors.primary,
+  },
+  verifyBtnLoading: {
+    backgroundColor: colors.primaryLight,
+  },
+  verifyBtnText: {
+    color: colors.white,
+    fontWeight: 'bold',
+    fontSize: 18,
+  },
+  resendRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 24,
+  },
+  resendLabel: {
+    color: colors.gray500,
+    fontFamily: 'Inter',
+  },
+  resendAction: {
+    fontWeight: 'bold',
+  },
+  resendDisabled: {
+    color: colors.gray400,
+  },
+  resendEnabled: {
+    color: colors.primary,
+  },
+});
 
 export default OTPScreen;
