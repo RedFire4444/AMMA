@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { get, post, del } from './api';
 
 export interface HabitLog {
   id: string;
@@ -49,48 +49,15 @@ export interface AllHabitsData {
 
 export const habitsService = {
   async getAllHabits(): Promise<AllHabitsData> {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) throw new Error('Not authenticated');
-
-    // Attempt to get streaks via RPC
-    let streaks: Record<string, StreakData> = {};
     try {
-      const { data: streakData } = await supabase.rpc('get_user_streaks', {
-        p_user_id: user.id,
-      });
-      if (streakData && Array.isArray(streakData)) {
-        for (const s of streakData) {
-          streaks[s.habit_type as string] = {
-            current_streak: s.current_streak as number,
-            longest_streak: s.longest_streak as number,
-          };
-        }
-      }
+      const data = await get<any>('/habits/all');
+      return {
+        streaks: data?.streaks || {},
+        logs: data?.heatmap || data?.logs || [],
+      };
     } catch {
-      // RPC may not exist yet
+      return { streaks: {}, logs: [] };
     }
-
-    // Fetch recent logs for heatmap (last 35 days)
-    const thirtyFiveDaysAgo = new Date();
-    thirtyFiveDaysAgo.setDate(thirtyFiveDaysAgo.getDate() - 35);
-
-    const { data: logs, error } = await supabase
-      .from('habit_logs')
-      .select(
-        'id, user_id, habit_type, completed, duration_minutes, mood_rating, energy_level, logged_at',
-      )
-      .eq('user_id', user.id)
-      .gte('logged_at', thirtyFiveDaysAgo.toISOString().split('T')[0])
-      .order('logged_at', { ascending: false });
-
-    if (error) throw error;
-
-    return {
-      streaks,
-      logs: (logs as HabitLog[]) || [],
-    };
   },
 
   async logHabit(
@@ -102,165 +69,53 @@ export const habitsService = {
       energy_level?: number;
     },
   ): Promise<void> {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) throw new Error('Not authenticated');
-
-    const today = new Date().toISOString().split('T')[0];
-
-    const { error } = await supabase.from('habit_logs').insert({
-      user_id: user.id,
-      habit_type: habitType,
-      completed: data.completed ?? true,
-      duration_minutes: data.duration_minutes ?? null,
-      mood_rating: data.mood_rating ?? null,
-      energy_level: data.energy_level ?? null,
-      logged_at: today,
-    });
-
-    if (error) throw error;
+    await post('/habits/log', { habit_type: habitType, ...data });
   },
 
   async getStreak(habitType: string): Promise<StreakData> {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) throw new Error('Not authenticated');
-
-    const { data } = await supabase.rpc('calculate_streak', {
-      p_user_id: user.id,
-      p_habit_type: habitType,
-    });
-
-    return {
-      current_streak: data?.current_streak ?? 0,
-      longest_streak: data?.longest_streak ?? 0,
-    };
+    try {
+      const data = await get<any>('/habits/streak', { params: { habit_type: habitType } });
+      return data || { current_streak: 0, longest_streak: 0 };
+    } catch {
+      return { current_streak: 0, longest_streak: 0 };
+    }
   },
 
   async checkin(mood: number, _notes: string): Promise<void> {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) throw new Error('Not authenticated');
-
-    const today = new Date().toISOString().split('T')[0];
-
-    const { error } = await supabase.from('habit_logs').insert({
-      user_id: user.id,
-      habit_type: 'checkin',
-      completed: true,
-      mood_rating: mood,
-      logged_at: today,
-    });
-
-    if (error) throw error;
+    await post('/habits/checkin', { mood_rating: mood, notes: _notes });
   },
 
   async getVisionBoard(): Promise<VisionBoardImage[]> {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) throw new Error('Not authenticated');
-
-    const { data, error } = await supabase
-      .from('vision_board')
-      .select('id, user_id, image_url, caption, created_at')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-    return (data as VisionBoardImage[]) || [];
+    const data = await get<any>('/habits/vision-board');
+    return data || [];
   },
 
   async addVisionBoardImage(
     imageUrl: string,
     caption: string,
   ): Promise<void> {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) throw new Error('Not authenticated');
-
-    const { error } = await supabase.from('vision_board').insert({
-      user_id: user.id,
-      image_url: imageUrl,
-      caption,
-    });
-
-    if (error) throw error;
+    await post('/habits/vision-board', { image_url: imageUrl, caption });
   },
 
   async removeVisionBoardImage(id: string): Promise<void> {
-    const { error } = await supabase
-      .from('vision_board')
-      .delete()
-      .eq('id', id);
-
-    if (error) throw error;
+    await del(`/habits/vision-board/${id}`);
   },
 
   async getDayJourney(): Promise<DayJourneyEntry[]> {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) throw new Error('Not authenticated');
-
-    const today = new Date().toISOString().split('T')[0];
-
-    const { data, error } = await supabase
-      .from('day_journey')
-      .select(
-        'id, user_id, period, title, description, time_range, completed, logged_at',
-      )
-      .eq('user_id', user.id)
-      .eq('logged_at', today)
-      .order('period', { ascending: true });
-
-    if (error) throw error;
-    return (data as DayJourneyEntry[]) || [];
+    const data = await get<any>('/habits/day-journey');
+    return data || [];
   },
 
   async ratePerformance(rating: number): Promise<void> {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) throw new Error('Not authenticated');
-
-    const today = new Date().toISOString().split('T')[0];
-
-    const { error } = await supabase.from('performance_ratings').upsert(
-      {
-        user_id: user.id,
-        rating,
-        rated_at: today,
-      },
-      {
-        onConflict: 'user_id,rated_at',
-      },
-    );
-
-    if (error) throw error;
+    await post('/habits/performance/rate', { productivity_rating: rating });
   },
 
   async getWeeklyPerformance(): Promise<PerformanceRating[]> {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) throw new Error('Not authenticated');
-
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-    const { data, error } = await supabase
-      .from('performance_ratings')
-      .select('id, user_id, rating, rated_at')
-      .eq('user_id', user.id)
-      .gte('rated_at', sevenDaysAgo.toISOString().split('T')[0])
-      .order('rated_at', { ascending: true });
-
-    if (error) throw error;
-    return (data as PerformanceRating[]) || [];
+    try {
+      const data = await get<any>('/habits/performance/weekly');
+      return data || [];
+    } catch {
+      return [];
+    }
   },
 };

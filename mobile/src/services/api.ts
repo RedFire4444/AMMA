@@ -11,17 +11,34 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { supabase } from './supabase';
 
+import { Platform } from 'react-native';
+
 // ---------------------------------------------------------------------------
-// Base URL — update this to your backend URL (local dev or deployed)
+// Base URL — IMPORTANT for physical devices:
+// If testing on a PHYSICAL phone, you MUST replace 'localhost' with your 
+// computer's local IP address (e.g. '192.168.1.5').
 // ---------------------------------------------------------------------------
-const BASE_URL = process.env.API_BASE_URL ?? 'http://localhost:3000/api';
+const getBaseUrl = () => {
+  if (process.env.API_BASE_URL) return process.env.API_BASE_URL;
+
+  // EDIT THIS LINE if using a physical phone:
+  const LOCAL_IP = '192.168.1.9'; // Your Wi-Fi IP
+
+  if (__DEV__) {
+    return Platform.OS === 'android' ? `http://${LOCAL_IP}:3000/api` : 'http://localhost:3000/api';
+  }
+  return 'http://localhost:3000/api';
+};
+
+const BASE_URL = getBaseUrl();
+console.log(`[API] Base URL configured as: ${BASE_URL}`);
 
 // ---------------------------------------------------------------------------
 // Axios instance
 // ---------------------------------------------------------------------------
 const apiClient: AxiosInstance = axios.create({
   baseURL: BASE_URL,
-  timeout: 15_000,
+  timeout: 30_000,
   headers: {
     'Content-Type': 'application/json',
   },

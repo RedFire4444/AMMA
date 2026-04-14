@@ -76,11 +76,14 @@ export const listCourses = async (req: Request, res: Response): Promise<void> =>
     }
 
     res.status(200).json(
-      success(courses, {
-        page: pageNum,
-        limit: limitNum,
-        total: count ?? 0,
-        totalPages: count ? Math.ceil(count / limitNum) : 0,
+      success({
+        results: courses ?? [],
+        meta: {
+          page: pageNum,
+          limit: limitNum,
+          total: count ?? 0,
+          totalPages: count ? Math.ceil(count / limitNum) : 0,
+        }
       })
     );
   } catch (err) {

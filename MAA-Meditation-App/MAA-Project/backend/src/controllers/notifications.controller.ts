@@ -41,9 +41,12 @@ export const listNotifications = async (req: Request, res: Response): Promise<vo
     ).length;
 
     res.status(200).json(
-      success(notifications ?? [], {
-        unread_count: unreadCount,
-        total: (notifications ?? []).length,
+      success({
+        results: notifications ?? [],
+        meta: {
+          unread_count: unreadCount,
+          total: (notifications ?? []).length,
+        }
       })
     );
   } catch (err) {
