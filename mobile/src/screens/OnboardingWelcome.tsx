@@ -7,13 +7,14 @@
  * Author: Navnit(Ninjacode911)
  */
 
-import React from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView, StyleSheet } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, TouchableOpacity, SafeAreaView, StyleSheet, Alert } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import { OnboardingStackParamList } from '../navigation/types';
 import { useAuthStore } from '../store/authStore';
 import { colors } from '../utils/styles';
+import apiClient from '../services/api';
 
 type NavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'OnboardingWelcome'>;
 
@@ -21,8 +22,36 @@ const OnboardingWelcome = () => {
   const navigation = useNavigation<NavigationProp>();
   const completeOnboarding = useAuthStore((state) => state.completeOnboarding);
 
+  useEffect(() => {
+    // Diagnostic check for backend connection on mount
+    const checkConnection = async () => {
+      try {
+        console.log('[Onboarding] Testing backend connection...');
+        await apiClient.get('/home/feed'); // Simple public endpoint
+        console.log('[Onboarding] Backend connection successful!');
+      } catch (err) {
+        console.error('[Onboarding] Backend connection failed:', err);
+        Alert.alert(
+          'Connection Status', 
+          'Warning: The app cannot reach the backend. If you are on a physical phone, please update the LOCAL_IP in api.ts to your computer\'s IP address.'
+        );
+      }
+    };
+    checkConnection();
+  }, []);
+
   const handleSkip = async () => {
-    await completeOnboarding(['meditation', 'mindfulness'], 10);
+    Alert.alert('Action Logged', 'Skip button pressed. Attempting to update profile...');
+    try {
+      await completeOnboarding(['meditation', 'mindfulness'], 10);
+    } catch (err: any) {
+      Alert.alert('Profile Update Failed', err?.message || 'Check your backend connection.');
+    }
+  };
+
+  const handleGetStarted = () => {
+    Alert.alert('Action Logged', 'Get Started pressed. Navigating to Interests...');
+    navigation.navigate('OnboardingInterests');
   };
 
   return (
@@ -53,7 +82,7 @@ const OnboardingWelcome = () => {
         <View style={s.bottomSection}>
           <TouchableOpacity
             style={s.getStartedBtn}
-            onPress={() => navigation.navigate('OnboardingInterests')}
+            onPress={handleGetStarted}
           >
             <Text style={s.getStartedText}>Get Started</Text>
           </TouchableOpacity>

@@ -26,12 +26,13 @@ export interface Notification {
 }
 
 export interface PaginatedResult<T> {
-  data: T[];
+  results: T[];
   meta: {
-    page: number;
-    limit: number;
     total: number;
-    totalPages: number;
+    unread_count?: number;
+    page?: number;
+    limit?: number;
+    totalPages?: number;
   };
 }
 
@@ -44,5 +45,6 @@ export interface PaginatedResult<T> {
  * GET /api/notifications
  */
 export async function listNotifications(page: number = 1, limit: number = 20): Promise<PaginatedResult<Notification>> {
-  return get<PaginatedResult<Notification>>('/notifications', { params: { page, limit } });
+  const data = await get<any>('/notifications', { params: { page, limit } });
+  return data;
 }

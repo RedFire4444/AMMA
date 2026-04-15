@@ -22,7 +22,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { TimerCircle } from '../components/meditation/TimerCircle';
 import { useMeditationStore } from '../store/meditationStore';
 import { meditationService } from '../services/meditation.service';
-import { supabase } from '../services/supabase';
+import { useAuthStore } from '../store/authStore';
 import { JourneyStackParamList } from '../navigation/types';
 
 type TimerNav = NativeStackNavigationProp<JourneyStackParamList, 'MeditationTimer'>;
@@ -51,6 +51,9 @@ const MeditationTimerScreen = () => {
   const navigation = useNavigation<TimerNav>();
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [showCompletion, setShowCompletion] = useState(false);
+
+  // Get authenticated user directly from global store — no Supabase DB call needed
+  const { user } = useAuthStore();
 
   const {
     duration,
@@ -107,10 +110,6 @@ const MeditationTimerScreen = () => {
     setShowCompletion(true);
 
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
       const durationMinutes = duration / 60;
       await meditationService.logSession({
         duration_minutes: durationMinutes,
@@ -119,13 +118,14 @@ const MeditationTimerScreen = () => {
         completed_at: new Date().toISOString(),
       });
 
+      // autoLogHabit is best-effort via the backend — user.id not needed
       if (user) {
         await meditationService.autoLogHabit(user.id);
       }
     } catch {
       // Session logging is best-effort
     }
-  }, [startedAt, duration, sessionType]);
+  }, [startedAt, duration, sessionType, user]);
 
   const handleDismissCompletion = useCallback(() => {
     setShowCompletion(false);

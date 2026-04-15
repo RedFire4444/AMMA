@@ -17,7 +17,7 @@ import routes from './routes';
 
 const app = express();
 app.use(helmet());
-app.use(cors({ origin: process.env.ALLOWED_ORIGINS?.split(',') ?? ['http://localhost:3001'] }));
+app.use(cors({ origin: '*' })); // Allow all origins for mobile development debugging
 app.use(morgan('combined'));
 app.use(express.json({ limit: '10mb' }));
 app.use(rateLimiter);

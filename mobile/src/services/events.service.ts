@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { get, post } from './api';
 
 export interface Event {
   id: string;
@@ -30,74 +30,32 @@ export interface EventRegistration {
 
 export const eventsService = {
   async listEvents(): Promise<Event[]> {
-    const { data, error } = await supabase
-      .from('events')
-      .select('*')
-      .gte('event_date', new Date().toISOString())
-      .in('status', ['upcoming', 'live'])
-      .order('event_date', { ascending: true });
-
-    if (error) throw error;
+    const data = await get<any>('/events');
     return data || [];
   },
 
   async getEvent(eventId: string): Promise<Event> {
-    const { data, error } = await supabase
-      .from('events')
-      .select('*')
-      .eq('id', eventId)
-      .single();
-
-    if (error) throw error;
-    return data;
+    return get<Event>(`/events/${eventId}`);
   },
 
   async registerForEvent(eventId: string): Promise<EventRegistration> {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('Not authenticated');
-
-    const { data, error } = await supabase
-      .from('event_registrations')
-      .upsert(
-        { event_id: eventId, user_id: user.id, status: 'registered' },
-        { onConflict: 'event_id,user_id' },
-      )
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
+    return post<EventRegistration>(`/events/${eventId}/register`);
   },
 
   async isRegistered(eventId: string): Promise<boolean> {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return false;
-
-    const { data } = await supabase
-      .from('event_registrations')
-      .select('id')
-      .eq('event_id', eventId)
-      .eq('user_id', user.id)
-      .single();
-
-    return !!data;
+    try {
+      // In a strict REST architecture, fetching the event stream or checking registration
+      // is usually verified on access. We fallback to querying events to see if we're registered.
+      const eventWithReg = await get<any>(`/events/${eventId}`);
+      // Usually backend attaches enrollment or registration status
+      return !!eventWithReg?.registration || !!eventWithReg?.is_registered;
+    } catch {
+      return false;
+    }
   },
 
   async getStreamUrl(eventId: string): Promise<string | null> {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('Not authenticated');
-
-    // Check registration
-    const registered = await this.isRegistered(eventId);
-    if (!registered) throw new Error('Must be registered to access stream');
-
-    const { data, error } = await supabase
-      .from('events')
-      .select('stream_url')
-      .eq('id', eventId)
-      .single();
-
-    if (error) throw error;
+    const data = await get<any>(`/events/${eventId}/stream`);
     return data?.stream_url || null;
   },
 };

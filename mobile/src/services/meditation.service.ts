@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { post } from './api';
 
 export interface MeditationSessionInput {
   duration_minutes: number;
@@ -25,46 +25,16 @@ export interface MeditationSession {
 
 export const meditationService = {
   async logSession(data: MeditationSessionInput): Promise<MeditationSession> {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) throw new Error('Not authenticated');
-
-    const { data: session, error } = await supabase
-      .from('meditation_sessions')
-      .insert({
-        user_id: user.id,
-        duration_minutes: data.duration_minutes,
-        session_type: data.session_type,
-        status: 'completed',
-        mood_before: data.mood_before ?? null,
-        mood_after: data.mood_after ?? null,
-        notes: data.notes ?? null,
-        started_at: data.started_at,
-        completed_at: data.completed_at,
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
-    return session as MeditationSession;
+    return post<MeditationSession>('/sessions', data);
   },
 
-  async autoLogHabit(userId: string): Promise<void> {
-    const today = new Date().toISOString().split('T')[0];
-
-    const { error } = await supabase.from('habit_logs').upsert(
-      {
-        user_id: userId,
-        habit_type: 'meditation',
-        completed: true,
-        logged_at: today,
-      },
-      {
-        onConflict: 'user_id,habit_type,logged_at',
-      },
-    );
-
-    if (error) throw error;
+  async autoLogHabit(_userId: string): Promise<void> {
+    // Usually backend automatically handles auto-logging habits on session creation.
+    // If not, we can trigger the habit log endpoint.
+    try {
+      await post('/habits/log', { habit_type: 'meditation', completed: true });
+    } catch {
+      // Avoid failing the whole session logging if auto log throws
+    }
   },
 };

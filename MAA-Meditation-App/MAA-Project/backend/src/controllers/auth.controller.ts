@@ -18,9 +18,20 @@ export const requestOTP = async (req: Request, res: Response): Promise<void> => 
   try {
     const { phone } = req.body;
 
+    if (!phone || phone.length < 10) {
+      res.status(400).json(error('INVALID_PHONE', 'Please provide a valid phone number', 400));
+      return;
+    }
+
     const { error: supabaseError } = await supabase.auth.signInWithOtp({ phone });
+    console.log(`[Auth] signInWithOtp called for ${phone}`);
 
     if (supabaseError) {
+      console.error(`[Auth] Supabase OTP error for ${phone}:`, {
+        code: (supabaseError as any).code,
+        message: supabaseError.message,
+        status: (supabaseError as any).status
+      });
       res.status(400).json(error('OTP_SEND_FAILED', supabaseError.message, 400));
       return;
     }

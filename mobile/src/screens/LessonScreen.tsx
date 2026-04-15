@@ -52,11 +52,11 @@ const LessonScreen = () => {
 
   const loadLesson = useCallback(async () => {
     try {
-      const [lessonData, courseData] = await Promise.all([
-        coursesService.getLessonById(lessonId),
-        coursesService.getCourseById(courseId),
-      ]);
-      setLesson(lessonData);
+      const courseData = await coursesService.getCourseById(courseId);
+      const lessonData = courseData.lessons.find((l: Lesson) => l.id === lessonId);
+      if (lessonData) {
+        setLesson(lessonData);
+      }
       setAllLessons(courseData.lessons);
     } catch {
       Alert.alert('Error', 'Failed to load lesson.');
