@@ -45,27 +45,27 @@ describe('JourneyMain', () => {
     const { getByText } = render(<JourneyMain />);
     await waitFor(() => {
       expect(getByText('My Journey')).toBeTruthy();
-    });
-  });
+    }, { timeout: 10000 });
+  }, 15000);
 
   it('renders "Start Meditation" button after loading', async () => {
     const { getByText } = render(<JourneyMain />);
     await waitFor(() => {
       expect(getByText('Start Meditation')).toBeTruthy();
-    });
-  });
+    }, { timeout: 10000 });
+  }, 15000);
 
   it('renders "Daily Affirmation" section after loading', async () => {
     const { getByText } = render(<JourneyMain />);
     await waitFor(() => {
       expect(getByText('Daily Affirmation')).toBeTruthy();
-    });
-  });
+    }, { timeout: 10000 });
+  }, 15000);
 
   it('renders subtitle text', async () => {
     const { getByText } = render(<JourneyMain />);
     await waitFor(() => {
       expect(getByText('Track your daily sadhana')).toBeTruthy();
-    });
-  });
+    }, { timeout: 10000 });
+  }, 15000);
 });

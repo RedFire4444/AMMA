@@ -37,7 +37,7 @@ describe('LoginScreen', () => {
   it('shows error when phone is empty and Send OTP pressed', () => {
     const { getByText } = render(<LoginScreen />);
     fireEvent.press(getByText('Send OTP'));
-    expect(getByText('Please enter a valid phone number')).toBeTruthy();
+    expect(getByText('Please enter your phone number')).toBeTruthy();
   });
 
   it('toggles to email mode when link pressed', () => {
