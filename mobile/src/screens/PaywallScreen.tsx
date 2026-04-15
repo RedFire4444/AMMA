@@ -66,21 +66,37 @@ const PaywallScreen = () => {
 
   const handleSubscribe = async () => {
     setIsProcessing(true);
+    // Fast timeout (5s) so the button doesn't hang forever when backend is unreachable
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('timeout')), 5000),
+    );
+
     try {
-      const order = await paymentService.createOrder(selectedPlan);
-      // In production, this would open Razorpay SDK with order.gateway_order_id.
-      // For now, simulate a successful payment verification.
-      await paymentService.verifyPayment(
-        order.id,
-        `pay_${Date.now()}`,
-        `sig_${Date.now()}`,
-      );
+      const order = await Promise.race([
+        paymentService.createOrder(selectedPlan),
+        timeoutPromise,
+      ]);
+      await Promise.race([
+        paymentService.verifyPayment(
+          order.id,
+          `pay_${Date.now()}`,
+          `sig_${Date.now()}`,
+        ),
+        timeoutPromise,
+      ]);
       await refresh();
       setShowSuccessModal(true);
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : 'Payment failed. Please try again.';
-      Alert.alert('Payment Error', message);
+      const isTimeout = err instanceof Error && err.message === 'timeout';
+      Alert.alert(
+        isTimeout ? 'Connection Issue' : 'Payment Error',
+        isTimeout
+          ? 'Unable to reach the payment server. Please check your internet connection and try again.\n\n(Razorpay integration requires a configured backend and merchant account.)'
+          : err instanceof Error
+            ? err.message
+            : 'Payment failed. Please try again.',
+        [{ text: 'OK' }],
+      );
     } finally {
       setIsProcessing(false);
     }

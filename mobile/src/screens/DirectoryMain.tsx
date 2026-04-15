@@ -7,14 +7,13 @@
  * Author: Navnit(Ninjacode911)
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import {
   View,
   Text,
   TextInput,
   FlatList,
   TouchableOpacity,
-  Image,
   RefreshControl,
   StyleSheet,
 } from 'react-native';
@@ -33,6 +32,55 @@ interface ContentItem {
   type: 'video' | 'audio';
 }
 
+// Damerau-Levenshtein-ish edit distance, capped for performance on short strings
+const editDistance = (a: string, b: string): number => {
+  if (a === b) return 0;
+  if (!a.length) return b.length;
+  if (!b.length) return a.length;
+  const m = a.length;
+  const n = b.length;
+  const dp: number[] = Array.from({ length: n + 1 }, (_, i) => i);
+  for (let i = 1; i <= m; i++) {
+    let prev = dp[0];
+    dp[0] = i;
+    for (let j = 1; j <= n; j++) {
+      const tmp = dp[j];
+      dp[j] = a[i - 1] === b[j - 1]
+        ? prev
+        : 1 + Math.min(prev, dp[j], dp[j - 1]);
+      prev = tmp;
+    }
+  }
+  return dp[n];
+};
+
+// Fuzzy score: lower is better. Combines substring match, prefix bonus, and edit distance per token.
+const fuzzyScore = (haystack: string, needle: string): number => {
+  const h = haystack.toLowerCase();
+  const n = needle.toLowerCase().trim();
+  if (!n) return 0;
+  if (h.includes(n)) {
+    // Substring match — strongest signal. Earlier match = better.
+    return h.indexOf(n) === 0 ? 0 : 1;
+  }
+  // Token-level fuzzy: best edit distance between needle and any word in haystack
+  const words = h.split(/\s+/).filter(Boolean);
+  let best = Infinity;
+  for (const word of words) {
+    if (word.startsWith(n)) {
+      best = Math.min(best, 1);
+      continue;
+    }
+    const dist = editDistance(word, n);
+    // Tolerance scales with needle length: ~30% allowed typos
+    const tolerance = Math.max(1, Math.floor(n.length * 0.4));
+    if (dist <= tolerance) {
+      best = Math.min(best, 2 + dist);
+    }
+  }
+  return best;
+};
+
 const CATEGORIES = [
   { key: 'all', label: 'All' },
   { key: 'bhajan', label: 'Bhajans' },
@@ -41,6 +89,14 @@ const CATEGORIES = [
   { key: 'talk', label: 'Discourses' },
   { key: 'chanting', label: 'Chanting' },
 ];
+
+// Convert "MM:SS" or "H:MM:SS" duration strings to seconds for the mini-player seek bar
+const parseDurationToSeconds = (duration: string): number => {
+  const parts = duration.split(':').map((p) => parseInt(p, 10) || 0);
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  if (parts.length === 2) return parts[0] * 60 + parts[1];
+  return parts[0] || 180;
+};
 
 const MOCK_CONTENT: ContentItem[] = [
   { id: '1', title: 'Sri Lalitha Sahasranamam', instructor: 'Amma', category: 'chanting', duration: '45:30', views: '120k', isPremium: false, icon: '\u{1F3B5}', type: 'audio' },
@@ -63,11 +119,59 @@ const DirectoryMain = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
-  const filteredContent = MOCK_CONTENT.filter((item) => {
-    const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
-    const matchesSearch = !searchQuery || item.title.toLowerCase().includes(searchQuery.toLowerCase()) || item.instructor.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  const { filteredContent, suggestion } = useMemo(() => {
+    const inCategory = MOCK_CONTENT.filter(
+      (item) => selectedCategory === 'all' || item.category === selectedCategory,
+    );
+
+    const q = searchQuery.trim();
+    if (!q) {
+      return { filteredContent: inCategory, suggestion: null as string | null };
+    }
+
+    // Score every item — combines title and instructor fuzzy matches
+    const scored = inCategory
+      .map((item) => {
+        const titleScore = fuzzyScore(item.title, q);
+        const instructorScore = fuzzyScore(item.instructor, q);
+        return { item, score: Math.min(titleScore, instructorScore) };
+      })
+      .filter((entry) => entry.score < Infinity)
+      .sort((a, b) => a.score - b.score);
+
+    const matches = scored.map((entry) => entry.item);
+
+    // If no exact substring match but we have fuzzy matches, surface a "did you mean"
+    const exactMatchExists = inCategory.some(
+      (item) =>
+        item.title.toLowerCase().includes(q.toLowerCase()) ||
+        item.instructor.toLowerCase().includes(q.toLowerCase()),
+    );
+    let suggest: string | null = null;
+    if (!exactMatchExists && matches.length > 0) {
+      // Suggest the closest title's first matching word
+      const top = matches[0];
+      const lowerQ = q.toLowerCase();
+      const candidates = `${top.title} ${top.instructor}`
+        .toLowerCase()
+        .split(/\s+/)
+        .filter((w) => w.length >= Math.max(3, lowerQ.length - 2));
+      let bestWord = '';
+      let bestDist = Infinity;
+      for (const w of candidates) {
+        const d = editDistance(w, lowerQ);
+        if (d < bestDist) {
+          bestDist = d;
+          bestWord = w;
+        }
+      }
+      if (bestWord && bestDist <= Math.max(1, Math.floor(lowerQ.length * 0.5))) {
+        suggest = bestWord;
+      }
+    }
+
+    return { filteredContent: matches, suggestion: suggest };
+  }, [searchQuery, selectedCategory]);
 
   const toggleBookmark = (id: string) => {
     setBookmarkedIds((prev) => {
@@ -108,6 +212,19 @@ const DirectoryMain = () => {
           ) : null}
         </View>
       </View>
+
+      {/* Did-you-mean suggestion (fuzzy match fallback) */}
+      {suggestion && searchQuery.trim() && (
+        <TouchableOpacity
+          style={s.suggestionBar}
+          onPress={() => setSearchQuery(suggestion)}
+          activeOpacity={0.7}
+        >
+          <Text style={s.suggestionLabel}>Did you mean</Text>
+          <Text style={s.suggestionWord}>{` "${suggestion}"`}</Text>
+          <Text style={s.suggestionTap}> ?</Text>
+        </TouchableOpacity>
+      )}
 
       {/* Category Tabs */}
       <View style={s.tabRow}>
@@ -192,6 +309,7 @@ const DirectoryMain = () => {
           isPlaying={isPlaying}
           onPlayPause={() => setIsPlaying(!isPlaying)}
           onClose={() => { setCurrentPlaying(null); setIsPlaying(false); }}
+          durationSeconds={parseDurationToSeconds(currentPlaying.duration)}
         />
       )}
     </SafeAreaView>
@@ -233,6 +351,21 @@ const s = StyleSheet.create({
   viewCount: { fontSize: 12, color: '#9CA3AF' },
   bookmark: { fontSize: 20, color: '#D1D5DB' },
   bookmarkActive: { color: '#40916C' },
+  suggestionBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 16,
+    marginTop: 4,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    backgroundColor: 'rgba(64, 145, 108, 0.1)',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(64, 145, 108, 0.3)',
+  },
+  suggestionLabel: { fontSize: 13, color: '#6B7280' },
+  suggestionWord: { fontSize: 13, color: '#1B4332', fontWeight: '700' },
+  suggestionTap: { fontSize: 13, color: '#40916C', fontWeight: '700' },
   emptyWrap: { alignItems: 'center', paddingVertical: 60 },
   emptyTitle: { fontSize: 18, fontWeight: 'bold', color: '#1A1A2E', marginBottom: 4 },
   emptyText: { fontSize: 14, color: '#6B7280' },
