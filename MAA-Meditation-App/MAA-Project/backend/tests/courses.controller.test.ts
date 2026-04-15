@@ -98,12 +98,14 @@ describe('Courses Controller', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: true,
-          data: courses,
-          meta: expect.objectContaining({
-            page: 1,
-            limit: 10,
-            total: 2,
-            totalPages: 1,
+          data: expect.objectContaining({
+            results: courses,
+            meta: expect.objectContaining({
+              page: 1,
+              limit: 10,
+              total: 2,
+              totalPages: 1,
+            }),
           }),
         })
       );

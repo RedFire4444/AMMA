@@ -73,6 +73,11 @@ describe('Subscriptions Controller', () => {
   // -----------------------------------------------------------------------
   describe('getSubscriptionStatus', () => {
     it('returns active subscription with isPremium true', async () => {
+      // Compute dates relative to now so the test doesn't go stale.
+      const now = new Date();
+      const futureDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // +30 days
+      const pastStart = new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000); // -10 days
+
       const subscription = {
         id: 'sub-1',
         plan_type: 'monthly',
@@ -80,16 +85,16 @@ describe('Subscriptions Controller', () => {
         amount_cents: 19900,
         currency: 'INR',
         billing_cycle: 'monthly',
-        current_period_start: '2026-03-05',
-        current_period_end: '2026-04-05',
+        current_period_start: pastStart.toISOString(),
+        current_period_end: futureDate.toISOString(),
         trial_start: null,
         trial_end: null,
         cancel_at_period_end: false,
         cancelled_at: null,
-        started_at: '2026-03-05',
-        expires_at: '2026-04-10T00:00:00.000Z', // future date
-        created_at: '2026-03-05',
-        updated_at: '2026-03-05',
+        started_at: pastStart.toISOString(),
+        expires_at: futureDate.toISOString(),
+        created_at: pastStart.toISOString(),
+        updated_at: pastStart.toISOString(),
       };
 
       db.single.mockResolvedValueOnce({ data: subscription, error: null });
