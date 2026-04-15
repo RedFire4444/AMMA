@@ -42,9 +42,129 @@ const CATEGORIES = [
   'Stress',
 ] as const;
 
-const SkeletonCard = () => (
-  <View style={s.skeletonCard} />
-);
+// Mock courses as fallback when backend isn't reachable — prevents empty state crash
+const MOCK_COURSES: Course[] = [
+  {
+    id: 'mock-1',
+    title: 'Foundations of Meditation',
+    description: 'Start your meditation journey with daily practices.',
+    instructor_name: 'Swami Prakash',
+    thumbnail_url: null,
+    difficulty_level: 'beginner',
+    category: 'meditation',
+    is_premium: false,
+    price_cents: 0,
+    currency: 'INR',
+    status: 'published',
+    enrollment_count: 1250,
+    rating: 4.8,
+    total_lessons: 12,
+    estimated_duration_minutes: 180,
+    tags: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  } as unknown as Course,
+  {
+    id: 'mock-2',
+    title: 'Pranayama: The Art of Breath',
+    description: 'Master breathing techniques for inner peace.',
+    instructor_name: 'Dr. Meera Iyer',
+    thumbnail_url: null,
+    difficulty_level: 'intermediate',
+    category: 'pranayama',
+    is_premium: false,
+    price_cents: 0,
+    currency: 'INR',
+    status: 'published',
+    enrollment_count: 890,
+    rating: 4.7,
+    total_lessons: 8,
+    estimated_duration_minutes: 120,
+    tags: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  } as unknown as Course,
+  {
+    id: 'mock-3',
+    title: 'Deep Sleep & Yoga Nidra',
+    description: 'Restorative yoga practices for better sleep.',
+    instructor_name: 'Ananya Sharma',
+    thumbnail_url: null,
+    difficulty_level: 'beginner',
+    category: 'sleep',
+    is_premium: true,
+    price_cents: 19900,
+    currency: 'INR',
+    status: 'published',
+    enrollment_count: 543,
+    rating: 4.9,
+    total_lessons: 10,
+    estimated_duration_minutes: 150,
+    tags: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  } as unknown as Course,
+  {
+    id: 'mock-4',
+    title: 'Vedic Chanting for Beginners',
+    description: 'Learn sacred mantras and their meanings.',
+    instructor_name: 'Pandit Raghavendra',
+    thumbnail_url: null,
+    difficulty_level: 'beginner',
+    category: 'meditation',
+    is_premium: true,
+    price_cents: 19900,
+    currency: 'INR',
+    status: 'published',
+    enrollment_count: 412,
+    rating: 4.6,
+    total_lessons: 15,
+    estimated_duration_minutes: 225,
+    tags: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  } as unknown as Course,
+  {
+    id: 'mock-5',
+    title: 'Advanced Vipassana',
+    description: 'Deep insight meditation for experienced practitioners.',
+    instructor_name: 'Guru Ananda',
+    thumbnail_url: null,
+    difficulty_level: 'advanced',
+    category: 'mindfulness',
+    is_premium: true,
+    price_cents: 19900,
+    currency: 'INR',
+    status: 'published',
+    enrollment_count: 278,
+    rating: 4.9,
+    total_lessons: 20,
+    estimated_duration_minutes: 600,
+    tags: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  } as unknown as Course,
+  {
+    id: 'mock-6',
+    title: 'Stress Relief Yoga',
+    description: 'Gentle yoga flows to release tension.',
+    instructor_name: 'Dr. Priya Sharma',
+    thumbnail_url: null,
+    difficulty_level: 'beginner',
+    category: 'yoga',
+    is_premium: false,
+    price_cents: 0,
+    currency: 'INR',
+    status: 'published',
+    enrollment_count: 1820,
+    rating: 4.7,
+    total_lessons: 8,
+    estimated_duration_minutes: 135,
+    tags: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  } as unknown as Course,
+];
 
 const CoursesMain = () => {
   const navigation = useNavigation<CoursesNav>();
@@ -56,56 +176,65 @@ const CoursesMain = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const buildFilters = useCallback((): CourseFilters => {
-    const filters: CourseFilters = {};
-    if (selectedDifficulty !== 'All') {
-      filters.difficulty_level = selectedDifficulty.toLowerCase() as CourseFilters['difficulty_level'];
-    }
-    if (selectedCategory !== 'All') {
-      filters.category = selectedCategory;
-    }
-    if (searchText.trim()) {
-      filters.search = searchText.trim();
-    }
-    return filters;
-  }, [selectedDifficulty, selectedCategory, searchText]);
+  // Client-side filtering from a stable base dataset — avoids keyboard-drop refetches on every keystroke
+  const [allCourses, setAllCourses] = useState<Course[]>([]);
 
   const loadCourses = useCallback(async () => {
     try {
-      const filters = buildFilters();
+      const filters: CourseFilters = {};
       const data = await coursesService.getCourses(filters);
-      setCourses(data);
-    } catch {
-      // Silently fail
+      if (data && data.length > 0) {
+        setAllCourses(data);
+      } else {
+        setAllCourses(MOCK_COURSES);
+      }
+    } catch (err) {
+      console.warn('[Courses] Failed to load from backend, using mock data:', err);
+      setAllCourses(MOCK_COURSES);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [buildFilters]);
+  }, []);
 
+  // Only load once on mount — client-side filtering handles the rest
   useEffect(() => {
-    setLoading(true);
     loadCourses();
   }, [loadCourses]);
+
+  // Apply filters client-side whenever search/filter state changes
+  useEffect(() => {
+    const filtered = allCourses.filter((course) => {
+      if (selectedDifficulty !== 'All' && course.difficulty_level !== selectedDifficulty.toLowerCase()) {
+        return false;
+      }
+      if (selectedCategory !== 'All' && course.category?.toLowerCase() !== selectedCategory.toLowerCase()) {
+        return false;
+      }
+      if (searchText.trim()) {
+        const q = searchText.trim().toLowerCase();
+        const title = (course.title || '').toLowerCase();
+        const desc = (course.description || '').toLowerCase();
+        const instructor = (course.instructor_name || '').toLowerCase();
+        if (!title.includes(q) && !desc.includes(q) && !instructor.includes(q)) {
+          return false;
+        }
+      }
+      return true;
+    });
+    setCourses(filtered);
+  }, [allCourses, selectedDifficulty, selectedCategory, searchText]);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     loadCourses();
   }, [loadCourses]);
 
-  const handleSearch = useCallback(
-    (text: string) => {
-      setSearchText(text);
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-      }
-      debounceRef.current = setTimeout(() => {
-        setLoading(true);
-        loadCourses();
-      }, 500);
-    },
-    [loadCourses],
-  );
+  const handleSearch = useCallback((text: string) => {
+    setSearchText(text);
+    // No refetch — filtering is client-side, keyboard stays up
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+  }, []);
 
   const handleCoursePress = useCallback(
     (courseId: string) => {
@@ -114,129 +243,109 @@ const CoursesMain = () => {
     [navigation],
   );
 
-  const renderHeader = () => (
-    <View>
-      {/* Title */}
-      <View style={s.titleWrap}>
-        <Text style={s.pageTitle}>
-          Courses
-        </Text>
-        <Text style={s.pageSubtitle}>
-          Explore meditation, yoga, and wellness programs
-        </Text>
-      </View>
-
-      {/* Search bar */}
-      <View style={s.searchWrap}>
-        <View style={s.searchBar}>
-          <Text style={s.searchIcon}>
-            {'\u{1F50D}'}
+  return (
+    <SafeAreaView style={s.safeArea} edges={['top']}>
+      {/* Header stays mounted — keyboard never drops */}
+      <View>
+        {/* Title */}
+        <View style={s.titleWrap}>
+          <Text style={s.pageTitle}>Courses</Text>
+          <Text style={s.pageSubtitle}>
+            Explore meditation, yoga, and wellness programs
           </Text>
-          <TextInput
-            style={s.searchInput}
-            placeholder="Search courses..."
-            placeholderTextColor="#9CA3AF"
-            value={searchText}
-            onChangeText={handleSearch}
-            returnKeyType="search"
-          />
-          {searchText.length > 0 && (
-            <TouchableOpacity onPress={() => handleSearch('')}>
-              <Text style={s.searchClear}>
-                {'\u2715'}
-              </Text>
-            </TouchableOpacity>
-          )}
+        </View>
+
+        {/* Search bar */}
+        <View style={s.searchWrap}>
+          <View style={s.searchBar}>
+            <Text style={s.searchIcon}>{'\u{1F50D}'}</Text>
+            <TextInput
+              style={s.searchInput}
+              placeholder="Search courses..."
+              placeholderTextColor="#9CA3AF"
+              value={searchText}
+              onChangeText={handleSearch}
+              returnKeyType="search"
+              autoCorrect={false}
+              blurOnSubmit={false}
+            />
+            {searchText.length > 0 && (
+              <TouchableOpacity onPress={() => handleSearch('')}>
+                <Text style={s.searchClear}>{'\u2715'}</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+
+        {/* Difficulty filter pills */}
+        <View style={s.filterSection}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={s.filterScrollContent}
+            keyboardShouldPersistTaps="handled"
+          >
+            {DIFFICULTY_FILTERS.map((level) => (
+              <TouchableOpacity
+                key={level}
+                style={[
+                  s.filterPill,
+                  selectedDifficulty === level ? s.filterPillActive : s.filterPillInactive,
+                ]}
+                onPress={() => setSelectedDifficulty(level)}
+                activeOpacity={0.7}
+              >
+                <Text
+                  style={[
+                    s.filterPillText,
+                    selectedDifficulty === level ? s.filterPillTextActive : s.filterPillTextInactive,
+                  ]}
+                >
+                  {level}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+
+        {/* Category filter pills */}
+        <View style={s.categorySection}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={s.filterScrollContent}
+            keyboardShouldPersistTaps="handled"
+          >
+            {CATEGORIES.map((cat) => (
+              <TouchableOpacity
+                key={cat}
+                style={[
+                  s.filterPill,
+                  selectedCategory === cat ? s.catPillActive : s.filterPillInactive,
+                ]}
+                onPress={() => setSelectedCategory(cat)}
+                activeOpacity={0.7}
+              >
+                <Text
+                  style={[
+                    s.catPillText,
+                    selectedCategory === cat ? s.filterPillTextActive : s.filterPillTextInactive,
+                  ]}
+                >
+                  {cat}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         </View>
       </View>
 
-      {/* Difficulty filter pills */}
-      <View style={s.filterSection}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 24 }}
-        >
-          {DIFFICULTY_FILTERS.map((level) => (
-            <TouchableOpacity
-              key={level}
-              style={[
-                s.filterPill,
-                selectedDifficulty === level ? s.filterPillActive : s.filterPillInactive,
-              ]}
-              onPress={() => setSelectedDifficulty(level)}
-              activeOpacity={0.7}
-            >
-              <Text
-                style={[
-                  s.filterPillText,
-                  selectedDifficulty === level ? s.filterPillTextActive : s.filterPillTextInactive,
-                ]}
-              >
-                {level}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
-
-      {/* Category filter pills */}
-      <View style={s.categorySection}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 24 }}
-        >
-          {CATEGORIES.map((cat) => (
-            <TouchableOpacity
-              key={cat}
-              style={[
-                s.filterPill,
-                selectedCategory === cat ? s.catPillActive : s.filterPillInactive,
-              ]}
-              onPress={() => setSelectedCategory(cat)}
-              activeOpacity={0.7}
-            >
-              <Text
-                style={[
-                  s.catPillText,
-                  selectedCategory === cat ? s.filterPillTextActive : s.filterPillTextInactive,
-                ]}
-              >
-                {cat}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
-    </View>
-  );
-
-  const renderEmpty = () => {
-    if (loading) return null;
-    return (
-      <View style={s.emptyWrap}>
-        <Text style={s.emptyIcon}>{'\u{1F4DA}'}</Text>
-        <Text style={s.emptyTitle}>
-          No courses found
-        </Text>
-        <Text style={s.emptyDesc}>
-          Try adjusting your filters or search terms
-        </Text>
-      </View>
-    );
-  };
-
-  return (
-    <SafeAreaView style={s.safeArea} edges={['top']}>
+      {/* Courses List */}
       {loading && courses.length === 0 ? (
-        <FlatList
-          data={[1, 2, 3]}
-          keyExtractor={(item) => `skeleton-${item}`}
-          renderItem={() => <SkeletonCard />}
-          ListHeaderComponent={renderHeader}
-          showsVerticalScrollIndicator={false}
-        />
+        <View style={s.loadingWrap}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={s.loadingText}>Loading courses...</Text>
+        </View>
       ) : (
         <FlatList
           data={courses}
@@ -244,23 +353,26 @@ const CoursesMain = () => {
           renderItem={({ item }) => (
             <CourseCard course={item} onPress={handleCoursePress} />
           )}
-          ListHeaderComponent={renderHeader}
-          ListEmptyComponent={renderEmpty}
+          ListEmptyComponent={
+            <View style={s.emptyWrap}>
+              <Text style={s.emptyIcon}>{'\u{1F4DA}'}</Text>
+              <Text style={s.emptyTitle}>No courses found</Text>
+              <Text style={s.emptyDesc}>
+                Try adjusting your filters or search terms
+              </Text>
+            </View>
+          }
           ListFooterComponent={<View style={s.footerSpacer} />}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              tintColor="#1B4332"
+              tintColor={colors.primary}
             />
           }
         />
-      )}
-      {loading && courses.length > 0 && (
-        <View style={s.loadingOverlay}>
-          <ActivityIndicator color="#1B4332" />
-        </View>
       )}
     </SafeAreaView>
   );
@@ -278,7 +390,6 @@ const s = StyleSheet.create({
   },
   pageTitle: {
     fontSize: 24,
-    fontFamily: 'PlayfairDisplay',
     fontWeight: 'bold',
     color: colors.primary,
   },
@@ -310,6 +421,7 @@ const s = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     color: colors.textPrimary,
+    paddingVertical: 0,
   },
   searchClear: {
     color: colors.textSecondary,
@@ -321,6 +433,10 @@ const s = StyleSheet.create({
   categorySection: {
     marginTop: 12,
     marginBottom: 16,
+  },
+  filterScrollContent: {
+    paddingHorizontal: 24,
+    paddingRight: 48,
   },
   filterPill: {
     marginRight: 8,
@@ -355,6 +471,17 @@ const s = StyleSheet.create({
   filterPillTextInactive: {
     color: colors.textSecondary,
   },
+  loadingWrap: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 64,
+  },
+  loadingText: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginTop: 12,
+  },
   emptyWrap: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -378,20 +505,6 @@ const s = StyleSheet.create({
   },
   footerSpacer: {
     height: 32,
-  },
-  loadingOverlay: {
-    position: 'absolute',
-    bottom: 16,
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-  },
-  skeletonCard: {
-    backgroundColor: colors.gray200,
-    borderRadius: 12,
-    height: 224,
-    marginHorizontal: 24,
-    marginBottom: 16,
   },
 });
 

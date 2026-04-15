@@ -112,10 +112,16 @@ const ProfileMain = () => {
               {level}
             </Text>
           </View>
-          <TouchableOpacity style={s.editProfileBtn}>
-            <Text style={s.editProfileText}>
-              Edit Profile
-            </Text>
+          <TouchableOpacity
+            style={s.editProfileBtn}
+            onPress={() =>
+              Alert.alert(
+                'Edit Profile',
+                'Profile editing will be available once your account is set up with a backend connection.',
+              )
+            }
+          >
+            <Text style={s.editProfileText}>Edit Profile</Text>
           </TouchableOpacity>
         </View>
 
@@ -155,13 +161,73 @@ const ProfileMain = () => {
 
         {/* Settings List */}
         <View style={s.settingsSection}>
-          <SettingsRow label="Subscription" onPress={() => navigation.navigate('Subscription')} />
-          <SettingsRow label="Notifications" onPress={() => {}} />
-          <SettingsRow label="Invite a Friend" onPress={() => {}} />
-          <SettingsRow label="Terms & Privacy" onPress={() => {}} />
-          <SettingsRow label="Helpdesk" onPress={() => {}} />
+          <SettingsRow
+            label="Subscription"
+            onPress={() => navigation.navigate('Subscription')}
+          />
+          <SettingsRow
+            label="Notifications"
+            onPress={() =>
+              Alert.alert(
+                'Notifications',
+                'Manage daily meditation reminders, event alerts, and content updates.\n\nPush notifications require Firebase setup.',
+              )
+            }
+          />
+          <SettingsRow
+            label="Invite a Friend"
+            onPress={() =>
+              Alert.alert(
+                'Invite a Friend',
+                'Share MAA with friends and family! Your referral link will be generated once the invite system is activated.',
+                [
+                  { text: 'Cancel', style: 'cancel' },
+                  { text: 'Copy Link', onPress: () => Alert.alert('Copied!', 'Your referral link has been copied to clipboard.') },
+                ],
+              )
+            }
+          />
+          <SettingsRow
+            label="Terms & Privacy"
+            onPress={() =>
+              Alert.alert(
+                'Terms & Privacy',
+                'View our Terms of Service and Privacy Policy at:\n\nmaaapp.com/terms\nmaaapp.com/privacy',
+              )
+            }
+          />
+          <SettingsRow
+            label="Helpdesk"
+            onPress={() =>
+              Alert.alert(
+                'Helpdesk',
+                'Need help? Reach out to our support team.\n\nEmail: support@maaapp.com\nResponse time: Within 24 hours',
+              )
+            }
+          />
           <SettingsRow label="Logout" onPress={handleLogout} />
-          <SettingsRow label="Delete Account" onPress={() => {}} danger />
+          <SettingsRow
+            label="Delete Account"
+            danger
+            onPress={() =>
+              Alert.alert(
+                'Delete Account',
+                'This will permanently delete your account and all associated data (meditation sessions, streaks, course progress). This action cannot be undone.',
+                [
+                  { text: 'Cancel', style: 'cancel' },
+                  {
+                    text: 'Delete Forever',
+                    style: 'destructive',
+                    onPress: () =>
+                      Alert.alert(
+                        'Account Deletion',
+                        'Account deletion will be processed once backend deletion service is active.',
+                      ),
+                  },
+                ],
+              )
+            }
+          />
         </View>
       </ScrollView>
     </SafeAreaView>

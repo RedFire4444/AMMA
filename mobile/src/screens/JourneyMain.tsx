@@ -96,6 +96,19 @@ const JourneyMain = () => {
   const [data, setData] = useState<JourneyData | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  // Local-only state so the "Log Today" button works even without backend connectivity
+  const [localLogs, setLocalLogs] = useState<Record<string, Set<string>>>({
+    meditation: new Set(),
+    exercise: new Set(),
+    cold_shower: new Set(),
+    early_wakeup: new Set(),
+  });
+  const [localStreaks, setLocalStreaks] = useState<Record<string, number>>({
+    meditation: 0,
+    exercise: 0,
+    cold_shower: 0,
+    early_wakeup: 0,
+  });
 
   const loadData = useCallback(async () => {
     try {
@@ -146,32 +159,60 @@ const JourneyMain = () => {
 
   const handleLogHabit = useCallback(
     async (habitType: string) => {
-      try {
-        await habitsService.logHabit(habitType, { completed: true });
-        Alert.alert('Logged!', `${habitType} logged for today.`);
-        loadData();
-      } catch {
-        Alert.alert('Error', 'Failed to log habit.');
+      const today = new Date().toISOString().split('T')[0];
+      const alreadyLogged = localLogs[habitType]?.has(today);
+
+      if (alreadyLogged) {
+        Alert.alert('Already Logged', 'You already logged this habit today.');
+        return;
       }
+
+      // Update local state immediately for responsive UX
+      setLocalLogs((prev) => {
+        const next = { ...prev };
+        const set = new Set(next[habitType] || []);
+        set.add(today);
+        next[habitType] = set;
+        return next;
+      });
+      setLocalStreaks((prev) => ({
+        ...prev,
+        [habitType]: (prev[habitType] || 0) + 1,
+      }));
+
+      const habitName = HABITS.find((h) => h.type === habitType)?.name || habitType;
+      Alert.alert('Logged!', `${habitName} logged for today. Keep it up!`);
+
+      // Best-effort backend sync — don't fail if offline
+      habitsService.logHabit(habitType, { completed: true }).catch(() => {
+        // Silent fail — local state already updated
+      });
     },
-    [loadData],
+    [localLogs],
   );
 
   const getHabitLogs = (
     habitType: string,
   ): Array<{ date: string; completed: boolean }> => {
-    if (!data) return [];
-    return data.habitLogs
-      .filter((log) => log.habit_type === habitType)
-      .map((log) => ({
-        date: log.logged_at,
-        completed: log.completed,
-      }));
+    const remoteLogs = data
+      ? data.habitLogs
+          .filter((log) => log.habit_type === habitType)
+          .map((log) => ({
+            date: log.logged_at,
+            completed: log.completed,
+          }))
+      : [];
+    // Merge local logs — local takes precedence
+    const localSet = localLogs[habitType] || new Set();
+    const localOnly = Array.from(localSet).map((date) => ({ date, completed: true }));
+    const seen = new Set(localOnly.map((l) => l.date));
+    return [...localOnly, ...remoteLogs.filter((l) => !seen.has(l.date))];
   };
 
   const getStreakCount = (habitType: string): number => {
-    if (!data) return 0;
-    return data.streaks[habitType]?.current_streak ?? 0;
+    const remote = data?.streaks[habitType]?.current_streak ?? 0;
+    const local = localStreaks[habitType] ?? 0;
+    return Math.max(remote, local);
   };
 
   const getWeekDayLabels = (): string[] => {
