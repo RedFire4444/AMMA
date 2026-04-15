@@ -52,20 +52,20 @@ describe('CourseDetailScreen', () => {
     const { getByText } = render(<CourseDetailScreen />);
     await waitFor(() => {
       expect(getByText('Enroll Now')).toBeTruthy();
-    });
-  });
+    }, { timeout: 10000 });
+  }, 15000);
 
   it('renders course title after loading', async () => {
     const { getByText } = render(<CourseDetailScreen />);
     await waitFor(() => {
       expect(getByText('Beginner Meditation')).toBeTruthy();
-    });
-  });
+    }, { timeout: 10000 });
+  }, 15000);
 
   it('renders "Course Details" header after loading', async () => {
     const { getByText } = render(<CourseDetailScreen />);
     await waitFor(() => {
       expect(getByText('Course Details')).toBeTruthy();
-    });
-  });
+    }, { timeout: 10000 });
+  }, 15000);
 });

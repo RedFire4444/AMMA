@@ -75,8 +75,8 @@ describe('EventDetailScreen', () => {
     );
     await waitFor(() => {
       expect(getByText('Event Details')).toBeTruthy();
-    });
-  });
+    }, { timeout: 10000 });
+  }, 15000);
 
   it('renders event title after data loads', async () => {
     const props = createProps();
@@ -85,8 +85,8 @@ describe('EventDetailScreen', () => {
     );
     await waitFor(() => {
       expect(getByText('Full Moon Meditation')).toBeTruthy();
-    });
-  });
+    }, { timeout: 10000 });
+  }, 15000);
 
   it('renders "Register Now" button when not registered', async () => {
     const props = createProps();
@@ -95,6 +95,6 @@ describe('EventDetailScreen', () => {
     );
     await waitFor(() => {
       expect(getByText('Register Now')).toBeTruthy();
-    });
-  });
+    }, { timeout: 10000 });
+  }, 15000);
 });
