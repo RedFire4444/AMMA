@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { Course } from '../../types/course.types';
 
 interface CourseCardProps {
@@ -19,6 +19,20 @@ const DIFFICULTY_TEXT: Record<string, string> = {
   advanced: '#991B1B',
 };
 
+// Category-driven visual theme so cards feel distinct even without real images
+const CATEGORY_THEME: Record<string, { bg: string; accent: string; icon: string }> = {
+  meditation: { bg: '#1B4332', accent: '#52B788', icon: '\u{1F9D8}' },
+  yoga:       { bg: '#7F5AF0', accent: '#B8A1FF', icon: '\u{1F9D8}\u200D\u2640\uFE0F' },
+  pranayama:  { bg: '#2D6A4F', accent: '#95D5B2', icon: '\u{1F4A8}' },
+  mindfulness:{ bg: '#264653', accent: '#2A9D8F', icon: '\u{1F9E0}' },
+  sleep:      { bg: '#1D3557', accent: '#8ECAE6', icon: '\u{1F319}' },
+  stress:     { bg: '#9D4EDD', accent: '#C77DFF', icon: '\u{1F338}' },
+  default:    { bg: '#1B4332', accent: '#40916C', icon: '\u{1F54A}' },
+};
+
+const getCategoryTheme = (category: string | null | undefined) =>
+  CATEGORY_THEME[(category || '').toLowerCase()] || CATEGORY_THEME.default;
+
 const formatDuration = (minutes: number): string => {
   if (minutes < 60) return `${minutes}m`;
   const hours = Math.floor(minutes / 60);
@@ -29,6 +43,7 @@ const formatDuration = (minutes: number): string => {
 export const CourseCard = ({ course, onPress }: CourseCardProps) => {
   const diffBg = DIFFICULTY_BG[course.difficulty_level] || '#F3F4F6';
   const diffText = DIFFICULTY_TEXT[course.difficulty_level] || '#1F2937';
+  const theme = getCategoryTheme(course.category);
 
   return (
     <TouchableOpacity
@@ -36,24 +51,37 @@ export const CourseCard = ({ course, onPress }: CourseCardProps) => {
       onPress={() => onPress(course.id)}
       activeOpacity={0.7}
     >
-      {/* Thumbnail placeholder */}
-      <View style={s.thumbnail}>
-        <Text style={s.thumbnailEmoji}>{'\u{1F9D8}'}</Text>
-        {course.is_premium && (
-          <View style={[s.badge, s.badgePremium]}>
-            <Text style={s.badgeText}>PREMIUM</Text>
-          </View>
-        )}
-        {!course.is_premium && (
-          <View style={[s.badge, s.badgeFree]}>
-            <Text style={s.badgeText}>FREE</Text>
-          </View>
-        )}
-        <View style={s.durationBadge}>
-          <Text style={s.durationText}>
-            {formatDuration(course.estimated_duration_minutes)}
-          </Text>
+      {/* Thumbnail \u2014 real image if provided, otherwise category-themed artwork */}
+      {course.thumbnail_url ? (
+        <View style={s.thumbnail}>
+          <Image
+            source={{ uri: course.thumbnail_url }}
+            style={s.thumbnailImage}
+            resizeMode="cover"
+          />
         </View>
+      ) : (
+        <View style={[s.thumbnail, { backgroundColor: theme.bg }]}>
+          {/* decorative accent circles */}
+          <View style={[s.decorCircleLarge, { backgroundColor: theme.accent }]} />
+          <View style={[s.decorCircleSmall, { backgroundColor: theme.accent }]} />
+          <Text style={s.thumbnailEmoji}>{theme.icon}</Text>
+          <Text style={s.thumbnailCategory}>{(course.category || '').toUpperCase()}</Text>
+        </View>
+      )}
+      {course.is_premium ? (
+        <View style={[s.badge, s.badgePremium]}>
+          <Text style={s.badgeText}>PREMIUM</Text>
+        </View>
+      ) : (
+        <View style={[s.badge, s.badgeFree]}>
+          <Text style={s.badgeText}>FREE</Text>
+        </View>
+      )}
+      <View style={s.durationBadge}>
+        <Text style={s.durationText}>
+          {formatDuration(course.estimated_duration_minutes)}
+        </Text>
       </View>
 
       {/* Card body */}
@@ -118,9 +146,39 @@ const s = StyleSheet.create({
     backgroundColor: 'rgba(27, 67, 50, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  thumbnailImage: {
+    width: '100%',
+    height: '100%',
   },
   thumbnailEmoji: {
-    fontSize: 32,
+    fontSize: 44,
+  },
+  thumbnailCategory: {
+    color: 'rgba(255, 255, 255, 0.85)',
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 2,
+    marginTop: 8,
+  },
+  decorCircleLarge: {
+    position: 'absolute',
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    opacity: 0.15,
+    top: -20,
+    right: -30,
+  },
+  decorCircleSmall: {
+    position: 'absolute',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    opacity: 0.2,
+    bottom: -10,
+    left: -10,
   },
   badge: {
     position: 'absolute',

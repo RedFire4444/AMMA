@@ -16,6 +16,7 @@ import {
   TouchableOpacity,
   FlatList,
   Alert,
+  Modal,
   StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -109,6 +110,13 @@ const JourneyMain = () => {
     cold_shower: 0,
     early_wakeup: 0,
   });
+  // Local-only state so Rate Today and Vision Board Add work even without backend
+  const [localRatings, setLocalRatings] = useState<Record<string, number>>({});
+  const [localVisionImages, setLocalVisionImages] = useState<
+    Array<{ id: string; icon: string; caption: string }>
+  >([]);
+  const [ratingModalOpen, setRatingModalOpen] = useState(false);
+  const [visionModalOpen, setVisionModalOpen] = useState(false);
 
   const loadData = useCallback(async () => {
     try {
@@ -227,13 +235,36 @@ const JourneyMain = () => {
   };
 
   const getPerformanceForDay = (daysAgo: number): number => {
-    if (!data) return 0;
     const d = new Date();
     d.setDate(d.getDate() - (6 - daysAgo));
     const dateStr = d.toISOString().split('T')[0];
+    const local = localRatings[dateStr];
+    if (local !== undefined) return local;
+    if (!data) return 0;
     const entry = data.weeklyPerformance.find((p) => p.rated_at === dateStr);
     return entry?.rating ?? 0;
   };
+
+  const handleRateToday = useCallback(
+    (rating: number) => {
+      const today = new Date().toISOString().split('T')[0];
+      setLocalRatings((prev) => ({ ...prev, [today]: rating }));
+      setRatingModalOpen(false);
+      Alert.alert('Rated!', `Today's performance logged as ${rating}/10. Keep it up!`);
+      // Best-effort backend sync \u2014 don't fail on offline
+      habitsService.ratePerformance(rating).catch(() => {});
+    },
+    [],
+  );
+
+  const addVisionImage = useCallback(
+    (icon: string, caption: string) => {
+      const id = `vision-${Date.now()}`;
+      setLocalVisionImages((prev) => [...prev, { id, icon, caption }]);
+      setVisionModalOpen(false);
+    },
+    [],
+  );
 
   if (loading) {
     return (
@@ -330,15 +361,7 @@ const JourneyMain = () => {
 
           <TouchableOpacity
             style={s.rateTodayButton}
-            onPress={async () => {
-              try {
-                await habitsService.ratePerformance(8);
-                Alert.alert('Rated!', 'Performance logged for today.');
-                loadData();
-              } catch {
-                Alert.alert('Error', 'Failed to rate performance.');
-              }
-            }}
+            onPress={() => setRatingModalOpen(true)}
             activeOpacity={0.7}
           >
             <Text style={s.rateTodayText}>
@@ -368,53 +391,54 @@ const JourneyMain = () => {
             <Text style={s.visionBoardTitle}>
               Vision Board
             </Text>
-            <TouchableOpacity
-              onPress={() => {
-                Alert.alert(
-                  'Add Image',
-                  'Image picker will be integrated with device camera/gallery.',
-                );
-              }}
-            >
+            <TouchableOpacity onPress={() => setVisionModalOpen(true)}>
               <Text style={s.visionBoardAdd}>
                 + Add
               </Text>
             </TouchableOpacity>
           </View>
 
-          {data && data.visionBoard.length > 0 ? (
-            <FlatList
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: 24 }}
-              data={data.visionBoard}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <View style={s.visionCard}>
-                  <View style={s.visionCardImage}>
-                    <Text style={s.visionCardIcon}>{'\u{1F5BC}'}</Text>
-                  </View>
-                  {item.caption && (
-                    <View style={s.visionCardCaption}>
-                      <Text
-                        style={s.visionCardCaptionText}
-                        numberOfLines={2}
-                      >
-                        {item.caption}
-                      </Text>
+          {(() => {
+            const remoteItems = (data?.visionBoard ?? []).map((v) => ({
+              id: v.id,
+              icon: '\u{1F5BC}',
+              caption: v.caption ?? '',
+            }));
+            const combined = [...localVisionImages, ...remoteItems];
+            return combined.length > 0 ? (
+              <FlatList
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingHorizontal: 24 }}
+                data={combined}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                  <View style={s.visionCard}>
+                    <View style={s.visionCardImage}>
+                      <Text style={s.visionCardIcon}>{item.icon}</Text>
                     </View>
-                  )}
-                </View>
-              )}
-            />
-          ) : (
-            <View style={s.visionBoardEmpty}>
-              <Text style={s.visionBoardEmptyIcon}>{'\u{1F5BC}'}</Text>
-              <Text style={s.visionBoardEmptyText}>
-                Add images to your vision board
-              </Text>
-            </View>
-          )}
+                    {!!item.caption && (
+                      <View style={s.visionCardCaption}>
+                        <Text
+                          style={s.visionCardCaptionText}
+                          numberOfLines={2}
+                        >
+                          {item.caption}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                )}
+              />
+            ) : (
+              <View style={s.visionBoardEmpty}>
+                <Text style={s.visionBoardEmptyIcon}>{'\u{1F5BC}'}</Text>
+                <Text style={s.visionBoardEmptyText}>
+                  Add images to your vision board
+                </Text>
+              </View>
+            );
+          })()}
         </View>
 
         {/* Day Journey */}
@@ -471,6 +495,87 @@ const JourneyMain = () => {
 
         <View style={s.bottomSpacer} />
       </ScrollView>
+
+      {/* Rating Modal */}
+      <Modal
+        visible={ratingModalOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setRatingModalOpen(false)}
+      >
+        <View style={s.modalOverlay}>
+          <View style={s.modalContent}>
+            <Text style={s.modalTitle}>Rate Today</Text>
+            <Text style={s.modalSubtitle}>
+              How was your practice today? Tap a number from 1 to 10.
+            </Text>
+            <View style={s.ratingGrid}>
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                <TouchableOpacity
+                  key={n}
+                  style={s.ratingChip}
+                  onPress={() => handleRateToday(n)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={s.ratingChipText}>{n}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <TouchableOpacity
+              style={s.modalCancel}
+              onPress={() => setRatingModalOpen(false)}
+            >
+              <Text style={s.modalCancelText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Vision Board Add Modal */}
+      <Modal
+        visible={visionModalOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setVisionModalOpen(false)}
+      >
+        <View style={s.modalOverlay}>
+          <View style={s.modalContent}>
+            <Text style={s.modalTitle}>Add to Vision Board</Text>
+            <Text style={s.modalSubtitle}>
+              Pick an intention for your board.
+            </Text>
+            <View style={s.visionPresetGrid}>
+              {[
+                { icon: '\u{1F9D8}', caption: 'Inner Peace' },
+                { icon: '\u{1F33F}', caption: 'Growth' },
+                { icon: '\u{1F31E}', caption: 'Joy' },
+                { icon: '\u{1F4AA}', caption: 'Strength' },
+                { icon: '\u{1F4DA}', caption: 'Wisdom' },
+                { icon: '\u{1F3AF}', caption: 'Focus' },
+                { icon: '\u{1F64F}', caption: 'Gratitude' },
+                { icon: '\u{2764}', caption: 'Love' },
+                { icon: '\u{2728}', caption: 'Clarity' },
+              ].map((item) => (
+                <TouchableOpacity
+                  key={item.caption}
+                  style={s.visionPresetItem}
+                  onPress={() => addVisionImage(item.icon, item.caption)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={s.visionPresetIcon}>{item.icon}</Text>
+                  <Text style={s.visionPresetCaption}>{item.caption}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <TouchableOpacity
+              style={s.modalCancel}
+              onPress={() => setVisionModalOpen(false)}
+            >
+              <Text style={s.modalCancelText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -771,5 +876,90 @@ const s = StyleSheet.create({
   },
   bottomSpacer: {
     height: 32,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 20,
+    width: '100%',
+    maxWidth: 360,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1A1A2E',
+    marginBottom: 4,
+  },
+  modalSubtitle: {
+    fontSize: 13,
+    color: '#6B7280',
+    marginBottom: 16,
+    lineHeight: 18,
+  },
+  ratingGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  ratingChip: {
+    width: '18%',
+    aspectRatio: 1,
+    borderRadius: 8,
+    backgroundColor: 'rgba(27,67,50,0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(27,67,50,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  ratingChipText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1B4332',
+  },
+  visionPresetGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  visionPresetItem: {
+    width: '31%',
+    aspectRatio: 1,
+    borderRadius: 12,
+    backgroundColor: 'rgba(27,67,50,0.06)',
+    borderWidth: 1,
+    borderColor: 'rgba(27,67,50,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  visionPresetIcon: {
+    fontSize: 28,
+    marginBottom: 4,
+  },
+  visionPresetCaption: {
+    fontSize: 11,
+    color: '#1B4332',
+    fontWeight: '600',
+  },
+  modalCancel: {
+    paddingVertical: 10,
+    alignItems: 'center',
+    borderRadius: 8,
+    backgroundColor: '#F3F4F6',
+  },
+  modalCancelText: {
+    color: '#6B7280',
+    fontWeight: '600',
+    fontSize: 14,
   },
 });

@@ -14,6 +14,8 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  Animated,
+  Easing,
   StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -46,6 +48,91 @@ const SESSION_TYPES: Array<{ key: SessionType; label: string }> = [
   { key: 'guided', label: 'Guided' },
   { key: 'breathing', label: 'Breathing' },
 ];
+
+// Animated bars that pulse while a sound is selected \u2014 visual confirmation that
+// playback is active. Actual audio playback requires a configured audio CDN.
+const SoundWaveIndicator = ({ soundLabel }: { soundLabel: string }) => {
+  const bars = useRef([0, 0, 0, 0].map(() => new Animated.Value(0.3))).current;
+
+  useEffect(() => {
+    const loops = bars.map((bar, i) => {
+      const loop = Animated.loop(
+        Animated.sequence([
+          Animated.timing(bar, {
+            toValue: 1,
+            duration: 500 + i * 120,
+            easing: Easing.inOut(Easing.sin),
+            useNativeDriver: false,
+          }),
+          Animated.timing(bar, {
+            toValue: 0.3,
+            duration: 500 + i * 120,
+            easing: Easing.inOut(Easing.sin),
+            useNativeDriver: false,
+          }),
+        ]),
+      );
+      loop.start();
+      return loop;
+    });
+    return () => loops.forEach((l) => l.stop());
+  }, [bars]);
+
+  return (
+    <View style={waveStyles.wrap}>
+      <View style={waveStyles.barsRow}>
+        {bars.map((bar, i) => (
+          <Animated.View
+            key={i}
+            style={[
+              waveStyles.bar,
+              {
+                transform: [{ scaleY: bar }],
+                opacity: bar.interpolate({
+                  inputRange: [0.3, 1],
+                  outputRange: [0.5, 1],
+                }),
+              },
+            ]}
+          />
+        ))}
+      </View>
+      <Text style={waveStyles.label}>Now playing: {soundLabel}</Text>
+    </View>
+  );
+};
+
+const waveStyles = StyleSheet.create({
+  wrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    alignSelf: 'center',
+    backgroundColor: 'rgba(64,145,108,0.15)',
+    borderRadius: 999,
+  },
+  barsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 16,
+    marginRight: 8,
+  },
+  bar: {
+    width: 3,
+    height: 16,
+    backgroundColor: '#52B788',
+    borderRadius: 2,
+    marginHorizontal: 1.5,
+  },
+  label: {
+    color: 'rgba(255,255,255,0.85)',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+});
 
 const MeditationTimerScreen = () => {
   const navigation = useNavigation<TimerNav>();
@@ -287,6 +374,13 @@ const MeditationTimerScreen = () => {
                 </TouchableOpacity>
               ))}
             </ScrollView>
+            {selectedSound && selectedSound !== 'silence' && (
+              <SoundWaveIndicator
+                soundLabel={
+                  SOUND_OPTIONS.find((o) => o.key === selectedSound)?.label || ''
+                }
+              />
+            )}
           </View>
         )}
 

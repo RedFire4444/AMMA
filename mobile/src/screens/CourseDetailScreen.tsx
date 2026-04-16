@@ -37,6 +37,19 @@ const TABS: Array<{ key: TabKey; label: string }> = [
   { key: 'reviews', label: 'Reviews' },
 ];
 
+// Category-driven hero theme so the detail screen feels cohesive with the card
+const CATEGORY_THEME: Record<string, { bg: string; accent: string; icon: string }> = {
+  meditation: { bg: '#1B4332', accent: '#52B788', icon: '\u{1F9D8}' },
+  yoga:       { bg: '#7F5AF0', accent: '#B8A1FF', icon: '\u{1F9D8}\u200D\u2640\uFE0F' },
+  pranayama:  { bg: '#2D6A4F', accent: '#95D5B2', icon: '\u{1F4A8}' },
+  mindfulness:{ bg: '#264653', accent: '#2A9D8F', icon: '\u{1F9E0}' },
+  sleep:      { bg: '#1D3557', accent: '#8ECAE6', icon: '\u{1F319}' },
+  stress:     { bg: '#9D4EDD', accent: '#C77DFF', icon: '\u{1F338}' },
+  default:    { bg: '#1B4332', accent: '#40916C', icon: '\u{1F54A}' },
+};
+const getHeroTheme = (cat: string | null | undefined) =>
+  CATEGORY_THEME[(cat || '').toLowerCase()] || CATEGORY_THEME.default;
+
 const formatDuration = (minutes: number): string => {
   if (minutes < 60) return `${minutes} min`;
   const hours = Math.floor(minutes / 60);
@@ -228,18 +241,36 @@ const CourseDetailScreen = () => {
           </Text>
         </View>
 
-        {/* Hero image placeholder */}
-        <View style={s.heroWrap}>
-          <Text style={s.heroIcon}>{'\u{1F3AC}'}</Text>
-          <TouchableOpacity style={s.playBtn}>
-            <Text style={s.playBtnIcon}>{'\u25B6'}</Text>
-          </TouchableOpacity>
-          {course.is_premium && (
-            <View style={s.premiumBadge}>
-              <Text style={s.premiumBadgeText}>PREMIUM</Text>
+        {/* Hero \u2014 category-themed artwork */}
+        {(() => {
+          const theme = getHeroTheme(course.category);
+          return (
+            <View style={[s.heroWrap, { backgroundColor: theme.bg }]}>
+              <View style={[s.heroDecorLarge, { backgroundColor: theme.accent }]} />
+              <View style={[s.heroDecorSmall, { backgroundColor: theme.accent }]} />
+              <Text style={s.heroIcon}>{theme.icon}</Text>
+              <Text style={s.heroCategory}>
+                {(course.category || 'course').toUpperCase()}
+              </Text>
+              <TouchableOpacity
+                style={s.playBtn}
+                onPress={() =>
+                  Alert.alert(
+                    'Preview',
+                    'Course preview will play once media streaming is configured.',
+                  )
+                }
+              >
+                <Text style={s.playBtnIcon}>{'\u25B6'}</Text>
+              </TouchableOpacity>
+              {course.is_premium && (
+                <View style={s.premiumBadge}>
+                  <Text style={s.premiumBadgeText}>PREMIUM</Text>
+                </View>
+              )}
             </View>
-          )}
-        </View>
+          );
+        })()}
 
         {/* Title & meta */}
         <View style={s.metaSection}>
@@ -525,9 +556,35 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
+    overflow: 'hidden',
   },
   heroIcon: {
-    fontSize: 48,
+    fontSize: 64,
+  },
+  heroCategory: {
+    color: 'rgba(255, 255, 255, 0.85)',
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 3,
+    marginTop: 8,
+  },
+  heroDecorLarge: {
+    position: 'absolute',
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    opacity: 0.18,
+    top: -40,
+    right: -40,
+  },
+  heroDecorSmall: {
+    position: 'absolute',
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    opacity: 0.22,
+    bottom: -20,
+    left: -20,
   },
   playBtn: {
     position: 'absolute',
