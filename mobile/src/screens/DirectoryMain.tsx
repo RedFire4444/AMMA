@@ -98,6 +98,17 @@ const parseDurationToSeconds = (duration: string): number => {
   return parts[0] || 180;
 };
 
+// Category-driven visual theme so content cards feel distinct without real images
+const CATEGORY_THEME: Record<string, { bg: string; accent: string }> = {
+  chanting:   { bg: '#9D4EDD', accent: '#C77DFF' },
+  meditation: { bg: '#1B4332', accent: '#52B788' },
+  satsang:    { bg: '#264653', accent: '#2A9D8F' },
+  talk:       { bg: '#1D3557', accent: '#8ECAE6' },
+  bhajan:     { bg: '#7F5AF0', accent: '#B8A1FF' },
+  default:    { bg: '#2D6A4F', accent: '#95D5B2' },
+};
+const getTheme = (cat: string) => CATEGORY_THEME[cat] || CATEGORY_THEME.default;
+
 const MOCK_CONTENT: ContentItem[] = [
   { id: '1', title: 'Sri Lalitha Sahasranamam', instructor: 'Amma', category: 'chanting', duration: '45:30', views: '120k', isPremium: false, icon: '\u{1F3B5}', type: 'audio' },
   { id: '2', title: 'Morning Guided Meditation', instructor: "Amma's Teachings", category: 'meditation', duration: '15:00', views: '85k', isPremium: false, icon: '\u{1F9D8}', type: 'audio' },
@@ -259,23 +270,30 @@ const DirectoryMain = () => {
             onPress={() => { setCurrentPlaying(item); setIsPlaying(true); }}
             activeOpacity={0.7}
           >
-            {/* Thumbnail */}
-            <View style={s.thumb}>
-              <Text style={s.thumbIcon}>{item.icon}</Text>
-              <View style={s.durationBadge}>
-                <Text style={s.durationText}>{item.duration}</Text>
-              </View>
-              {item.type === 'video' && (
-                <View style={s.playOverlay}>
-                  <Text style={s.playIcon}>{'\u{25B6}'}</Text>
+            {/* Thumbnail \u2014 category-themed artwork */}
+            {(() => {
+              const theme = getTheme(item.category);
+              return (
+                <View style={[s.thumb, { backgroundColor: theme.bg }]}>
+                  <View style={[s.thumbDecorLarge, { backgroundColor: theme.accent }]} />
+                  <View style={[s.thumbDecorSmall, { backgroundColor: theme.accent }]} />
+                  <Text style={s.thumbIcon}>{item.icon}</Text>
+                  <View style={s.durationBadge}>
+                    <Text style={s.durationText}>{item.duration}</Text>
+                  </View>
+                  {item.type === 'video' && (
+                    <View style={s.playOverlay}>
+                      <Text style={s.playIcon}>{'\u{25B6}'}</Text>
+                    </View>
+                  )}
+                  {item.isPremium && (
+                    <View style={s.premiumBadge}>
+                      <Text style={s.premiumText}>PRO</Text>
+                    </View>
+                  )}
                 </View>
-              )}
-              {item.isPremium && (
-                <View style={s.premiumBadge}>
-                  <Text style={s.premiumText}>PRO</Text>
-                </View>
-              )}
-            </View>
+              );
+            })()}
 
             {/* Info */}
             <View style={s.info}>
@@ -336,8 +354,10 @@ const s = StyleSheet.create({
   tabTextActive: { color: '#FFFFFF' },
   tabTextInactive: { color: '#374151' },
   card: { flexDirection: 'row', backgroundColor: '#FFFFFF', borderRadius: 12, marginBottom: 12, borderWidth: 1, borderColor: '#F3F4F6', overflow: 'hidden', elevation: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3 },
-  thumb: { width: 120, height: 100, backgroundColor: '#2D6A4F', alignItems: 'center', justifyContent: 'center', position: 'relative' },
-  thumbIcon: { fontSize: 28 },
+  thumb: { width: 120, height: 100, backgroundColor: '#2D6A4F', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' },
+  thumbIcon: { fontSize: 36, color: '#FFFFFF' },
+  thumbDecorLarge: { position: 'absolute', width: 80, height: 80, borderRadius: 40, opacity: 0.2, top: -20, right: -20 },
+  thumbDecorSmall: { position: 'absolute', width: 40, height: 40, borderRadius: 20, opacity: 0.25, bottom: -10, left: -10 },
   durationBadge: { position: 'absolute', bottom: 6, right: 6, backgroundColor: 'rgba(0,0,0,0.7)', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 },
   durationText: { color: '#FFFFFF', fontSize: 11, fontWeight: '600' },
   playOverlay: { position: 'absolute', width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(0,0,0,0.4)', alignItems: 'center', justifyContent: 'center' },

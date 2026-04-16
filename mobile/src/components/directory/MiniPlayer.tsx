@@ -46,8 +46,13 @@ export const MiniPlayer = ({
   const [position, setPosition] = useState(0);
   const [trackWidth, setTrackWidth] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  const positionRef = useRef(position);
-  positionRef.current = position;
+
+  // Refs so PanResponder (created once in useRef) always reads latest values,
+  // not the trackWidth=0 / durationSeconds=180 captured in the first render.
+  const trackWidthRef = useRef(0);
+  const durationRef = useRef(durationSeconds);
+  trackWidthRef.current = trackWidth;
+  durationRef.current = durationSeconds;
 
   // Tick the position forward while playing (no real audio backend yet)
   useEffect(() => {
@@ -70,29 +75,28 @@ export const MiniPlayer = ({
     setTrackWidth(e.nativeEvent.layout.width);
   };
 
-  const seekToX = (x: number) => {
-    if (trackWidth <= 0) return;
-    const ratio = Math.max(0, Math.min(1, x / trackWidth));
-    setPosition(Math.floor(ratio * durationSeconds));
-  };
-
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
+      onStartShouldSetPanResponderCapture: () => true,
       onMoveShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponderCapture: () => true,
       onPanResponderGrant: (e) => {
         setIsDragging(true);
-        seekToX(e.nativeEvent.locationX);
+        const w = trackWidthRef.current;
+        if (w <= 0) return;
+        // locationX is relative to the hit area; track spans its full width
+        const ratio = Math.max(0, Math.min(1, e.nativeEvent.locationX / w));
+        setPosition(Math.floor(ratio * durationRef.current));
       },
       onPanResponderMove: (e) => {
-        seekToX(e.nativeEvent.locationX);
+        const w = trackWidthRef.current;
+        if (w <= 0) return;
+        const ratio = Math.max(0, Math.min(1, e.nativeEvent.locationX / w));
+        setPosition(Math.floor(ratio * durationRef.current));
       },
-      onPanResponderRelease: () => {
-        setIsDragging(false);
-      },
-      onPanResponderTerminate: () => {
-        setIsDragging(false);
-      },
+      onPanResponderRelease: () => setIsDragging(false),
+      onPanResponderTerminate: () => setIsDragging(false),
     }),
   ).current;
 
@@ -137,12 +141,18 @@ export const MiniPlayer = ({
         </TouchableOpacity>
       </View>
 
-      {/* Seek bar row: time + draggable track */}
+      {/* Seek bar row: time + draggable track.
+          onLayout is attached to the hit area so locationX and trackWidth
+          share the same coordinate frame — no offset math needed. */}
       <View style={s.seekRow}>
         <Text style={s.timeText}>{formatTime(position)}</Text>
 
-        <View style={s.trackHitArea} {...panResponder.panHandlers}>
-          <View style={s.track} onLayout={onTrackLayout}>
+        <View
+          style={s.trackHitArea}
+          onLayout={onTrackLayout}
+          {...panResponder.panHandlers}
+        >
+          <View style={s.track}>
             <View style={[s.trackFill, { width: fillWidth }]} />
             <View
               style={[
@@ -250,7 +260,8 @@ const s = StyleSheet.create({
   },
   trackHitArea: {
     flex: 1,
-    paddingVertical: 10,
+    justifyContent: 'center',
+    paddingVertical: 14,
     marginHorizontal: 6,
   },
   track: {
