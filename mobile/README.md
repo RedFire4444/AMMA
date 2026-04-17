@@ -1,8 +1,33 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+This is the MAM Project React Native app, bootstrapped with [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
 # Getting Started
 
 > **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+
+## Step 0: Local setup (first clone only)
+
+The backend API URL is **per-developer** — each laptop/network needs its own value, so we read it from a git-ignored `.env` file instead of committing a hardcoded IP.
+
+```sh
+# From the mobile/ directory:
+cp .env.example .env
+npm install
+```
+
+Open `mobile/.env` and set `API_BASE_URL` based on how you are running the app:
+
+| Scenario | `API_BASE_URL` | Extra step |
+|---|---|---|
+| iOS simulator (Mac) | `http://localhost:3000/api` | — |
+| Android emulator (AVD) | `http://10.0.2.2:3000/api` | — |
+| Physical Android over USB | `http://localhost:3000/api` | Run `adb reverse tcp:3000 tcp:3000` after plugging in the phone |
+| Physical phone over Wi-Fi | `http://<your-laptop-LAN-IP>:3000/api` | Phone and laptop must be on the same Wi-Fi |
+
+> `10.0.2.2` is the AVD emulator's special alias for the host machine's `localhost`. It is not a real IP — do not use it anywhere else.
+
+Find your laptop's LAN IP with `ipconfig` (Windows) or `ifconfig`/`ip addr` (Mac/Linux) and look for the address on your active Wi-Fi adapter (typically `192.168.x.x` or `10.x.x.x`).
+
+The backend must be running (`npm run dev` in `backend/`) on port `3000` before you launch the app.
 
 ## Step 1: Start Metro
 

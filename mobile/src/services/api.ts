@@ -9,25 +9,26 @@
  */
 
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { API_BASE_URL } from '@env';
 import { supabase } from './supabase';
 
-import { Platform } from 'react-native';
-
 // ---------------------------------------------------------------------------
-// Base URL — IMPORTANT for physical devices:
-// If testing on a PHYSICAL phone, you MUST replace 'localhost' with your 
-// computer's local IP address (e.g. '192.168.1.5').
+// Base URL is read from mobile/.env (see mobile/.env.example for guidance).
+// Each developer sets their own value — see mobile/README.md "Local setup".
 // ---------------------------------------------------------------------------
-const getBaseUrl = () => {
-  if (process.env.API_BASE_URL) return process.env.API_BASE_URL;
+const FALLBACK_BASE_URL = 'http://localhost:3000/api';
 
-  // EDIT THIS LINE if using a physical phone:
-  const LOCAL_IP = '192.168.1.9'; // Your Wi-Fi IP
-
-  if (__DEV__) {
-    return Platform.OS === 'android' ? `http://${LOCAL_IP}:3000/api` : 'http://localhost:3000/api';
+const getBaseUrl = (): string => {
+  if (API_BASE_URL && API_BASE_URL.trim().length > 0) {
+    return API_BASE_URL;
   }
-  return 'http://localhost:3000/api';
+  if (__DEV__) {
+    console.warn(
+      '[API] API_BASE_URL is not set. Copy mobile/.env.example to mobile/.env ' +
+        'and set API_BASE_URL. Falling back to ' + FALLBACK_BASE_URL,
+    );
+  }
+  return FALLBACK_BASE_URL;
 };
 
 const BASE_URL = getBaseUrl();
