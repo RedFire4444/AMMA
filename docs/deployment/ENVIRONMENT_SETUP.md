@@ -95,11 +95,29 @@ ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
 
 ## 2. Mobile App Environment Variables
 
-**File location**: `MAA-Meditation-App/mobile/.env`
+**File location**: `mobile/.env`
+
+> **REQUIRED FIRST-TIME SETUP — EVERY DEVELOPER, EVERY LAPTOP**
+>
+> The mobile app reads its backend URL from `mobile/.env`. This file is **git-ignored** — each teammate maintains their own copy. After cloning the repo, every developer must run:
+>
+> ```bash
+> cd mobile
+> cp .env.example .env
+> npm install
+> ```
+>
+> Then open `mobile/.env` and set `API_BASE_URL` to match your environment (see the scenarios table below). Without this step, the app cannot reach the backend and you will see network errors in every screen.
 
 ### Complete Variable Reference
 
 ```env
+# ============================================================
+# Backend API
+# ============================================================
+# Base URL for the Express API — set per developer (see below)
+API_BASE_URL=http://localhost:3000/api
+
 # ============================================================
 # Supabase Configuration
 # ============================================================
@@ -122,6 +140,7 @@ RAZORPAY_KEY_ID=rzp_test_xxxxxxxxxxxx
 
 | Variable | Required | Description | Sensitive |
 |----------|----------|-------------|-----------|
+| `API_BASE_URL` | Yes | Backend Express API base URL — **varies per developer setup** | No |
 | `SUPABASE_URL` | Yes | Supabase project API endpoint URL | No |
 | `SUPABASE_ANON_KEY` | Yes | Supabase public anonymous key (client-safe, RLS-enforced) | No |
 | `SENTRY_DSN` | Yes | Sentry DSN for mobile crash reporting | No |
@@ -129,30 +148,34 @@ RAZORPAY_KEY_ID=rzp_test_xxxxxxxxxxxx
 
 **Important**: The mobile app must never contain the `SUPABASE_SERVICE_ROLE_KEY` or `RAZORPAY_KEY_SECRET`. These are server-side secrets only.
 
+### Choosing the correct `API_BASE_URL`
+
+| Scenario | `API_BASE_URL` | Extra step |
+|---|---|---|
+| iOS simulator (Mac) | `http://localhost:3000/api` | — |
+| Android emulator (AVD) | `http://10.0.2.2:3000/api` | — |
+| Physical Android over USB | `http://localhost:3000/api` | Run `adb reverse tcp:3000 tcp:3000` after each plug-in |
+| Physical phone over Wi-Fi | `http://<laptop-LAN-IP>:3000/api` | Phone and laptop must share the same Wi-Fi |
+
+> `10.0.2.2` is the Android emulator's built-in alias for the host's `localhost`. It only works inside AVD — do not hardcode it elsewhere.
+>
+> Find your laptop's LAN IP with `ipconfig` (Windows) or `ifconfig`/`ip addr` (Mac/Linux). The backend must be running on port `3000` (`npm run dev` inside the backend folder) before you launch the app.
+
 ### React Native Environment Variable Access
 
-The mobile app uses `react-native-config` to load `.env` variables:
+The mobile app uses [`react-native-dotenv`](https://github.com/goatandsheep/react-native-dotenv) (babel-plugin-based) to expose `.env` values at compile time via the `@env` virtual module:
 
 ```typescript
-import Config from 'react-native-config';
-
-const supabaseUrl = Config.SUPABASE_URL;
-const supabaseKey = Config.SUPABASE_ANON_KEY;
+import { API_BASE_URL } from '@env';
 ```
 
-Multiple `.env` files are supported:
-- `.env` — default (development)
-- `.env.staging` — staging environment
-- `.env.production` — production environment
+Wiring lives in [mobile/babel.config.js](../../mobile/babel.config.js) (module name `@env`) and types live in [mobile/env.d.ts](../../mobile/env.d.ts). After editing `.env`, restart Metro with a cache reset:
 
-Switch environments during build:
 ```bash
-# iOS
-ENVFILE=.env.production npx react-native run-ios --configuration Release
-
-# Android
-ENVFILE=.env.production npx react-native run-android --variant=release
+npm start -- --reset-cache
 ```
+
+Multiple `.env` files are supported for staging/production by setting `BABEL_ENV` — but for local dev the single `.env` file per laptop is all you need.
 
 ---
 
