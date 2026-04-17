@@ -13,10 +13,15 @@
 </p>
 
 <p align="center">
+  <a href="docs/REQUIREMENTS.md"><strong>Setup Requirements</strong></a> &bull;
   <a href="https://www.figma.com/design/MmkzprPAIwQqfE02uVnAxp/MAM-App?t=tFvRPOA0dhLK7We8-1">Figma Designs</a> &bull;
   <a href="docs/IMPLEMENTATION_PLAN.md">Implementation Plan</a> &bull;
   <a href="docs/api/API_REFERENCE.md">API Reference</a> &bull;
   <a href="docs/PROJECT_SUMMARY.md">Project Summary</a>
+</p>
+
+<p align="center">
+  <strong>👉 New to the project? Start here: <a href="docs/REQUIREMENTS.md">docs/REQUIREMENTS.md</a></strong> — every tool, file, and command you need.
 </p>
 
 <p align="center">
