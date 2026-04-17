@@ -51,37 +51,45 @@ export const CourseCard = ({ course, onPress }: CourseCardProps) => {
       onPress={() => onPress(course.id)}
       activeOpacity={0.7}
     >
-      {/* Thumbnail \u2014 real image if provided, otherwise category-themed artwork */}
-      {course.thumbnail_url ? (
-        <View style={s.thumbnail}>
+      {/* Thumbnail \u2014 real image if provided, otherwise category-themed artwork.
+          Badges live INSIDE the thumbnail so they anchor to its corners, not the
+          bottom of the whole card. */}
+      <View
+        style={[
+          s.thumbnail,
+          !course.thumbnail_url && { backgroundColor: theme.bg },
+        ]}
+      >
+        {course.thumbnail_url ? (
           <Image
             source={{ uri: course.thumbnail_url }}
             style={s.thumbnailImage}
             resizeMode="cover"
           />
+        ) : (
+          <>
+            <View style={[s.decorCircleLarge, { backgroundColor: theme.accent }]} />
+            <View style={[s.decorCircleSmall, { backgroundColor: theme.accent }]} />
+            <Text style={s.thumbnailEmoji}>{theme.icon}</Text>
+            <Text style={s.thumbnailCategory}>
+              {(course.category || '').toUpperCase()}
+            </Text>
+          </>
+        )}
+        {course.is_premium ? (
+          <View style={[s.badge, s.badgePremium]}>
+            <Text style={s.badgeText}>PREMIUM</Text>
+          </View>
+        ) : (
+          <View style={[s.badge, s.badgeFree]}>
+            <Text style={s.badgeText}>FREE</Text>
+          </View>
+        )}
+        <View style={s.durationBadge}>
+          <Text style={s.durationText}>
+            {formatDuration(course.estimated_duration_minutes)}
+          </Text>
         </View>
-      ) : (
-        <View style={[s.thumbnail, { backgroundColor: theme.bg }]}>
-          {/* decorative accent circles */}
-          <View style={[s.decorCircleLarge, { backgroundColor: theme.accent }]} />
-          <View style={[s.decorCircleSmall, { backgroundColor: theme.accent }]} />
-          <Text style={s.thumbnailEmoji}>{theme.icon}</Text>
-          <Text style={s.thumbnailCategory}>{(course.category || '').toUpperCase()}</Text>
-        </View>
-      )}
-      {course.is_premium ? (
-        <View style={[s.badge, s.badgePremium]}>
-          <Text style={s.badgeText}>PREMIUM</Text>
-        </View>
-      ) : (
-        <View style={[s.badge, s.badgeFree]}>
-          <Text style={s.badgeText}>FREE</Text>
-        </View>
-      )}
-      <View style={s.durationBadge}>
-        <Text style={s.durationText}>
-          {formatDuration(course.estimated_duration_minutes)}
-        </Text>
       </View>
 
       {/* Card body */}
