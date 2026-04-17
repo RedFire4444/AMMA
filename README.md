@@ -284,11 +284,12 @@ vision_board, day_journey, performance_ratings, bookmarks
 
 ```bash
 # Clone the repository
-git clone https://github.com/ninjacode911/Project-MAM.git
-cd Project-MAM
+git clone https://github.com/ninjacode911/Project-MAA.git
+cd Project-MAA
 
 # Install mobile dependencies
 cd mobile
+cp .env.example .env          # REQUIRED — see "Environment Setup" below
 npm install
 
 # Install backend dependencies
@@ -299,6 +300,8 @@ npm install
 cd ../admin
 npm install
 ```
+
+> **First-time setup on every laptop**: after cloning, every developer must copy `mobile/.env.example` to `mobile/.env` and set `API_BASE_URL` for their machine. The file is git-ignored on purpose — each laptop/network needs its own value. See the [mobile README](mobile/README.md#step-0-local-setup-first-clone-only) for scenario-specific values.
 
 ### Environment Setup
 
@@ -312,7 +315,8 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 PORT=3000
 NODE_ENV=development
 
-# Mobile (.env)
+# Mobile (.env)  <-- REQUIRED per developer
+API_BASE_URL=http://localhost:3000/api    # Pick per scenario (see mobile README)
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_ANON_KEY=your-anon-key
 
@@ -320,6 +324,15 @@ SUPABASE_ANON_KEY=your-anon-key
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
 ```
+
+**Mobile `API_BASE_URL` — pick the line that matches your setup:**
+
+| Scenario | Value | Extra step |
+|---|---|---|
+| iOS simulator (Mac) | `http://localhost:3000/api` | — |
+| Android emulator (AVD) | `http://10.0.2.2:3000/api` | — |
+| Physical Android over USB | `http://localhost:3000/api` | `adb reverse tcp:3000 tcp:3000` |
+| Physical phone over Wi-Fi | `http://<laptop-LAN-IP>:3000/api` | Same Wi-Fi as laptop |
 
 ### Database Setup
 
