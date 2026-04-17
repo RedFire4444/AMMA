@@ -274,7 +274,10 @@ vision_board, day_journey, performance_ratings, bookmarks
 
 ### Prerequisites
 
-- Node.js >= 22.x
+- **Node.js 22.11.0 LTS** (pinned in root [`.nvmrc`](.nvmrc))
+  - If you use [nvm](https://github.com/nvm-sh/nvm) / [nvm-windows](https://github.com/coreybutler/nvm-windows): run `nvm use` at the repo root and it will install/switch automatically
+  - All three sub-projects (mobile, backend, admin) require the same version — mixing Node 20 and Node 22 across folders *will* break installs
+- **npm >= 10.0.0** (ships with Node 22)
 - React Native CLI development environment ([setup guide](https://reactnative.dev/docs/environment-setup))
 - Supabase account ([supabase.com](https://supabase.com))
 - iOS: Xcode 15+ (Mac only)

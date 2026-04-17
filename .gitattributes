@@ -1,0 +1,28 @@
+# Normalize all text files to LF in the repo.
+# Prevents Windows (CRLF) vs macOS/Linux (LF) noisy diffs and
+# avoids shell scripts breaking with CRLF line endings.
+* text=auto eol=lf
+
+# Files that must stay CRLF on Windows to function correctly.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Binary files — never transform.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.mp3 binary
+*.mp4 binary
+*.wav binary
+*.pdf binary
+*.zip binary
+*.jar binary
+*.keystore binary
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
