@@ -137,9 +137,9 @@ These are committed — `git clone` + `npm install` is all you do.
 
 ---
 
-## 4. One-time commands after cloning
+## 4. One-time setup after cloning
 
-Run in this exact order:
+We ship a script that does every manual step automatically: detects the SDK, writes `local.properties`, copies all `.env` files, and runs `npm install` in all three folders.
 
 ```bash
 # 1. Clone and enter
@@ -150,25 +150,28 @@ cd Project-MAA
 nvm install 22.11.0     # skip if already installed
 nvm use
 
-# 3. Mobile
-cd mobile
-cp .env.example .env    # edit API_BASE_URL per the table in section 2.1
-npm install
+# 3. Run the setup script — handles everything else
+bash scripts/setup.sh
 
-# 4. Backend
-cd ../MAA-Meditation-App/MAA-Project/backend
-cp .env.example .env    # fill in Supabase values from credentialsSupabase.txt
-npm install
-
-# 5. Admin (only if you're working on it)
-cd ../admin
-cp .env.example .env
-npm install
-
-# 6. iOS native deps (Mac only, mobile)
-cd ../../../mobile/ios
-bundle install && bundle exec pod install
+# 4. (Mac only) iOS native deps
+cd mobile/ios && bundle install && bundle exec pod install
 ```
+
+> **Windows users**: run `bash scripts/setup.sh` from **Git Bash** (ships with [Git for Windows](https://git-scm.com/download/win)). PowerShell / CMD aren't supported by the script yet.
+
+The script is safe to re-run — every step is idempotent. Pass `--skip-install` to skip the `npm install` step if you only want it to create config files.
+
+### What the script sets up for you
+
+- Verifies Node version, finds your JDK (Android Studio's bundled JBR is fine), finds your Android SDK
+- Creates `mobile/android/local.properties` with your detected SDK path
+- Creates `mobile/.env` from the template (you still edit `API_BASE_URL` for your scenario — see section 2.1)
+- Creates `backend/.env` and `admin/.env`, auto-filling Supabase values from `credentialsSupabase.txt`
+- Runs `npm install` in mobile, backend, and admin
+
+### Manual alternative
+
+If you prefer to do it by hand (or the script fails), follow the manual steps in [section 2](#2-files-you-must-create-locally--git-ignored--never-commit-these). Make sure the environment variables in section 1 are set as **persistent** (System Properties → Environment Variables on Windows, or in your shell rc file on Mac/Linux) — not just for one terminal session.
 
 ---
 
@@ -185,21 +188,35 @@ npm run dev                           # http://localhost:3000
 cd mobile
 npm start
 
-# Terminal 3 — Build and install
-cd mobile
-npm run android                       # or: npm run ios
+# Terminal 3 — Build and launch on device
+bash scripts/launch-android.sh        # handles adb reverse, gradle, launch
 ```
 
-**If testing on a physical Android phone over USB**, run this once per plug-in:
+### What `launch-android.sh` does for you
 
-```bash
-adb reverse tcp:3000 tcp:3000
-```
+This script exists because manually running the app on a physical Android phone has five easy-to-forget steps — and forgetting any one of them fails silently:
+
+1. Exports `JAVA_HOME` / `ANDROID_HOME` / `PATH` for this session
+2. Verifies the phone is connected and USB-debugging-authorized
+3. Runs `adb reverse tcp:3000 tcp:3000` **and** `adb reverse tcp:8081 tcp:8081` — forgetting 8081 gives you the white screen
+4. Warns if backend or Metro aren't running
+5. Runs Gradle directly (`./gradlew.bat app:installDebug -PreactNativeDevServerPort=8081`) to avoid a bug in the React Native CLI on Windows + Git Bash where `gradlew.bat` can't be spawned
+6. Launches the `com.mobile` MainActivity
+
+Re-run it any time you unplug/replug the phone — `adb reverse` doesn't persist across USB disconnects.
 
 **If you edit `mobile/.env`**, restart Metro with a cache reset:
 
 ```bash
 npm start -- --reset-cache
+```
+
+### iOS alternative (Mac users)
+
+The scripts are Android-focused. For iOS, the RN CLI works fine:
+
+```bash
+cd mobile && npm run ios
 ```
 
 ---
@@ -222,9 +239,134 @@ If any of these fails, fix that step before moving on. 90% of "the app won't loa
 
 ---
 
-## 7. Related docs
+## 7. Troubleshooting — errors we have actually seen
+
+Every error in this table was hit by someone on the team. If you see one of these, the fix is listed — don't debug from scratch.
+
+### App shows a white / blank screen (physical Android)
+
+**Cause**: The phone can't reach Metro on port 8081. Only the backend port (3000) is reversed.
+
+**Fix**:
+```bash
+adb reverse tcp:8081 tcp:8081
+# Then shake the phone → tap Reload, or force-stop + relaunch the app
+```
+
+`bash scripts/launch-android.sh` does this automatically, which is why you should prefer it over raw `npm run android`.
+
+---
+
+### `'gradlew.bat' is not recognized as an internal or external command`
+
+**Cause**: Known bug in the RN community CLI on Windows + Git Bash — it spawns `gradlew.bat` with a broken PATH.
+
+**Fix**: don't go through the RN CLI. Run Gradle directly:
+```bash
+cd mobile/android
+./gradlew.bat app:installDebug -PreactNativeDevServerPort=8081
+```
+Or just use `bash scripts/launch-android.sh`, which does exactly this.
+
+---
+
+### `'"adb"' is not recognized as an internal or external command`
+
+**Cause**: `platform-tools` is not on the shell's PATH.
+
+**Fix**: Set `ANDROID_HOME` as a persistent system environment variable and add `%ANDROID_HOME%\platform-tools` to PATH (Windows) or `$ANDROID_HOME/platform-tools` to PATH (Mac/Linux). Re-open the terminal. The setup/launch scripts also export this for their own run, but the persistent version is what you want long-term.
+
+---
+
+### Gradle build error: `JAVA_HOME is not set and no 'java' command could be found in your PATH`
+
+**Cause**: Java isn't installed, or `JAVA_HOME` isn't set.
+
+**Fix**: If you installed Android Studio, its bundled JBR works fine. Set:
+
+- **Windows** (persistent): System Properties → Environment Variables → add `JAVA_HOME` = `C:\Program Files\Android\Android Studio\jbr`
+- **Mac**: in `~/.zshrc`: `export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"`
+- **Linux**: in `~/.bashrc`: `export JAVA_HOME="/opt/android-studio/jbr"` (or wherever you installed it)
+
+---
+
+### `react-native run-android` prompts "Another process is running on port 8081. Use port 8082 instead?"
+
+**Cause**: You started Metro in one terminal, then `npm run android` tried to start its own.
+
+**Fix**: Either
+- Use `npm run android -- --no-packager` to tell RN CLI not to start Metro, **or**
+- Use `bash scripts/launch-android.sh` (skips Metro start by default), **or**
+- Stop your Metro terminal first, let `npm run android` start one
+
+---
+
+### Phone shows `unauthorized` in `adb devices`
+
+**Cause**: The laptop hasn't been approved on the phone yet, or its previous approval was revoked.
+
+**Fix**:
+1. Unlock the phone screen
+2. Plug the USB cable in (unplug first if already plugged)
+3. On the phone: tap **Always allow from this computer** → **Allow** on the popup
+4. If no popup appears, go to **Settings → Developer options → Revoke USB debugging authorizations**, then unplug/replug
+
+---
+
+### Phone disconnects from adb after a few minutes (Samsung-specific)
+
+**Cause**: Samsung phones drop USB debugging when the screen locks for a while.
+
+**Fix**: Enable **Settings → Developer options → Stay awake** to keep the screen on while charging. Or tap the screen periodically. Or accept that it drops and re-run `adb devices` when it does.
+
+---
+
+### `npm ERR! code EENGINE` or similar engine-mismatch errors
+
+**Cause**: You're on Node 20 (or other non-22) in this folder.
+
+**Fix**:
+```bash
+# At the repo root:
+nvm use               # reads .nvmrc, switches to Node 22.11.0
+```
+
+Mixing Node 20 in backend and Node 22 in mobile is the most common cause of "works on their laptop but not mine" bugs.
+
+---
+
+### LF/CRLF warnings on `git commit` or `git checkout`
+
+**Cause**: Your local Git was configured before we committed `.gitattributes`.
+
+**Fix**:
+```bash
+git add --renormalize .
+git commit -m "Normalize line endings"
+```
+
+Does not happen on fresh clones after `.gitattributes` landed.
+
+---
+
+### `pod install` fails on Mac with `RubyGems` permission error
+
+**Cause**: Using system Ruby without bundler isolation.
+
+**Fix**:
+```bash
+cd mobile/ios
+bundle install
+bundle exec pod install     # not plain `pod install`
+```
+
+---
+
+## 8. Related docs
 
 - [Root README.md](../README.md) — Project overview, installation quick-start
 - [mobile/README.md](../mobile/README.md) — Mobile-specific setup
 - [docs/deployment/ENVIRONMENT_SETUP.md](deployment/ENVIRONMENT_SETUP.md) — Full environment variable reference
 - [docs/GIT_EXCLUSIONS.md](GIT_EXCLUSIONS.md) — What's git-ignored and why
+- [scripts/setup.sh](../scripts/setup.sh) — Automated first-time setup (source if curious)
+- [scripts/launch-android.sh](../scripts/launch-android.sh) — Automated Android build + launch
