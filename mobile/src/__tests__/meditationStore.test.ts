@@ -11,7 +11,7 @@ describe('meditationStore', () => {
     expect(state.isPaused).toBe(false);
     expect(state.duration).toBe(300);
     expect(state.remaining).toBe(300);
-    expect(state.selectedSound).toBe('silence');
+    expect(state.selectedSound).toBe('nature');
     expect(state.sessionType).toBe('free');
   });
 
@@ -81,6 +81,6 @@ describe('meditationStore', () => {
     const state = useMeditationStore.getState();
     expect(state.isRunning).toBe(false);
     expect(state.duration).toBe(300);
-    expect(state.selectedSound).toBe('silence');
+    expect(state.selectedSound).toBe('nature');
   });
 });

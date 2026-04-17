@@ -31,16 +31,15 @@ type TimerNav = NativeStackNavigationProp<JourneyStackParamList, 'MeditationTime
 
 const DURATION_PRESETS = [3, 5, 10, 15, 20, 30] as const;
 
-type SoundOption = 'nature' | 'rain' | 'ocean' | 'birds' | 'bowl' | 'silence';
+type SoundOption = 'nature' | 'rain' | 'ocean' | 'birds' | 'bowl';
 type SessionType = 'free' | 'guided' | 'breathing';
 
 const SOUND_OPTIONS: Array<{ key: SoundOption; label: string; icon: string }> = [
-  { key: 'silence', label: 'Silence', icon: '\u{1F54A}' },
-  { key: 'nature', label: 'Nature', icon: '\u{1F33F}' },
+  { key: 'nature', label: 'Nature', icon: '\u{1F333}' },
   { key: 'rain', label: 'Rain', icon: '\u{1F327}' },
   { key: 'ocean', label: 'Ocean', icon: '\u{1F30A}' },
   { key: 'birds', label: 'Birds', icon: '\u{1F426}' },
-  { key: 'bowl', label: 'Bowl', icon: '\u{1F514}' },
+  { key: 'bowl', label: 'Bowl', icon: '\u{1F3B6}' },
 ];
 
 const SESSION_TYPES: Array<{ key: SessionType; label: string }> = [
@@ -374,7 +373,7 @@ const MeditationTimerScreen = () => {
                 </TouchableOpacity>
               ))}
             </ScrollView>
-            {selectedSound && selectedSound !== 'silence' && (
+            {selectedSound && (
               <SoundWaveIndicator
                 soundLabel={
                   SOUND_OPTIONS.find((o) => o.key === selectedSound)?.label || ''
@@ -484,7 +483,11 @@ const s = StyleSheet.create({
   },
   headerBackText: {
     fontSize: 18,
+    lineHeight: 20,
     color: '#FFFFFF',
+    textAlign: 'center',
+    includeFontPadding: false,
+    marginTop: -2,
   },
   headerTitle: {
     fontSize: 18,
@@ -504,6 +507,7 @@ const s = StyleSheet.create({
   },
   durationSection: {
     marginBottom: 24,
+    alignSelf: 'stretch',
   },
   durationRow: {
     flexDirection: 'row',
@@ -573,6 +577,7 @@ const s = StyleSheet.create({
   sessionTypeSection: {
     marginBottom: 32,
     paddingHorizontal: 24,
+    alignSelf: 'stretch',
   },
   sessionTypeRow: {
     flexDirection: 'row',
@@ -620,6 +625,8 @@ const s = StyleSheet.create({
   startButtonText: {
     fontSize: 30,
     color: '#FFFFFF',
+    marginLeft: 4,
+    includeFontPadding: false,
   },
   stopButton: {
     backgroundColor: 'rgba(220,38,38,0.2)',

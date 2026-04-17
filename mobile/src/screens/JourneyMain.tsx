@@ -663,6 +663,8 @@ const s = StyleSheet.create({
   meditationCtaPlayText: {
     color: '#FFFFFF',
     fontSize: 18,
+    marginLeft: 2,
+    includeFontPadding: false,
   },
   perfCard: {
     backgroundColor: '#FFFFFF',

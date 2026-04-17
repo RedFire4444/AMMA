@@ -276,7 +276,11 @@ const s = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 24,
+    lineHeight: 26,
     color: '#1B4332',
+    textAlign: 'center',
+    includeFontPadding: false,
+    marginTop: -2,
   },
   headerTitle: {
     fontSize: 18,

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-type SoundOption = 'nature' | 'rain' | 'ocean' | 'birds' | 'bowl' | 'silence';
+type SoundOption = 'nature' | 'rain' | 'ocean' | 'birds' | 'bowl';
 type SessionType = 'free' | 'guided' | 'breathing';
 
 interface MeditationState {
@@ -27,7 +27,7 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
   remaining: 300,
   isRunning: false,
   isPaused: false,
-  selectedSound: 'silence',
+  selectedSound: 'nature',
   sessionType: 'free',
   startedAt: null,
 
@@ -85,7 +85,7 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
       remaining: 300,
       isRunning: false,
       isPaused: false,
-      selectedSound: 'silence',
+      selectedSound: 'nature',
       sessionType: 'free',
       startedAt: null,
     });
