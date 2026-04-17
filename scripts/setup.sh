@@ -14,7 +14,14 @@
 #   5. Runs npm install in mobile, backend, and admin
 #
 # Safe to re-run. Every step is idempotent — existing files are left alone.
-# Pass --skip-install to skip the npm install step.
+#
+# Flags:
+#   --skip-install   Skip the npm install step (config-only)
+#   --doctor         Print a diagnostic report (no changes) — paste this
+#                    output to the team lead when asking for help
+#   --clean          Nuke node_modules, gradle caches, and stale config,
+#                    then run the full setup fresh (use when your laptop
+#                    has leftovers from a previous broken attempt)
 # -----------------------------------------------------------------------------
 
 set -e
@@ -28,6 +35,165 @@ ok()    { echo "${GREEN}✓${RESET} $*"; }
 warn()  { echo "${YELLOW}!${RESET} $*"; }
 fail()  { echo "${RED}✗${RESET} $*"; exit 1; }
 info()  { echo "${CYAN}→${RESET} $*"; }
+
+MODE="setup"
+for arg in "$@"; do
+  case "$arg" in
+    --doctor)       MODE="doctor" ;;
+    --clean)        MODE="clean" ;;
+    --skip-install) ;;  # handled later
+    *) ;;
+  esac
+done
+
+# -----------------------------------------------------------------------------
+# --doctor mode: diagnostic-only, no side effects. Dump every check + its
+# result so the team lead can see the exact state of a broken laptop.
+# -----------------------------------------------------------------------------
+if [ "$MODE" = "doctor" ]; then
+  echo "${BOLD}MAA Project — Doctor report${RESET}"
+  echo "Generated: $(date)"
+  echo "Repo root: $ROOT"
+  echo "OS:        $(uname -a)"
+  echo ""
+
+  # Shell + versions
+  echo "[shell]"
+  echo "  SHELL:     ${SHELL:-unknown}"
+  echo "  BASH:      ${BASH_VERSION:-not-bash}"
+  echo ""
+
+  echo "[node/npm]"
+  if command -v node >/dev/null 2>&1; then
+    echo "  node:      $(node -v)    (location: $(command -v node))"
+  else
+    echo "  node:      NOT FOUND"
+  fi
+  if command -v npm >/dev/null 2>&1; then
+    echo "  npm:       $(npm -v)     (location: $(command -v npm))"
+  else
+    echo "  npm:       NOT FOUND"
+  fi
+  if command -v nvm >/dev/null 2>&1; then
+    echo "  nvm:       available"
+  else
+    echo "  nvm:       not on PATH (Windows nvm-for-windows still works in GUI)"
+  fi
+  echo ""
+
+  echo "[java]"
+  echo "  JAVA_HOME (env): ${JAVA_HOME:-<unset>}"
+  if command -v java >/dev/null 2>&1; then
+    echo "  java on PATH:    $(command -v java)"
+    java -version 2>&1 | head -1 | sed 's/^/                   /'
+  else
+    echo "  java on PATH:    NOT FOUND"
+  fi
+  echo ""
+
+  echo "[android]"
+  echo "  ANDROID_HOME (env): ${ANDROID_HOME:-<unset>}"
+  echo "  LOCALAPPDATA:       ${LOCALAPPDATA:-<unset>}"
+  if [ -n "${ANDROID_HOME:-}" ] && [ -d "$ANDROID_HOME" ]; then
+    echo "  SDK exists at ANDROID_HOME: yes"
+    echo "  platforms:          $(ls "$ANDROID_HOME/platforms" 2>/dev/null | tr '\n' ' ' || echo 'none')"
+  fi
+  for p in \
+    "/c/Users/$USER/AppData/Local/Android/Sdk" \
+    "$HOME/Library/Android/sdk" \
+    "$HOME/Android/Sdk"; do
+    if [ -d "$p" ]; then echo "  SDK also at:        $p"; fi
+  done
+  if command -v adb >/dev/null 2>&1; then
+    echo "  adb on PATH:        $(command -v adb)"
+    adb devices 2>&1 | sed 's/^/                      /'
+  else
+    echo "  adb on PATH:        NOT FOUND"
+  fi
+  echo ""
+
+  echo "[repo files — exist?]"
+  for f in \
+    ".nvmrc" \
+    ".gitattributes" \
+    "mobile/.env" \
+    "mobile/.env.example" \
+    "mobile/env.d.ts" \
+    "mobile/android/local.properties" \
+    "mobile/node_modules/.package-lock.json" \
+    "MAA-Meditation-App/MAA-Project/backend/.env" \
+    "MAA-Meditation-App/MAA-Project/backend/node_modules/.package-lock.json" \
+    "MAA-Meditation-App/MAA-Project/admin/.env" \
+    "MAA-Meditation-App/MAA-Project/admin/node_modules/.package-lock.json" \
+    "credentialsSupabase.txt"; do
+    if [ -e "$ROOT/$f" ]; then
+      echo "  ✓ $f"
+    else
+      echo "  ✗ $f  (missing)"
+    fi
+  done
+  echo ""
+
+  if [ -f "$ROOT/mobile/.env" ]; then
+    echo "[mobile/.env contents]"
+    sed 's/^/  /' "$ROOT/mobile/.env"
+    echo ""
+  fi
+
+  if [ -f "$ROOT/mobile/android/local.properties" ]; then
+    echo "[mobile/android/local.properties contents]"
+    sed 's/^/  /' "$ROOT/mobile/android/local.properties"
+    echo ""
+  fi
+
+  echo "[git state]"
+  cd "$ROOT"
+  echo "  branch:    $(git branch --show-current 2>/dev/null || echo 'unknown')"
+  echo "  head:      $(git log -1 --oneline 2>/dev/null || echo 'unknown')"
+  dirty=$(git status --porcelain 2>/dev/null | wc -l)
+  echo "  dirty:     $dirty file(s) modified"
+  echo ""
+
+  echo "[listening ports]"
+  if command -v netstat >/dev/null 2>&1; then
+    netstat -an 2>/dev/null | grep -E "(:3000|:8081)\b.*LISTEN" | sed 's/^/  /' || echo "  (no listener on :3000 or :8081)"
+  fi
+  echo ""
+
+  echo "End of report. Paste everything above this line to the team lead."
+  exit 0
+fi
+
+# -----------------------------------------------------------------------------
+# --clean mode: remove stale state before running normal setup
+# -----------------------------------------------------------------------------
+if [ "$MODE" = "clean" ]; then
+  echo "${BOLD}${YELLOW}MAA Project — clean + setup${RESET}"
+  echo "This will DELETE: node_modules, Gradle build cache, mobile/android/local.properties"
+  echo "It will NOT touch your .env files (your per-laptop config stays)."
+  echo ""
+  read -r -p "Proceed? [y/N] " ans
+  case "$ans" in
+    y|Y|yes|YES) ;;
+    *) echo "Cancelled."; exit 0 ;;
+  esac
+
+  for d in \
+    "$ROOT/mobile/node_modules" \
+    "$ROOT/MAA-Meditation-App/MAA-Project/backend/node_modules" \
+    "$ROOT/MAA-Meditation-App/MAA-Project/admin/node_modules" \
+    "$ROOT/mobile/android/build" \
+    "$ROOT/mobile/android/.gradle" \
+    "$ROOT/mobile/android/app/build"; do
+    if [ -d "$d" ]; then
+      echo "  removing $d"
+      rm -rf "$d"
+    fi
+  done
+  rm -f "$ROOT/mobile/android/local.properties"
+  echo "Clean complete. Running setup..."
+  echo ""
+fi
 
 echo "${BOLD}MAA Project — local setup${RESET}"
 echo "Working dir: $ROOT"

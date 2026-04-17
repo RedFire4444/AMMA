@@ -239,7 +239,29 @@ If any of these fails, fix that step before moving on. 90% of "the app won't loa
 
 ---
 
-## 7. Troubleshooting — errors we have actually seen
+## 7. Troubleshooting
+
+### Before you ask for help
+
+Run the doctor and paste its output to the team lead. It shows exactly what's installed, what's missing, and what's misconfigured on your laptop — saves a round-trip of "what version of Node are you on?" questions.
+
+```bash
+bash scripts/setup.sh --doctor
+```
+
+### Still broken after running `setup.sh`? Try a full clean reset
+
+If your laptop has leftovers from a previous broken attempt (half-installed `node_modules`, stale Gradle cache, wrong `local.properties` from an older setup), nuke them and re-run:
+
+```bash
+bash scripts/setup.sh --clean
+```
+
+This deletes `node_modules`, Gradle build caches, and `local.properties`, then runs the full setup fresh. Your `.env` files are preserved.
+
+---
+
+## 7a. Errors we have actually seen
 
 Every error in this table was hit by someone on the team. If you see one of these, the fix is listed — don't debug from scratch.
 
