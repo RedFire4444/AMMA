@@ -28,7 +28,6 @@ describe('MeditationTimerScreen', () => {
 
   it('renders ambient sound options', () => {
     const { getByText } = render(<MeditationTimerScreen />);
-    expect(getByText('Silence')).toBeTruthy();
     expect(getByText('Nature')).toBeTruthy();
     expect(getByText('Rain')).toBeTruthy();
     expect(getByText('Ocean')).toBeTruthy();

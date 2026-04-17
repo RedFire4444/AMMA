@@ -374,6 +374,10 @@ const s = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 18,
+    lineHeight: 20,
+    textAlign: 'center',
+    includeFontPadding: false,
+    marginTop: -2,
   },
   headerTitleWrap: {
     flex: 1,
