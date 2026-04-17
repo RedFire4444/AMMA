@@ -30,7 +30,7 @@ export const rateLimiter = rateLimit({
 // Auth rate limiter: 5 attempts per 15 minutes per IP
 export const authRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5,
+  max: 100,
   standardHeaders: true,
   legacyHeaders: false,
   message: {

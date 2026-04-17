@@ -76,7 +76,8 @@ export const useAuthStore = create<AuthState>((set) => ({
           const profile = await userService.getProfile();
           onboardingComplete = profile?.onboarding_complete ?? false;
         } catch (e) {
-          console.warn('[Store] Profile fetch during login failed:', e);
+          console.warn('[Store] Profile fetch during login failed (Backend might be down):', e);
+          // Don't block login if profile fetch fails
         }
         set({
           session: data.session,

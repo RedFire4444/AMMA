@@ -141,12 +141,12 @@ const JourneyMain = () => {
         journeyData.status === 'fulfilled' ? journeyData.value : [];
 
       setData({
-        habitLogs: habits.logs,
-        streaks: habits.streaks,
-        weeklyPerformance: perf,
+        habitLogs: habits.logs || [],
+        streaks: habits.streaks || {},
+        weeklyPerformance: perf || [],
         dailyQuote: feed?.dailyQuote ?? null,
-        visionBoard: vision,
-        dayJourney: journey,
+        visionBoard: vision || [],
+        dayJourney: journey || [],
       });
     } catch {
       // Best effort
@@ -202,14 +202,16 @@ const JourneyMain = () => {
   const getHabitLogs = (
     habitType: string,
   ): Array<{ date: string; completed: boolean }> => {
-    const remoteLogs = data
-      ? data.habitLogs
-          .filter((log) => log.habit_type === habitType)
-          .map((log) => ({
-            date: log.logged_at,
-            completed: log.completed,
-          }))
-      : [];
+    // Ensure we are working with an array before filtering
+    const logsArray = Array.isArray(data?.habitLogs) ? data.habitLogs : [];
+
+    const remoteLogs = logsArray
+      .filter((log) => log && log.habit_type === habitType)
+      .map((log) => ({
+        date: log.logged_at,
+        completed: log.completed,
+      }));
+
     // Merge local logs — local takes precedence
     const localSet = localLogs[habitType] || new Set();
     const localOnly = Array.from(localSet).map((date) => ({ date, completed: true }));
@@ -218,7 +220,7 @@ const JourneyMain = () => {
   };
 
   const getStreakCount = (habitType: string): number => {
-    const remote = data?.streaks[habitType]?.current_streak ?? 0;
+    const remote = data?.streaks?.[habitType]?.current_streak ?? 0;
     const local = localStreaks[habitType] ?? 0;
     return Math.max(remote, local);
   };
@@ -238,10 +240,14 @@ const JourneyMain = () => {
     const d = new Date();
     d.setDate(d.getDate() - (6 - daysAgo));
     const dateStr = d.toISOString().split('T')[0];
+    
     const local = localRatings[dateStr];
     if (local !== undefined) return local;
-    if (!data) return 0;
-    const entry = data.weeklyPerformance.find((p) => p.rated_at === dateStr);
+
+    const perfArray = Array.isArray(data?.weeklyPerformance) ? data.weeklyPerformance : [];
+    if (perfArray.length === 0) return 0;
+
+    const entry = perfArray.find((p) => p && p.rated_at === dateStr);
     return entry?.rating ?? 0;
   };
 
