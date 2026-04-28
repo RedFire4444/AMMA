@@ -15,8 +15,12 @@ import { supabase } from './supabase';
 // ---------------------------------------------------------------------------
 // Base URL is read from mobile/.env (see mobile/.env.example for guidance).
 // Each developer sets their own value — see mobile/README.md "Local setup".
+//
+// In dev: missing API_BASE_URL falls back to localhost with a warning.
+// In production: missing API_BASE_URL is a build-time mistake — throw loudly
+// so it's caught before users hit a silently-broken app.
 // ---------------------------------------------------------------------------
-const FALLBACK_BASE_URL = 'http://localhost:3000/api';
+const DEV_FALLBACK_BASE_URL = 'http://localhost:3000/api';
 
 const getBaseUrl = (): string => {
   if (API_BASE_URL && API_BASE_URL.trim().length > 0) {
@@ -25,14 +29,18 @@ const getBaseUrl = (): string => {
   if (__DEV__) {
     console.warn(
       '[API] API_BASE_URL is not set. Copy mobile/.env.example to mobile/.env ' +
-        'and set API_BASE_URL. Falling back to ' + FALLBACK_BASE_URL,
+        'and set API_BASE_URL. Falling back to ' + DEV_FALLBACK_BASE_URL,
     );
+    return DEV_FALLBACK_BASE_URL;
   }
-  return FALLBACK_BASE_URL;
+  throw new Error(
+    '[API] API_BASE_URL is required in production builds but was not set at build time. ' +
+      'Set it in mobile/.env before running `npm run android` / `npm run ios`.',
+  );
 };
 
 const BASE_URL = getBaseUrl();
-console.log(`[API] Base URL configured as: ${BASE_URL}`);
+if (__DEV__) console.log(`[API] Base URL configured as: ${BASE_URL}`);
 
 // ---------------------------------------------------------------------------
 // Axios instance

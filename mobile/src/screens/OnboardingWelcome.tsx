@@ -7,7 +7,7 @@
  * Author: Navnit(Ninjacode911)
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, SafeAreaView, StyleSheet, Alert } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
@@ -21,44 +21,58 @@ type NavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'Onboa
 const OnboardingWelcome = () => {
   const navigation = useNavigation<NavigationProp>();
   const completeOnboarding = useAuthStore((state) => state.completeOnboarding);
+  const [isSkipping, setIsSkipping] = useState(false);
 
   useEffect(() => {
-    // Diagnostic check for backend connection on mount
+    let cancelled = false;
     const checkConnection = async () => {
       try {
-        console.log('[Onboarding] Testing backend connection...');
-        await apiClient.get('/home/feed'); // Simple public endpoint
-        console.log('[Onboarding] Backend connection successful!');
+        await apiClient.get('/home/feed');
       } catch (err) {
-        console.error('[Onboarding] Backend connection failed:', err);
+        if (cancelled || !__DEV__) return;
+        console.warn('[Onboarding] Backend unreachable on mount:', err);
         Alert.alert(
-          'Connection Status', 
-          'Warning: The app cannot reach the backend. If you are on a physical phone, please update the LOCAL_IP in api.ts to your computer\'s IP address.'
+          'Connection Issue',
+          'The app cannot reach the backend right now. Make sure the backend server is running and that your mobile/.env API_BASE_URL is set correctly for your setup (see docs/REQUIREMENTS.md).',
         );
       }
     };
     checkConnection();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const handleSkip = async () => {
-    Alert.alert('Action Logged', 'Skip button pressed. Attempting to update profile...');
+    if (isSkipping) return;
+    setIsSkipping(true);
     try {
       await completeOnboarding(['meditation', 'mindfulness'], 10);
-    } catch (err: any) {
-      Alert.alert('Profile Update Failed', err?.message || 'Check your backend connection.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Please try again.';
+      Alert.alert('Could not complete onboarding', message);
+    } finally {
+      setIsSkipping(false);
     }
   };
 
   const handleGetStarted = () => {
-    Alert.alert('Action Logged', 'Get Started pressed. Navigating to Interests...');
     navigation.navigate('OnboardingInterests');
   };
 
   return (
     <SafeAreaView style={s.safeArea}>
       <View style={s.container}>
-        <TouchableOpacity onPress={handleSkip} style={s.skipBtn}>
-          <Text style={s.skipText}>Skip</Text>
+        <TouchableOpacity
+          onPress={handleSkip}
+          style={s.skipBtn}
+          disabled={isSkipping}
+          accessibilityRole="button"
+          accessibilityLabel="Skip onboarding"
+        >
+          <Text style={[s.skipText, isSkipping && s.skipTextDisabled]}>
+            {isSkipping ? 'Skipping…' : 'Skip'}
+          </Text>
         </TouchableOpacity>
 
         <View style={s.centerContent}>
@@ -83,6 +97,8 @@ const OnboardingWelcome = () => {
           <TouchableOpacity
             style={s.getStartedBtn}
             onPress={handleGetStarted}
+            accessibilityRole="button"
+            accessibilityLabel="Get started"
           >
             <Text style={s.getStartedText}>Get Started</Text>
           </TouchableOpacity>
@@ -115,6 +131,9 @@ const s = StyleSheet.create({
   skipText: {
     color: colors.textSecondary,
     fontSize: 16,
+  },
+  skipTextDisabled: {
+    opacity: 0.5,
   },
   centerContent: {
     alignItems: 'center',

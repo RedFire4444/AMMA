@@ -46,11 +46,10 @@ const LoginScreen = () => {
     setError('');
     try {
       const fullPhone = `${countryCode}${phoneNumber}`;
-      console.log(`[Auth] Requesting OTP for: ${fullPhone}`);
       await requestOTP(fullPhone);
       navigation.navigate('OTP', { phone: fullPhone });
     } catch (err: unknown) {
-      console.error('[Auth] OTP Request Error:', err);
+      if (__DEV__) console.warn('[Auth] OTP Request Error:', err);
       setError(err instanceof Error ? err.message : 'Failed to send OTP.');
     }
   };
@@ -60,24 +59,21 @@ const LoginScreen = () => {
     if (!EMAIL_REGEX.test(email)) { setError('Please enter a valid email address (e.g., name@domain.com)'); return; }
     if (!password) { setError('Please enter your password'); return; }
     setError('');
-    try { 
-      await emailLogin(email, password); 
-    }
-    catch (err: unknown) { 
-      console.error('[Auth] Email Login Error:', err);
-      setError(err instanceof Error ? err.message : 'Login failed. Check your email and password.'); 
+    try {
+      await emailLogin(email, password);
+    } catch (err: unknown) {
+      if (__DEV__) console.warn('[Auth] Email Login Error:', err);
+      setError(err instanceof Error ? err.message : 'Login failed. Check your email and password.');
     }
   };
 
   const handleGoogleLogin = async () => {
     setError('');
-    try { 
-      console.log('[Auth] Initiating Google Sign-In...');
-      await authService.googleLogin(); 
-    }
-    catch (err: unknown) { 
-      console.error('[Auth] Google Login Error:', err);
-      setError(err instanceof Error ? err.message : 'Google sign-in failed.'); 
+    try {
+      await authService.googleLogin();
+    } catch (err: unknown) {
+      if (__DEV__) console.warn('[Auth] Google Login Error:', err);
+      setError(err instanceof Error ? err.message : 'Google sign-in failed.');
     }
   };
 

@@ -362,7 +362,7 @@ const CourseDetailScreen = () => {
                       {'\u2713'}
                     </Text>
                     <Text style={s.learnText}>
-                      Core techniques of {course.category.toLowerCase()}
+                      Core techniques of {(course.category ?? 'this practice').toLowerCase()}
                     </Text>
                   </View>
                   <View style={s.learnRow}>

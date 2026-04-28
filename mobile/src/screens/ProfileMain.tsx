@@ -20,21 +20,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuthStore } from '../store/authStore';
-import { userService } from '../services/user.service';
+import { userService, UserProfile } from '../services/user.service';
 import { ProfileStackParamList } from '../navigation/types';
 import { colors } from '../utils/styles';
 
 type ProfileNavProp = NativeStackNavigationProp<ProfileStackParamList, 'ProfileMain'>;
-
-interface UserProfile {
-  full_name: string | null;
-  email: string | null;
-  phone: string | null;
-  avatar_url: string | null;
-  level: string;
-  created_at: string;
-  subscription_status: string;
-}
 
 const StatCard = ({ label, value }: { label: string; value: string }) => (
   <View style={s.statCard}>
@@ -71,15 +61,20 @@ const ProfileMain = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
     const loadProfile = async () => {
       try {
         const data = await userService.getProfile();
-        setProfile(data as UserProfile);
-      } catch {
-        // Profile may not exist yet
+        if (!cancelled) setProfile(data);
+      } catch (err) {
+        // Auth errors bubble up; everything else returns a skeleton.
+        if (__DEV__) console.warn('[Profile] Load failed:', err);
       }
     };
     loadProfile();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const handleLogout = () => {

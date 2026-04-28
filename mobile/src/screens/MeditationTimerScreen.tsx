@@ -136,7 +136,15 @@ const waveStyles = StyleSheet.create({
 const MeditationTimerScreen = () => {
   const navigation = useNavigation<TimerNav>();
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const isMountedRef = useRef(true);
   const [showCompletion, setShowCompletion] = useState(false);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   // Get authenticated user directly from global store — no Supabase DB call needed
   const { user } = useAuthStore();
@@ -193,7 +201,7 @@ const MeditationTimerScreen = () => {
   const handleCompletion = useCallback(async () => {
     if (!startedAt) return;
 
-    setShowCompletion(true);
+    if (isMountedRef.current) setShowCompletion(true);
 
     try {
       const durationMinutes = duration / 60;
@@ -204,12 +212,12 @@ const MeditationTimerScreen = () => {
         completed_at: new Date().toISOString(),
       });
 
-      // autoLogHabit is best-effort via the backend — user.id not needed
-      if (user) {
+      if (user && isMountedRef.current) {
         await meditationService.autoLogHabit(user.id);
       }
-    } catch {
-      // Session logging is best-effort
+    } catch (err) {
+      // Session logging is best-effort — never block the user.
+      if (__DEV__) console.warn('[MeditationTimer] Session log failed:', err);
     }
   }, [startedAt, duration, sessionType, user]);
 

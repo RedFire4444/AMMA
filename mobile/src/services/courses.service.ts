@@ -23,11 +23,10 @@ export const coursesService = {
 
   async getEnrollment(courseId: string): Promise<Enrollment | null> {
     try {
-      // Assuming backend has a specific endpoint to check enrollment. If not, it might be embedded in `getCourseById`.
-      // The current backend has `/courses/:id` which returns enrollment. 
-      const response = await get<any>(`/courses/${courseId}`);
-      return response.enrollment || null;
-    } catch (e) {
+      // Backend's /courses/:id returns the enrollment record alongside the course.
+      const response = await get<{ enrollment?: Enrollment }>(`/courses/${courseId}`);
+      return response.enrollment ?? null;
+    } catch {
       return null;
     }
   },

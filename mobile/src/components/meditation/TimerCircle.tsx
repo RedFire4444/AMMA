@@ -1,5 +1,26 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { View, Text, Animated, Easing, StyleSheet } from 'react-native';
+
+const TOTAL_SEGMENTS = 24;
+const RADIUS = 120;
+const CONTAINER_HALF = 128;
+const SEGMENT_HALF = 4;
+
+interface SegmentLayout {
+  key: string;
+  left: number;
+  top: number;
+}
+
+const SEGMENT_LAYOUTS: SegmentLayout[] = Array.from({ length: TOTAL_SEGMENTS }, (_, i) => {
+  const angle = (i * 360) / TOTAL_SEGMENTS - 90;
+  const radian = (angle * Math.PI) / 180;
+  return {
+    key: `seg-${i}`,
+    left: CONTAINER_HALF + Math.cos(radian) * RADIUS - SEGMENT_HALF,
+    top: CONTAINER_HALF + Math.sin(radian) * RADIUS - SEGMENT_HALF,
+  };
+});
 
 interface TimerCircleProps {
   remaining: number;
@@ -46,9 +67,24 @@ export const TimerCircle = ({
     }
   }, [isRunning, pulseAnim]);
 
-  // Build progress segments (24 segments around the circle)
-  const totalSegments = 24;
-  const filledSegments = Math.round(progress * totalSegments);
+  const filledSegments = Math.round(progress * TOTAL_SEGMENTS);
+
+  // Memoized so each segment View is only rebuilt when its filled state flips,
+  // not on every parent re-render (was causing pulse animation jitter).
+  const segments = useMemo(
+    () =>
+      SEGMENT_LAYOUTS.map((seg, i) => (
+        <View
+          key={seg.key}
+          style={[
+            s.segment,
+            i < filledSegments ? s.segmentFilled : s.segmentEmpty,
+            { left: seg.left, top: seg.top },
+          ]}
+        />
+      )),
+    [filledSegments],
+  );
 
   return (
     <Animated.View
@@ -58,28 +94,7 @@ export const TimerCircle = ({
       <View style={s.outerRing}>
         {/* Progress ring using overlapping segments */}
         <View style={s.segmentContainer}>
-          {Array.from({ length: totalSegments }).map((_, i) => {
-            const angle = (i * 360) / totalSegments - 90;
-            const radian = (angle * Math.PI) / 180;
-            const radius = 120;
-            const x = Math.cos(radian) * radius;
-            const y = Math.sin(radian) * radius;
-            const isFilled = i < filledSegments;
-
-            return (
-              <View
-                key={`seg-${i}`}
-                style={[
-                  s.segment,
-                  isFilled ? s.segmentFilled : s.segmentEmpty,
-                  {
-                    left: 128 + x - 4,
-                    top: 128 + y - 4,
-                  },
-                ]}
-              />
-            );
-          })}
+          {segments}
         </View>
 
         {/* Inner circle */}
