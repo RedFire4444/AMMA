@@ -110,7 +110,12 @@ const EventDetailScreen = ({ route, navigation }: Props) => {
       <ScrollView style={s.flex1} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={s.headerRow}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={s.backButton}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={s.backButton}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+          >
             <Text style={s.backButtonText}>{'\u{2190}'}</Text>
           </TouchableOpacity>
           <Text style={s.headerTitle} numberOfLines={1}>

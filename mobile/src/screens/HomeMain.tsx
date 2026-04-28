@@ -208,7 +208,7 @@ const HomeMain = () => {
             </Text>
             <Text style={s.statLabel}>Total Time</Text>
           </View>
-          <View style={[s.statPill, { marginLeft: 12 }]}>
+          <View style={[s.statPill, s.statPillSpaced]}>
             <Text style={s.statIcon}>{'\u{1F525}'}</Text>
             <Text style={s.statValue}>
               {loading ? '--' : feed?.stats.currentStreak ?? 0}
@@ -224,7 +224,7 @@ const HomeMain = () => {
             <FlatList
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: 24 }}
+              contentContainerStyle={s.horizontalListPadding}
               data={feed.upcomingEvents}
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
@@ -274,7 +274,7 @@ const HomeMain = () => {
             <FlatList
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: 24 }}
+              contentContainerStyle={s.horizontalListPadding}
               data={feed?.trendingCourses || []}
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
@@ -325,6 +325,8 @@ const HomeMain = () => {
 const s = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.background },
   flex1: { flex: 1 },
+  statPillSpaced: { marginLeft: 12 },
+  horizontalListPadding: { paddingHorizontal: 24 },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',

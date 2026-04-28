@@ -80,8 +80,8 @@ const LoginScreen = () => {
   return (
     <KeyboardAvoidingView style={[s.flex1, s.bgBg]} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled">
-        <View style={[s.center, { marginBottom: 40 }]}>
-          <View style={s.logo}><Text style={{ fontSize: 36 }}>{'\u{1F33A}'}</Text></View>
+        <View style={[s.center, s.headerSection]}>
+          <View style={s.logo}><Text style={s.logoEmoji}>{'\u{1F33A}'}</Text></View>
           <Text style={s.title}>Welcome Back</Text>
           <Text style={s.subtitle}>
             {authMode === 'phone'
@@ -91,41 +91,70 @@ const LoginScreen = () => {
         </View>
 
         {authMode === 'phone' ? (
-          <View style={{ marginBottom: 24 }}>
+          <View style={s.fieldGroup}>
             <Text style={s.label}>Phone Number</Text>
             <View style={s.phoneRow}>
               <View style={s.codeBox}><Text style={s.codeText}>{countryCode}</Text></View>
-              <TextInput style={s.phoneInput} placeholder="9876543210" placeholderTextColor="#9CA3AF"
-                keyboardType="phone-pad" value={phoneNumber} maxLength={10}
-                onChangeText={t => { 
+              <TextInput
+                style={s.phoneInput}
+                placeholder="9876543210"
+                placeholderTextColor="#9CA3AF"
+                keyboardType="phone-pad"
+                value={phoneNumber}
+                maxLength={10}
+                accessibilityLabel="Phone number"
+                onChangeText={t => {
                   const cleaned = t.replace(/[^0-9]/g, '').slice(0, 10);
-                  setPhoneNumber(cleaned); 
-                  setError(''); 
-                }} />
+                  setPhoneNumber(cleaned);
+                  setError('');
+                }}
+              />
             </View>
           </View>
         ) : (
-          <View style={{ marginBottom: 24 }}>
+          <View style={s.fieldGroup}>
             <Text style={s.label}>Email</Text>
-            <TextInput style={s.input} placeholder="you@example.com" placeholderTextColor="#9CA3AF"
-              keyboardType="email-address" autoCapitalize="none" value={email}
-              onChangeText={t => { setEmail(t.trim()); setError(''); }} />
-            <Text style={[s.label, { marginTop: 16 }]}>Password</Text>
-            <TextInput style={s.input} placeholder="Enter your password" placeholderTextColor="#9CA3AF"
-              secureTextEntry value={password} onChangeText={t => { setPassword(t); setError(''); }} />
+            <TextInput
+              style={s.input}
+              placeholder="you@example.com"
+              placeholderTextColor="#9CA3AF"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              value={email}
+              accessibilityLabel="Email address"
+              onChangeText={t => { setEmail(t.trim()); setError(''); }}
+            />
+            <Text style={[s.label, s.labelSpaced]}>Password</Text>
+            <TextInput
+              style={s.input}
+              placeholder="Enter your password"
+              placeholderTextColor="#9CA3AF"
+              secureTextEntry
+              value={password}
+              accessibilityLabel="Password"
+              onChangeText={t => { setPassword(t); setError(''); }}
+            />
           </View>
         )}
 
         {error ? <Text style={s.error}>{error}</Text> : null}
 
-        <TouchableOpacity style={[s.btn, { backgroundColor: isLoading ? colors.primaryLight : colors.primary }]}
-          onPress={authMode === 'phone' ? handleSendOTP : handleEmailLogin} disabled={isLoading}>
+        <TouchableOpacity
+          style={[s.btn, isLoading ? s.btnLoading : s.btnPrimary]}
+          onPress={authMode === 'phone' ? handleSendOTP : handleEmailLogin}
+          disabled={isLoading}
+          accessibilityRole="button"
+          accessibilityLabel={authMode === 'phone' ? 'Send OTP' : 'Login'}
+        >
           {isLoading ? <ActivityIndicator color="white" /> :
             <Text style={s.btnText}>{authMode === 'phone' ? 'Send OTP' : 'Login'}</Text>}
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => { setError(''); setAuthMode(authMode === 'phone' ? 'email' : 'phone'); }}
-          style={[s.center, { marginTop: 16 }]}>
+        <TouchableOpacity
+          onPress={() => { setError(''); setAuthMode(authMode === 'phone' ? 'email' : 'phone'); }}
+          style={[s.center, s.toggleRow]}
+          accessibilityRole="button"
+        >
           <Text style={s.toggle}>{authMode === 'phone' ? 'Or use your email instead' : 'Or use phone number instead'}</Text>
         </TouchableOpacity>
 
@@ -146,6 +175,13 @@ const s = StyleSheet.create({
   bgBg: { backgroundColor: colors.background },
   scroll: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: 24 },
   center: { alignItems: 'center' },
+  headerSection: { marginBottom: 40 },
+  fieldGroup: { marginBottom: 24 },
+  labelSpaced: { marginTop: 16 },
+  toggleRow: { marginTop: 16 },
+  btnPrimary: { backgroundColor: colors.primary },
+  btnLoading: { backgroundColor: colors.primaryLight },
+  logoEmoji: { fontSize: 36 },
   logo: { width: 80, height: 80, borderRadius: 40, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center', marginBottom: 20 },
   title: { fontSize: 30, fontWeight: 'bold', color: colors.primaryDark, marginBottom: 8 },
   subtitle: { fontSize: 16, color: colors.gray500, textAlign: 'center', paddingHorizontal: 16 },

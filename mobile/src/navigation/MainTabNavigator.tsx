@@ -26,10 +26,26 @@ export const MainTabNavigator = () => {
         component={JourneyStack}
         options={{ tabBarLabel: 'My Journey' }}
       />
-      <Tab.Screen name="Courses" component={CoursesStack} />
-      <Tab.Screen name="Home" component={HomeStack} />
-      <Tab.Screen name="Directory" component={DirectoryStack} />
-      <Tab.Screen name="Profile" component={ProfileStack} />
+      <Tab.Screen
+        name="Courses"
+        component={CoursesStack}
+        options={{ tabBarLabel: 'Courses' }}
+      />
+      <Tab.Screen
+        name="Home"
+        component={HomeStack}
+        options={{ tabBarLabel: 'Home' }}
+      />
+      <Tab.Screen
+        name="Directory"
+        component={DirectoryStack}
+        options={{ tabBarLabel: 'Directory' }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileStack}
+        options={{ tabBarLabel: 'Profile' }}
+      />
     </Tab.Navigator>
   );
 };

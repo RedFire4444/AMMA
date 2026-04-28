@@ -63,7 +63,7 @@ apiClient.interceptors.request.use(
 
     if (token) {
       config.headers = config.headers ?? {};
-      config.headers['Authorization'] = `Bearer ${token}`;
+      config.headers.Authorization = `Bearer ${token}`;
     }
 
     return config;
@@ -89,7 +89,7 @@ apiClient.interceptors.response.use(
       const { data, error: refreshError } = await supabase.auth.refreshSession();
 
       if (!refreshError && data.session) {
-        originalRequest.headers['Authorization'] = `Bearer ${data.session.access_token}`;
+        originalRequest.headers.Authorization = `Bearer ${data.session.access_token}`;
         return apiClient(originalRequest);
       }
 

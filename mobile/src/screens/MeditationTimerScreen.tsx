@@ -24,7 +24,6 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { TimerCircle } from '../components/meditation/TimerCircle';
 import { useMeditationStore } from '../store/meditationStore';
 import { meditationService } from '../services/meditation.service';
-import { useAuthStore } from '../store/authStore';
 import { JourneyStackParamList } from '../navigation/types';
 
 type TimerNav = NativeStackNavigationProp<JourneyStackParamList, 'MeditationTimer'>;
@@ -145,9 +144,6 @@ const MeditationTimerScreen = () => {
       isMountedRef.current = false;
     };
   }, []);
-
-  // Get authenticated user directly from global store — no Supabase DB call needed
-  const { user } = useAuthStore();
 
   const {
     duration,
@@ -296,7 +292,7 @@ const MeditationTimerScreen = () => {
         style={s.flex1}
         showsVerticalScrollIndicator={false}
         scrollEnabled={!isActive}
-        contentContainerStyle={{ alignItems: 'center', paddingBottom: 32 }}
+        contentContainerStyle={s.scrollContent}
       >
         {/* Timer circle */}
         <View style={s.timerWrap}>
@@ -351,7 +347,7 @@ const MeditationTimerScreen = () => {
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: 24 }}
+              contentContainerStyle={s.horizontalListPadding}
             >
               {SOUND_OPTIONS.map((opt) => (
                 <TouchableOpacity
@@ -468,6 +464,8 @@ const s = StyleSheet.create({
     flex: 1,
     backgroundColor: '#0B2B1F',
   },
+  scrollContent: { alignItems: 'center', paddingBottom: 32 },
+  horizontalListPadding: { paddingHorizontal: 24 },
   flex1: {
     flex: 1,
   },

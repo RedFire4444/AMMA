@@ -439,7 +439,7 @@ const JourneyMain = () => {
               <FlatList
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingHorizontal: 24 }}
+                contentContainerStyle={s.horizontalListPadding}
                 data={combined}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
@@ -479,7 +479,7 @@ const JourneyMain = () => {
           <FlatList
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: 24 }}
+            contentContainerStyle={s.horizontalListPadding}
             data={DAY_PERIODS}
             keyExtractor={(item) => item.period}
             renderItem={({ item }) => {
@@ -617,6 +617,7 @@ const s = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FAFAF5',
   },
+  horizontalListPadding: { paddingHorizontal: 24 },
   flex1: {
     flex: 1,
   },

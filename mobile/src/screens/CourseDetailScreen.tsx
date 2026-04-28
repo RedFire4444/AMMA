@@ -251,6 +251,8 @@ const CourseDetailScreen = () => {
           <TouchableOpacity
             style={s.backBtn}
             onPress={() => navigation.goBack()}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
           >
             <Text style={s.backBtnIcon}>{'\u2190'}</Text>
           </TouchableOpacity>

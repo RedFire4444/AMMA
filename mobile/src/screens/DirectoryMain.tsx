@@ -109,6 +109,36 @@ const CATEGORY_THEME: Record<string, { bg: string; accent: string }> = {
 };
 const getTheme = (cat: string) => CATEGORY_THEME[cat] || CATEGORY_THEME.default;
 
+interface ContentThumbnailProps {
+  item: ContentItem;
+}
+
+// Hoisted out of DirectoryMain so React doesn't see a "new" component type
+// on every parent render (was causing the no-unstable-nested-components warning).
+const ContentThumbnail = ({ item }: ContentThumbnailProps) => {
+  const theme = getTheme(item.category);
+  return (
+    <View style={[s.thumb, { backgroundColor: theme.bg }]}>
+      <View style={[s.thumbDecorLarge, { backgroundColor: theme.accent }]} />
+      <View style={[s.thumbDecorSmall, { backgroundColor: theme.accent }]} />
+      <Text style={s.thumbIcon}>{item.icon}</Text>
+      <View style={s.durationBadge}>
+        <Text style={s.durationText}>{item.duration}</Text>
+      </View>
+      {item.type === 'video' && (
+        <View style={s.playOverlay}>
+          <Text style={s.playIcon}>{'\u{25B6}'}</Text>
+        </View>
+      )}
+      {item.isPremium && (
+        <View style={s.premiumBadge}>
+          <Text style={s.premiumText}>PRO</Text>
+        </View>
+      )}
+    </View>
+  );
+};
+
 const MOCK_CONTENT: ContentItem[] = [
   { id: '1', title: 'Sri Lalitha Sahasranamam', instructor: 'Amma', category: 'chanting', duration: '45:30', views: '120k', isPremium: false, icon: '\u{1F3B5}', type: 'audio' },
   { id: '2', title: 'Morning Guided Meditation', instructor: "Amma's Teachings", category: 'meditation', duration: '15:00', views: '85k', isPremium: false, icon: '\u{1F9D8}', type: 'audio' },
@@ -244,7 +274,7 @@ const DirectoryMain = () => {
           showsHorizontalScrollIndicator={false}
           data={CATEGORIES}
           keyExtractor={(item) => item.key}
-          contentContainerStyle={{ paddingHorizontal: 16 }}
+          contentContainerStyle={s.tabListPadding}
           renderItem={({ item }) => (
             <TouchableOpacity
               onPress={() => setSelectedCategory(item.key)}
@@ -262,7 +292,10 @@ const DirectoryMain = () => {
       <FlatList
         data={filteredContent}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: currentPlaying ? 90 : 20 }}
+        contentContainerStyle={[
+          s.contentListPadding,
+          currentPlaying ? s.contentListPaddingPlaying : s.contentListPaddingIdle,
+        ]}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#1B4332" />}
         renderItem={({ item }) => (
           <TouchableOpacity
@@ -271,29 +304,7 @@ const DirectoryMain = () => {
             activeOpacity={0.7}
           >
             {/* Thumbnail \u2014 category-themed artwork */}
-            {(() => {
-              const theme = getTheme(item.category);
-              return (
-                <View style={[s.thumb, { backgroundColor: theme.bg }]}>
-                  <View style={[s.thumbDecorLarge, { backgroundColor: theme.accent }]} />
-                  <View style={[s.thumbDecorSmall, { backgroundColor: theme.accent }]} />
-                  <Text style={s.thumbIcon}>{item.icon}</Text>
-                  <View style={s.durationBadge}>
-                    <Text style={s.durationText}>{item.duration}</Text>
-                  </View>
-                  {item.type === 'video' && (
-                    <View style={s.playOverlay}>
-                      <Text style={s.playIcon}>{'\u{25B6}'}</Text>
-                    </View>
-                  )}
-                  {item.isPremium && (
-                    <View style={s.premiumBadge}>
-                      <Text style={s.premiumText}>PRO</Text>
-                    </View>
-                  )}
-                </View>
-              );
-            })()}
+            <ContentThumbnail item={item} />
 
             {/* Info */}
             <View style={s.info}>
@@ -312,7 +323,7 @@ const DirectoryMain = () => {
         )}
         ListEmptyComponent={
           <View style={s.emptyWrap}>
-            <Text style={{ fontSize: 40, marginBottom: 12 }}>{'\u{1F50D}'}</Text>
+            <Text style={s.emptyIcon}>{'\u{1F50D}'}</Text>
             <Text style={s.emptyTitle}>No results found</Text>
             <Text style={s.emptyText}>Try a different search or category</Text>
           </View>
@@ -387,6 +398,11 @@ const s = StyleSheet.create({
   suggestionWord: { fontSize: 13, color: '#1B4332', fontWeight: '700' },
   suggestionTap: { fontSize: 13, color: '#40916C', fontWeight: '700' },
   emptyWrap: { alignItems: 'center', paddingVertical: 60 },
+  emptyIcon: { fontSize: 40, marginBottom: 12 },
   emptyTitle: { fontSize: 18, fontWeight: 'bold', color: '#1A1A2E', marginBottom: 4 },
   emptyText: { fontSize: 14, color: '#6B7280' },
+  tabListPadding: { paddingHorizontal: 16 },
+  contentListPadding: { paddingHorizontal: 16 },
+  contentListPaddingPlaying: { paddingBottom: 90 },
+  contentListPaddingIdle: { paddingBottom: 20 },
 });

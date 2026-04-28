@@ -181,7 +181,7 @@ const LessonScreen = () => {
       <ScrollView
         style={s.flex1}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 32 }}
+        contentContainerStyle={s.scrollContent}
       >
         {/* Media placeholder */}
         <View style={s.mediaPlaceholder}>
@@ -351,6 +351,9 @@ const s = StyleSheet.create({
   },
   flex1: {
     flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 32,
   },
   header: {
     flexDirection: 'row',
