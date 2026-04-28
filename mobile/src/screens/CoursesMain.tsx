@@ -23,6 +23,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { CourseCard } from '../components/course/CourseCard';
+import { ErrorBanner } from '../components/shared/ErrorBanner';
 import { coursesService } from '../services/courses.service';
 import { Course, CourseFilters } from '../types/course.types';
 import { CoursesStackParamList } from '../navigation/types';
@@ -174,6 +175,7 @@ const CoursesMain = () => {
   const [searchText, setSearchText] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('All');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [loadError, setLoadError] = useState<string | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Client-side filtering from a stable base dataset — avoids keyboard-drop refetches on every keystroke
@@ -188,9 +190,11 @@ const CoursesMain = () => {
       } else {
         setAllCourses(MOCK_COURSES);
       }
+      setLoadError(null);
     } catch (err) {
-      console.warn('[Courses] Failed to load from backend, using mock data:', err);
+      if (__DEV__) console.warn('[Courses] Failed to load from backend:', err);
       setAllCourses(MOCK_COURSES);
+      setLoadError("Couldn't load courses from the server. Showing offline list.");
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -339,6 +343,8 @@ const CoursesMain = () => {
           </ScrollView>
         </View>
       </View>
+
+      {loadError ? <ErrorBanner message={loadError} onRetry={loadCourses} /> : null}
 
       {/* Courses List */}
       {loading && courses.length === 0 ? (

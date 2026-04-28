@@ -131,8 +131,10 @@ const CourseDetailScreen = () => {
   const [activeTab, setActiveTab] = useState<TabKey>('overview');
   const [loading, setLoading] = useState(true);
   const [enrolling, setEnrolling] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const loadCourseData = useCallback(async () => {
+    setLoading(true);
     try {
       const [courseData, enrollmentData, reviewsData] = await Promise.all([
         coursesService.getCourseById(courseId),
@@ -143,8 +145,10 @@ const CourseDetailScreen = () => {
       setLessons(courseData.lessons);
       setEnrollment(enrollmentData);
       setReviews(reviewsData);
-    } catch {
-      Alert.alert('Error', 'Failed to load course details.');
+      setLoadError(null);
+    } catch (err) {
+      if (__DEV__) console.warn('[CourseDetail] Load failed:', err);
+      setLoadError("Couldn't load this course. Tap retry to try again.");
     } finally {
       setLoading(false);
     }
@@ -194,14 +198,31 @@ const CourseDetailScreen = () => {
       <SafeAreaView style={s.errorContainer}>
         <Text style={s.errorIcon}>{'\u{26A0}'}</Text>
         <Text style={s.errorTitle}>
-          Course not found
+          {loadError ? "Couldn't load course" : 'Course not found'}
         </Text>
-        <TouchableOpacity
-          style={s.goBackBtn}
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={s.goBackBtnText}>Go Back</Text>
-        </TouchableOpacity>
+        {loadError ? (
+          <Text style={s.errorMessage}>{loadError}</Text>
+        ) : null}
+        <View style={s.errorActions}>
+          {loadError ? (
+            <TouchableOpacity
+              style={s.retryBtn}
+              onPress={loadCourseData}
+              accessibilityRole="button"
+              accessibilityLabel="Retry loading course"
+            >
+              <Text style={s.retryBtnText}>Retry</Text>
+            </TouchableOpacity>
+          ) : null}
+          <TouchableOpacity
+            style={s.goBackBtn}
+            onPress={() => navigation.goBack()}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+          >
+            <Text style={s.goBackBtnText}>Go Back</Text>
+          </TouchableOpacity>
+        </View>
       </SafeAreaView>
     );
   }
@@ -510,15 +531,38 @@ const s = StyleSheet.create({
     fontWeight: 'bold',
     color: colors.textPrimary,
   },
-  goBackBtn: {
-    marginTop: 16,
+  errorMessage: {
+    marginTop: 8,
+    fontSize: 14,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    paddingHorizontal: 16,
+  },
+  errorActions: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 20,
+  },
+  retryBtn: {
     backgroundColor: colors.primary,
     borderRadius: 8,
     paddingHorizontal: 24,
     paddingVertical: 12,
   },
-  goBackBtnText: {
+  retryBtnText: {
     color: colors.white,
+    fontWeight: '600',
+  },
+  goBackBtn: {
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+  },
+  goBackBtnText: {
+    color: colors.textPrimary,
     fontWeight: '600',
   },
   navRow: {

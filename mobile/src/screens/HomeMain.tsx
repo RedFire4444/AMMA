@@ -20,6 +20,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { homeService, HomeFeedData } from '../services/home.service';
+import { ErrorBanner } from '../components/shared/ErrorBanner';
 import { colors } from '../utils/styles';
 
 const getGreetingTime = (): string => {
@@ -115,6 +116,7 @@ const HomeMain = () => {
   const [feed, setFeed] = useState<HomeFeedData | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [feedError, setFeedError] = useState<string | null>(null);
 
   const loadFeed = useCallback(async () => {
     try {
@@ -126,8 +128,13 @@ const HomeMain = () => {
           data.upcomingEvents?.length > 0 ||
           data.dailyQuote);
       setFeed(hasContent ? data : { ...FALLBACK_FEED, stats: data?.stats || FALLBACK_FEED.stats });
-    } catch {
+      setFeedError(null);
+    } catch (err) {
+      // Network or auth error — surface a banner so the user can retry,
+      // but keep showing fallback content so the screen isn't empty.
+      if (__DEV__) console.warn('[Home] Feed fetch failed:', err);
       setFeed(FALLBACK_FEED);
+      setFeedError("We couldn't load your latest feed. Showing offline content.");
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -179,10 +186,18 @@ const HomeMain = () => {
               {getGreetingTime()}, {loading ? '...' : feed?.greeting || 'Friend'}
             </Text>
           </View>
-          <TouchableOpacity style={s.bellBtn} onPress={handleBellPress} activeOpacity={0.7}>
+          <TouchableOpacity
+            style={s.bellBtn}
+            onPress={handleBellPress}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Notifications"
+          >
             <Text style={s.bellIcon}>{'\u{1F514}'}</Text>
           </TouchableOpacity>
         </View>
+
+        {feedError ? <ErrorBanner message={feedError} onRetry={loadFeed} /> : null}
 
         {/* Stats Pills */}
         <View style={s.statsRow}>

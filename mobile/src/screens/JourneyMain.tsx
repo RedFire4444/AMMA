@@ -23,6 +23,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { HabitGrid } from '../components/journey/HabitGrid';
+import { ErrorBanner } from '../components/shared/ErrorBanner';
 import {
   habitsService,
   HabitLog,
@@ -97,6 +98,7 @@ const JourneyMain = () => {
   const [data, setData] = useState<JourneyData | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   // Local-only state so the "Log Today" button works even without backend connectivity
   const [localLogs, setLocalLogs] = useState<Record<string, Set<string>>>({
     meditation: new Set(),
@@ -120,14 +122,14 @@ const JourneyMain = () => {
 
   const loadData = useCallback(async () => {
     try {
-      const [habitsData, perfData, feedData, visionData, journeyData] =
-        await Promise.allSettled([
-          habitsService.getAllHabits(),
-          habitsService.getWeeklyPerformance(),
-          homeService.getHomeFeed(),
-          habitsService.getVisionBoard(),
-          habitsService.getDayJourney(),
-        ]);
+      const results = await Promise.allSettled([
+        habitsService.getAllHabits(),
+        habitsService.getWeeklyPerformance(),
+        homeService.getHomeFeed(),
+        habitsService.getVisionBoard(),
+        habitsService.getDayJourney(),
+      ]);
+      const [habitsData, perfData, feedData, visionData, journeyData] = results;
 
       const habits =
         habitsData.status === 'fulfilled' ? habitsData.value : { streaks: {}, logs: [] };
@@ -148,8 +150,28 @@ const JourneyMain = () => {
         visionBoard: vision || [],
         dayJourney: journey || [],
       });
-    } catch {
-      // Best effort
+
+      // Track which sub-fetches failed so we can show one consolidated banner
+      // instead of swallowing the failures silently.
+      const failed = results
+        .map((r, i) => (r.status === 'rejected' ? i : -1))
+        .filter((i) => i >= 0);
+      if (failed.length === results.length) {
+        setLoadError("Couldn't reach the backend. Pull to refresh once you're connected.");
+      } else if (failed.length > 0) {
+        setLoadError('Some sections of your journey failed to load. Pull to refresh to try again.');
+      } else {
+        setLoadError(null);
+      }
+      if (__DEV__ && failed.length > 0) {
+        const sectionNames = ['habits', 'performance', 'feed', 'vision-board', 'day-journey'];
+        failed.forEach((i) =>
+          console.warn(`[Journey] ${sectionNames[i]} fetch failed:`, (results[i] as PromiseRejectedResult).reason),
+        );
+      }
+    } catch (err) {
+      if (__DEV__) console.warn('[Journey] Unexpected loadData error:', err);
+      setLoadError('Something went wrong loading your journey. Pull to refresh.');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -310,6 +332,8 @@ const JourneyMain = () => {
             Track your daily sadhana
           </Text>
         </View>
+
+        {loadError ? <ErrorBanner message={loadError} onRetry={loadData} /> : null}
 
         {/* Start Meditation button */}
         <TouchableOpacity
