@@ -47,13 +47,40 @@ export interface AllHabitsData {
   logs: HabitLog[];
 }
 
+interface HeatmapEntry {
+  date: string;
+  completed: boolean;
+  duration_minutes: number | null;
+}
+
+interface AllHabitsResponse {
+  streaks?: Record<string, StreakData>;
+  heatmap?: Record<string, HeatmapEntry[]>;
+}
+
 export const habitsService = {
   async getAllHabits(): Promise<AllHabitsData> {
     try {
-      const data = await get<any>('/habits/all');
+      const data = await get<AllHabitsResponse>('/habits/all');
+      const heatmap = data?.heatmap ?? {};
+      // Backend returns heatmap as Record<habit_type, entries[]> for efficient
+      // grid rendering; mobile components want a flat HabitLog[] list. Flatten
+      // here so callers get a single, consistent shape.
+      const logs: HabitLog[] = Object.entries(heatmap).flatMap(([habitType, entries]) =>
+        entries.map((entry) => ({
+          id: `${habitType}-${entry.date}`,
+          user_id: '',
+          habit_type: habitType,
+          completed: entry.completed,
+          duration_minutes: entry.duration_minutes,
+          mood_rating: null,
+          energy_level: null,
+          logged_at: entry.date,
+        })),
+      );
       return {
-        streaks: data?.streaks || {},
-        logs: data?.heatmap || data?.logs || [],
+        streaks: data?.streaks ?? {},
+        logs,
       };
     } catch {
       return { streaks: {}, logs: [] };

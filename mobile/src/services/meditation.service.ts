@@ -1,8 +1,16 @@
 import { post } from './api';
 
+export type MeditationSessionType =
+  | 'guided'
+  | 'unguided'
+  | 'free'
+  | 'breathing'
+  | 'body_scan'
+  | 'loving_kindness';
+
 export interface MeditationSessionInput {
   duration_minutes: number;
-  session_type: string;
+  session_type: MeditationSessionType;
   mood_before?: number;
   mood_after?: number;
   notes?: string;
@@ -14,7 +22,7 @@ export interface MeditationSession {
   id: string;
   user_id: string;
   duration_minutes: number;
-  session_type: string;
+  session_type: MeditationSessionType;
   status: string;
   mood_before: number | null;
   mood_after: number | null;
@@ -24,17 +32,13 @@ export interface MeditationSession {
 }
 
 export const meditationService = {
+  /**
+   * Log a meditation session. Backend's createSession also auto-logs a
+   * meditation habit entry for streak tracking, so callers should NOT
+   * separately call habitsService.logHabit('meditation', ...) — it would
+   * be redundant and double-log under racy conditions.
+   */
   async logSession(data: MeditationSessionInput): Promise<MeditationSession> {
     return post<MeditationSession>('/sessions', data);
-  },
-
-  async autoLogHabit(_userId: string): Promise<void> {
-    // Usually backend automatically handles auto-logging habits on session creation.
-    // If not, we can trigger the habit log endpoint.
-    try {
-      await post('/habits/log', { habit_type: 'meditation', completed: true });
-    } catch {
-      // Avoid failing the whole session logging if auto log throws
-    }
   },
 };

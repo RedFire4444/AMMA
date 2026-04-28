@@ -205,21 +205,19 @@ const MeditationTimerScreen = () => {
 
     try {
       const durationMinutes = duration / 60;
+      // Backend createSession also auto-logs the meditation habit, so
+      // we don't separately POST to /habits/log here.
       await meditationService.logSession({
         duration_minutes: durationMinutes,
         session_type: sessionType,
         started_at: startedAt,
         completed_at: new Date().toISOString(),
       });
-
-      if (user && isMountedRef.current) {
-        await meditationService.autoLogHabit(user.id);
-      }
     } catch (err) {
       // Session logging is best-effort — never block the user.
       if (__DEV__) console.warn('[MeditationTimer] Session log failed:', err);
     }
-  }, [startedAt, duration, sessionType, user]);
+  }, [startedAt, duration, sessionType]);
 
   const handleDismissCompletion = useCallback(() => {
     setShowCompletion(false);

@@ -14,9 +14,13 @@ export const updateUserSchema = z.object({
   full_name: z.string().min(1).max(255).optional(),
   avatar_url: z.string().url().max(2048).optional(),
   date_of_birth: z.string().date().optional(),
-  meditation_goal_minutes: z.number().int().min(1).max(480).optional(),
+  timezone: z.string().max(64).optional(),
   preferred_language: z.string().max(10).optional(),
   notification_enabled: z.boolean().optional(),
+  notification_preferences: z.record(z.string(), z.unknown()).optional(),
+  interests: z.array(z.string().min(1).max(64)).max(32).optional(),
+  meditation_goal_minutes: z.number().int().min(1).max(480).optional(),
+  onboarding_complete: z.boolean().optional(),
 }).strict();
 
 export const uuidParamSchema = z.object({

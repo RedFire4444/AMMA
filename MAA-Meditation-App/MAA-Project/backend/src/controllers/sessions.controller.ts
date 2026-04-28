@@ -30,9 +30,19 @@ export const createSession = async (req: Request, res: Response): Promise<void> 
       mood_before,
       mood_after,
       notes,
+      started_at: clientStartedAt,
+      completed_at: clientCompletedAt,
     } = req.body;
 
-    const now = new Date().toISOString();
+    // Trust client-provided timestamps when present (the user actually
+    // started/finished at those moments) but fall back to now for offline
+    // logging. Both must be valid ISO 8601 — enforced by the Zod validator.
+    const completedAt = clientCompletedAt ?? new Date().toISOString();
+    const startedAt =
+      clientStartedAt ??
+      new Date(
+        new Date(completedAt).getTime() - duration_minutes * 60_000,
+      ).toISOString();
 
     // Create the meditation session
     const { data: session, error: sessionError } = await supabase
@@ -47,8 +57,8 @@ export const createSession = async (req: Request, res: Response): Promise<void> 
         mood_before: mood_before ?? null,
         mood_after: mood_after ?? null,
         notes: notes ?? null,
-        started_at: now,
-        completed_at: now,
+        started_at: startedAt,
+        completed_at: completedAt,
       })
       .select()
       .single();
