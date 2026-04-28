@@ -430,6 +430,8 @@ Detailed documentation for each phase: [Phase 1](docs/phases/PHASE_1_FOUNDATION.
 
 | Document | Description |
 |----------|-------------|
+| [Setup Requirements](docs/REQUIREMENTS.md) | First-time local setup — every tool, file, and command teammates need |
+| [Fly.io Deployment](docs/deployment/FLY_DEPLOY.md) | Backend deploy + ops runbook (auto-deploy via GitHub Actions on merge) |
 | [Implementation Plan](docs/IMPLEMENTATION_PLAN.md) | Complete 18-week plan with specifications |
 | [Progress Tracker](docs/PROGRESS_TRACKER.md) | Sprint-by-sprint task tracking |
 | [API Reference](docs/api/API_REFERENCE.md) | All 38 endpoints documented |

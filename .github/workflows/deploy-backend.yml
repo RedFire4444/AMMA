@@ -1,0 +1,74 @@
+name: Deploy Backend to Fly.io
+
+# Triggers on every push to main that touches backend code, plus manual
+# triggers via the Actions UI for one-off redeploys (e.g. after rotating
+# secrets or adjusting fly.toml).
+on:
+  push:
+    branches: ['main']
+    paths:
+      - 'MAA-Meditation-App/MAA-Project/backend/**'
+      - '.github/workflows/deploy-backend.yml'
+  workflow_dispatch:
+
+# Cancel in-flight deploys when a newer commit lands. Prevents the
+# "two deploys racing each other to be the live version" footgun.
+concurrency:
+  group: deploy-backend
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Run backend tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./MAA-Meditation-App/MAA-Project/backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.11.0'
+          cache: 'npm'
+          cache-dependency-path: 'MAA-Meditation-App/MAA-Project/backend/package-lock.json'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Run tests
+        run: npm test -- --passWithNoTests --forceExit
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://placeholder.supabase.co' }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY || 'placeholder-key' }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key' }}
+          PORT: 3000
+          NODE_ENV: test
+
+  deploy:
+    name: Deploy to Fly.io
+    needs: test
+    # Only deploy on direct pushes to main (not on PRs) so feature branches
+    # don't accidentally ship to production.
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./MAA-Meditation-App/MAA-Project/backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      # Deploys the Dockerfile in the backend folder. Secrets (Supabase keys,
+      # ALLOWED_ORIGINS) are configured separately on Fly via `fly secrets set`
+      # — they are NOT pulled from GitHub.
+      - name: Deploy to Fly.io
+        run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
