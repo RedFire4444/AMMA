@@ -100,11 +100,11 @@ const JourneyMain = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   // Local-only state so the "Log Today" button works even without backend connectivity
-  const [localLogs, setLocalLogs] = useState<Record<string, Set<string>>>({
-    meditation: new Set(),
-    exercise: new Set(),
-    cold_shower: new Set(),
-    early_wakeup: new Set(),
+  const [localLogs, setLocalLogs] = useState<Record<string, Record<string, boolean>>>({
+    meditation: {},
+    exercise: {},
+    cold_shower: {},
+    early_wakeup: {},
   });
   const [localStreaks, setLocalStreaks] = useState<Record<string, number>>({
     meditation: 0,
@@ -190,7 +190,7 @@ const JourneyMain = () => {
   const handleLogHabit = useCallback(
     async (habitType: string) => {
       const today = new Date().toISOString().split('T')[0];
-      const alreadyLogged = localLogs[habitType]?.has(today);
+      const alreadyLogged = localLogs[habitType]?.[today] === true;
 
       if (alreadyLogged) {
         Alert.alert('Already Logged', 'You already logged this habit today.');
@@ -200,9 +200,7 @@ const JourneyMain = () => {
       // Update local state immediately for responsive UX
       setLocalLogs((prev) => {
         const next = { ...prev };
-        const set = new Set(next[habitType] || []);
-        set.add(today);
-        next[habitType] = set;
+        next[habitType] = { ...next[habitType], [today]: true };
         return next;
       });
       setLocalStreaks((prev) => ({
@@ -221,25 +219,66 @@ const JourneyMain = () => {
     [localLogs],
   );
 
-  const getHabitLogs = (
-    habitType: string,
-  ): Array<{ date: string; completed: boolean }> => {
-    // Ensure we are working with an array before filtering
-    const logsArray = Array.isArray(data?.habitLogs) ? data.habitLogs : [];
+  const getHabitLogs = useCallback(
+    (habitType: string): Array<{ date: string; completed: boolean }> => {
+      const logsArray = Array.isArray(data?.habitLogs) ? data.habitLogs : [];
 
-    const remoteLogs = logsArray
-      .filter((log) => log && log.habit_type === habitType)
-      .map((log) => ({
-        date: log.logged_at,
-        completed: log.completed,
+      const remoteLogs = logsArray
+        .filter((log) => log && log.habit_type === habitType)
+        .map((log) => ({
+          date: log.logged_at,
+          completed: log.completed,
+        }));
+
+      const localMap = localLogs[habitType] || {};
+      const mergedMap = new Map<string, boolean>();
+
+      for (const log of remoteLogs) {
+        mergedMap.set(log.date, log.completed);
+      }
+      for (const [dateStr, isCompleted] of Object.entries(localMap)) {
+        mergedMap.set(dateStr, isCompleted);
+      }
+
+      return Array.from(mergedMap.entries()).map(([date, completed]) => ({
+        date,
+        completed,
       }));
+    },
+    [data, localLogs],
+  );
 
-    // Merge local logs — local takes precedence
-    const localSet = localLogs[habitType] || new Set();
-    const localOnly = Array.from(localSet).map((date) => ({ date, completed: true }));
-    const seen = new Set(localOnly.map((l) => l.date));
-    return [...localOnly, ...remoteLogs.filter((l) => !seen.has(l.date))];
-  };
+  const handleToggleHabitDate = useCallback(
+    async (habitType: string, dateStr: string) => {
+      const currentLogs = getHabitLogs(habitType);
+      const wasCompleted = currentLogs.find((l) => l.date === dateStr)?.completed ?? false;
+      const nextCompleted = !wasCompleted;
+
+      // Update local state immediately for instant responsive UI feedback
+      setLocalLogs((prev) => {
+        const next = { ...prev };
+        next[habitType] = { ...next[habitType], [dateStr]: nextCompleted };
+        return next;
+      });
+
+      // Adjust streak count based on toggle
+      setLocalStreaks((prev) => {
+        const currentStreak = prev[habitType] || 0;
+        return {
+          ...prev,
+          [habitType]: nextCompleted ? currentStreak + 1 : Math.max(0, currentStreak - 1),
+        };
+      });
+
+      // Best-effort backend sync — don't fail if offline
+      try {
+        await habitsService.logHabit(habitType, { completed: nextCompleted, logged_at: dateStr } as any);
+      } catch {
+        // Silent fail — local state already holds the true value
+      }
+    },
+    [getHabitLogs],
+  );
 
   const getStreakCount = (habitType: string): number => {
     const remote = data?.streaks?.[habitType]?.current_streak ?? 0;
@@ -367,6 +406,7 @@ const JourneyMain = () => {
             logs={getHabitLogs(habit.type)}
             streakCount={getStreakCount(habit.type)}
             onLogToday={() => handleLogHabit(habit.type)}
+            onToggleDate={(dateStr) => handleToggleHabitDate(habit.type, dateStr)}
           />
         ))}
 

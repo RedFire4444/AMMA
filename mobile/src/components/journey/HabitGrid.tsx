@@ -14,6 +14,7 @@ interface HabitGridProps {
   logs: HabitLogEntry[];
   streakCount: number;
   onLogToday: () => void;
+  onToggleDate?: (dateStr: string) => void;
 }
 
 const GRID_ROWS = 5;
@@ -51,6 +52,7 @@ export const HabitGrid = ({
   logs,
   streakCount,
   onLogToday,
+  onToggleDate,
 }: HabitGridProps) => {
   const gridDays = buildGridDays(logs);
 
@@ -76,6 +78,33 @@ export const HabitGrid = ({
               const day = gridDays[index];
               if (!day) return null;
 
+              const cellContent = (
+                <Text
+                  style={[
+                    s.gridCellText,
+                    day.completed ? s.gridCellTextCompleted : s.gridCellTextEmpty,
+                  ]}
+                >
+                  {new Date(day.date).getDate()}
+                </Text>
+              );
+
+              if (onToggleDate) {
+                return (
+                  <TouchableOpacity
+                    key={day.date}
+                    style={[
+                      s.gridCell,
+                      day.completed ? s.gridCellCompleted : s.gridCellEmpty,
+                    ]}
+                    onPress={() => onToggleDate(day.date)}
+                    activeOpacity={0.7}
+                  >
+                    {cellContent}
+                  </TouchableOpacity>
+                );
+              }
+
               return (
                 <View
                   key={day.date}
@@ -84,14 +113,7 @@ export const HabitGrid = ({
                     day.completed ? s.gridCellCompleted : s.gridCellEmpty,
                   ]}
                 >
-                  <Text
-                    style={[
-                      s.gridCellText,
-                      day.completed ? s.gridCellTextCompleted : s.gridCellTextEmpty,
-                    ]}
-                  >
-                    {new Date(day.date).getDate()}
-                  </Text>
+                  {cellContent}
                 </View>
               );
             })}

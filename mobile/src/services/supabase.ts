@@ -10,8 +10,8 @@ const keychainAdapter = {
 };
 
 // Configuration
-const SUPABASE_URL = 'https://lbviqtrxwxybpbjnalrc.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxidmlxdHJ4d3h5YnBiam5hbHJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMzU3MDIsImV4cCI6MjA5MDYxMTcwMn0.4f6iHFW432RsJ4C0rF5_uaH6O1hGEf4l-Sx93D6glZk';
+const SUPABASE_URL = 'https://sachpwffbahripgsscsn.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNhY2hwd2ZmYmFocmlwZ3NzY3NuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4NDE4NDUsImV4cCI6MjA5NDQxNzg0NX0.U77nu2IO0yY5b1f9A5anwhYMWFRSLzPFXFptCc1yQ1A';
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {

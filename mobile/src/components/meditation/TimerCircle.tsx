@@ -26,6 +26,8 @@ interface TimerCircleProps {
   remaining: number;
   total: number;
   isRunning: boolean;
+  isEndless?: boolean;
+  elapsedTime?: number;
 }
 
 const formatTime = (seconds: number): string => {
@@ -38,9 +40,11 @@ export const TimerCircle = ({
   remaining,
   total,
   isRunning,
+  isEndless = false,
+  elapsedTime = 0,
 }: TimerCircleProps) => {
   const pulseAnim = useRef(new Animated.Value(1)).current;
-  const progress = total > 0 ? (total - remaining) / total : 0;
+  const progress = isEndless ? 1 : total > 0 ? (total - remaining) / total : 0;
 
   useEffect(() => {
     if (isRunning) {
@@ -100,10 +104,10 @@ export const TimerCircle = ({
         {/* Inner circle */}
         <View style={s.innerCircle}>
           <Text style={s.timerText}>
-            {formatTime(remaining)}
+            {formatTime(isEndless ? elapsedTime : remaining)}
           </Text>
           <Text style={s.statusText}>
-            {isRunning ? 'Meditating...' : remaining === total ? 'Ready' : 'Paused'}
+            {isRunning ? 'Meditating...' : (isEndless || remaining === total) ? 'Ready' : 'Paused'}
           </Text>
         </View>
       </View>

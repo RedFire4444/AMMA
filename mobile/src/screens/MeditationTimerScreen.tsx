@@ -22,11 +22,112 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { TimerCircle } from '../components/meditation/TimerCircle';
+import { BreathingGuide } from '../components/meditation/BreathingGuide';
 import { useMeditationStore } from '../store/meditationStore';
 import { meditationService } from '../services/meditation.service';
 import { JourneyStackParamList } from '../navigation/types';
+import { audioService, SoundKey } from '../services/audio.service';
 
 type TimerNav = NativeStackNavigationProp<JourneyStackParamList, 'MeditationTimer'>;
+
+interface GuidedSession {
+  id: string;
+  title: string;
+  durationSeconds: number;
+  emoji: string;
+  description: string;
+  soundKey: SoundKey;
+}
+
+const GUIDED_SESSIONS: GuidedSession[] = [
+  {
+    id: 'clarity',
+    title: 'Morning Clarity',
+    durationSeconds: 80, // Exactly 1m 20s as per the wav file length
+    emoji: '\u{1F305}',
+    description: 'Awaken your mind and find focus.',
+    soundKey: 'morning_clarity',
+  },
+  {
+    id: 'anxiety',
+    title: 'Anxiety Relief',
+    durationSeconds: 40, // Exactly 40s as per the wav file length
+    emoji: '\u{1F343}',
+    description: 'Calm your nervous system.',
+    soundKey: 'anxiety_relief',
+  },
+  {
+    id: 'sleep',
+    title: 'Deep Sleep',
+    durationSeconds: 40, // Exactly 40s as per the wav file length
+    emoji: '\u{1F30C}',
+    description: 'Drift off into restful sleep.',
+    soundKey: 'deep_sleep',
+  },
+  {
+    id: 'focus',
+    title: 'Mindful Focus',
+    durationSeconds: 80, // Temporarily matching morning clarity wav file length
+    emoji: '\u{1F9E0}',
+    description: 'Sharpen your concentration.',
+    soundKey: 'mindful_focus',
+  },
+];
+
+const formatGuidedDuration = (seconds: number): string => {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return s > 0 ? `${m}m ${s}s` : `${m} min`;
+};
+
+interface BreathingPhase {
+  phase: 'inhale' | 'hold' | 'exhale' | 'hold_out';
+  duration: number;
+}
+
+interface BreathingPattern {
+  id: string;
+  title: string;
+  emoji: string;
+  description: string;
+  sequence: BreathingPhase[];
+}
+
+const BREATHING_PATTERNS: BreathingPattern[] = [
+  {
+    id: 'box',
+    title: 'Box Breathing',
+    emoji: '\u{1F4E6}',
+    description: 'Equal 4s inhale, hold, exhale, hold ratios for deep focus.',
+    sequence: [
+      { phase: 'inhale', duration: 4 },
+      { phase: 'hold', duration: 4 },
+      { phase: 'exhale', duration: 4 },
+      { phase: 'hold_out', duration: 4 },
+    ],
+  },
+  {
+    id: 'relax',
+    title: '4-7-8 Relax',
+    emoji: '\u{1F343}',
+    description: 'A natural tranquilizer that deeply settles the nervous system.',
+    sequence: [
+      { phase: 'inhale', duration: 4 },
+      { phase: 'hold', duration: 7 },
+      { phase: 'exhale', duration: 8 },
+    ],
+  },
+  {
+    id: 'equal',
+    title: 'Equal Balance',
+    emoji: '\u{2616}',
+    description: 'Simple equal 4s inhale and exhale breaths to center yourself.',
+    sequence: [
+      { phase: 'inhale', duration: 4 },
+      { phase: 'exhale', duration: 4 },
+    ],
+  },
+];
 
 const DURATION_PRESETS = [3, 5, 10, 15, 20, 30] as const;
 
@@ -49,11 +150,33 @@ const SESSION_TYPES: Array<{ key: SessionType; label: string }> = [
 
 // Animated bars that pulse while a sound is selected \u2014 visual confirmation that
 // playback is active. Actual audio playback requires a configured audio CDN.
-const SoundWaveIndicator = ({ soundLabel }: { soundLabel: string }) => {
+const SoundWaveIndicator = ({
+  soundLabel,
+  isPaused,
+  onToggle,
+}: {
+  soundLabel: string;
+  isPaused: boolean;
+  onToggle: () => void;
+}) => {
   const bars = useRef([0, 0, 0, 0].map(() => new Animated.Value(0.3))).current;
+  const loopsRef = useRef<Animated.CompositeAnimation[]>([]);
 
   useEffect(() => {
-    const loops = bars.map((bar, i) => {
+    if (isPaused) {
+      loopsRef.current.forEach((l) => l.stop());
+      // Reset bars to resting state when paused
+      bars.forEach((bar) =>
+        Animated.timing(bar, {
+          toValue: 0.3,
+          duration: 300,
+          useNativeDriver: false,
+        }).start()
+      );
+      return;
+    }
+
+    loopsRef.current = bars.map((bar, i) => {
       const loop = Animated.loop(
         Animated.sequence([
           Animated.timing(bar, {
@@ -68,16 +191,20 @@ const SoundWaveIndicator = ({ soundLabel }: { soundLabel: string }) => {
             easing: Easing.inOut(Easing.sin),
             useNativeDriver: false,
           }),
-        ]),
+        ])
       );
       loop.start();
       return loop;
     });
-    return () => loops.forEach((l) => l.stop());
-  }, [bars]);
+    return () => loopsRef.current.forEach((l) => l.stop());
+  }, [bars, isPaused]);
 
   return (
-    <View style={waveStyles.wrap}>
+    <TouchableOpacity
+      style={waveStyles.wrap}
+      onPress={onToggle}
+      activeOpacity={0.8}
+    >
       <View style={waveStyles.barsRow}>
         {bars.map((bar, i) => (
           <Animated.View
@@ -90,13 +217,16 @@ const SoundWaveIndicator = ({ soundLabel }: { soundLabel: string }) => {
                   inputRange: [0.3, 1],
                   outputRange: [0.5, 1],
                 }),
+                backgroundColor: isPaused ? 'rgba(255,255,255,0.4)' : '#52B788',
               },
             ]}
           />
         ))}
       </View>
-      <Text style={waveStyles.label}>Now playing: {soundLabel}</Text>
-    </View>
+      <Text style={waveStyles.label}>
+        {isPaused ? `Paused: ${soundLabel}` : `Now playing: ${soundLabel}`}
+      </Text>
+    </TouchableOpacity>
   );
 };
 
@@ -137,13 +267,25 @@ const MeditationTimerScreen = () => {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const isMountedRef = useRef(true);
   const [showCompletion, setShowCompletion] = useState(false);
+  const [isPreviewPaused, setIsPreviewPaused] = useState(false);
+  const [selectedGuidedId, setSelectedGuidedId] = useState<string>('clarity');
+  const [selectedBreathingPatternId, setSelectedBreathingPatternId] = useState<string>('box');
 
   useEffect(() => {
     isMountedRef.current = true;
+
+    // Stop audio immediately if screen loses focus/user navigates away
+    const unsubscribe = navigation.addListener('blur', () => {
+      audioService.stop();
+    });
+
     return () => {
       isMountedRef.current = false;
+      unsubscribe();
+      // Always stop audio when screen unmounts
+      audioService.stop();
     };
-  }, []);
+  }, [navigation]);
 
   const {
     duration,
@@ -162,9 +304,76 @@ const MeditationTimerScreen = () => {
     stop,
     tick,
     reset,
+    isEndless,
+    elapsedTime,
+    intervalChimeEnabled,
+    setIntervalChime,
   } = useMeditationStore();
 
-  const selectedMinutes = duration / 60;
+  const selectedMinutes = isEndless ? '\u221E' : duration / 60;
+
+  const handleSoundSelect = useCallback(
+    (key: SoundOption) => {
+      setSound(key);
+      setIsPreviewPaused(false);
+    },
+    [setSound]
+  );
+
+  const getActiveSoundKey = useCallback((): SoundKey | null => {
+    if (sessionType === 'guided') {
+      const activeSession = GUIDED_SESSIONS.find((s) => s.id === selectedGuidedId);
+      return activeSession ? activeSession.soundKey : null;
+    }
+    return selectedSound ? (selectedSound as SoundKey) : null;
+  }, [sessionType, selectedGuidedId, selectedSound]);
+
+  useEffect(() => {
+    if (sessionType === 'guided') {
+      const activeSession = GUIDED_SESSIONS.find((s) => s.id === selectedGuidedId);
+      if (activeSession) {
+        setDuration(activeSession.durationSeconds / 60);
+      }
+    }
+  }, [sessionType, selectedGuidedId, setDuration]);
+
+  useEffect(() => {
+    if (sessionType === 'breathing') {
+      setDuration(2);
+    }
+  }, [sessionType, setDuration]);
+
+  // -- Audio: play sound immediately when selected, pause if preview paused --
+  useEffect(() => {
+    // We do NOT want to preview guided voice tracks beforehand
+    if (sessionType === 'guided') {
+      audioService.stop();
+      return;
+    }
+
+    const activeKey = getActiveSoundKey();
+    if (isPreviewPaused) {
+      audioService.pause();
+    } else if (showCompletion) {
+      audioService.stop();
+    } else if (activeKey) {
+      audioService.play(activeKey);
+    }
+  }, [getActiveSoundKey, showCompletion, isPreviewPaused, sessionType]);
+
+  // -- Audio: handle guided mode pause/resume strictly tied to the timer state --
+  useEffect(() => {
+    if (sessionType === 'guided' || sessionType === 'breathing') {
+      if (isPaused) {
+        audioService.pause();
+      } else if (isRunning) {
+        const activeKey = getActiveSoundKey();
+        if (activeKey) {
+          audioService.play(activeKey);
+        }
+      }
+    }
+  }, [sessionType, isRunning, isPaused, getActiveSoundKey]);
 
   // Countdown interval
   useEffect(() => {
@@ -186,16 +395,30 @@ const MeditationTimerScreen = () => {
     };
   }, [isRunning, tick]);
 
+  // Trigger interval chime every 5 minutes
+  useEffect(() => {
+    if (isRunning && intervalChimeEnabled && elapsedTime > 0 && elapsedTime % 300 === 0) {
+      audioService.playChime();
+    }
+  }, [isRunning, elapsedTime, intervalChimeEnabled]);
+
   // Detect completion
   useEffect(() => {
-    if (remaining === 0 && startedAt && !isRunning && !isPaused) {
+    if (!isEndless && remaining === 0 && startedAt && !isRunning && !isPaused) {
       handleCompletion();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- handleCompletion is defined below and stable via useCallback
-  }, [remaining, startedAt, isRunning, isPaused]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- handleCompletion is defined below and stable via useCallback
+  }, [remaining, startedAt, isRunning, isPaused, isEndless]);
 
   const handleCompletion = useCallback(async () => {
     if (!startedAt) return;
+
+    // Stop ambient sound on completion
+    audioService.stop();
+    // Play completion chime
+    if (intervalChimeEnabled) {
+      audioService.playChime();
+    }
 
     if (isMountedRef.current) setShowCompletion(true);
 
@@ -221,6 +444,15 @@ const MeditationTimerScreen = () => {
     navigation.goBack();
   }, [reset, navigation]);
 
+  const handleStart = useCallback(() => {
+    start();
+    setIsPreviewPaused(false);
+    const activeKey = getActiveSoundKey();
+    if (activeKey) {
+      audioService.play(activeKey, true); // Force replay from start
+    }
+  }, [start, getActiveSoundKey]);
+
   const handleStop = useCallback(() => {
     Alert.alert(
       'End Session?',
@@ -232,11 +464,18 @@ const MeditationTimerScreen = () => {
           style: 'destructive',
           onPress: () => {
             stop();
+            setIsPreviewPaused(false);
+            const activeKey = getActiveSoundKey();
+            if (activeKey && sessionType !== 'guided') {
+              audioService.play(activeKey, true); // Restart preview from start on setup screen
+            } else {
+              audioService.stop(); // Strictly stop for guided mode
+            }
           },
         },
       ],
     );
-  }, [stop]);
+  }, [stop, getActiveSoundKey, sessionType]);
 
   const isActive = isRunning || isPaused;
 
@@ -294,17 +533,30 @@ const MeditationTimerScreen = () => {
         scrollEnabled={!isActive}
         contentContainerStyle={s.scrollContent}
       >
-        {/* Timer circle */}
+        {/* Timer circle or Breathing guide */}
         <View style={s.timerWrap}>
-          <TimerCircle
-            remaining={remaining}
-            total={duration}
-            isRunning={isRunning}
-          />
+          {sessionType === 'breathing' ? (
+            <BreathingGuide
+              isRunning={isRunning}
+              isPaused={isPaused}
+              pattern={
+                BREATHING_PATTERNS.find((p) => p.id === selectedBreathingPatternId) ||
+                BREATHING_PATTERNS[0]
+              }
+            />
+          ) : (
+            <TimerCircle
+              remaining={remaining}
+              total={duration}
+              isRunning={isRunning}
+              isEndless={isEndless}
+              elapsedTime={elapsedTime}
+            />
+          )}
         </View>
 
         {/* Duration presets */}
-        {!isActive && (
+        {!isActive && sessionType === 'free' && (
           <View style={s.durationSection}>
             <Text style={s.sectionLabel}>
               Duration (minutes)
@@ -334,12 +586,67 @@ const MeditationTimerScreen = () => {
                   </Text>
                 </TouchableOpacity>
               ))}
+
+              {/* Endless Preset */}
+              <TouchableOpacity
+                style={[
+                  s.durationPreset,
+                  isEndless ? s.durationPresetActive : s.durationPresetInactive,
+                ]}
+                onPress={() => setDuration(0)}
+                activeOpacity={0.7}
+              >
+                <Text
+                  style={[
+                    s.durationPresetText,
+                    isEndless ? s.durationPresetTextActive : s.durationPresetTextInactive,
+                  ]}
+                >
+                  {'\u221E'}
+                </Text>
+              </TouchableOpacity>
+
+            </View>
+          </View>
+        )}
+
+        {/* Breathing Duration presets */}
+        {!isActive && sessionType === 'breathing' && (
+          <View style={s.durationSection}>
+            <Text style={s.sectionLabel}>
+              Breathing Duration (minutes)
+            </Text>
+            <View style={s.durationRow}>
+              {[2, 5, 10].map((mins) => (
+                <TouchableOpacity
+                  key={mins}
+                  style={[
+                    s.durationPreset,
+                    selectedMinutes === mins
+                      ? s.durationPresetActive
+                      : s.durationPresetInactive,
+                  ]}
+                  onPress={() => setDuration(mins)}
+                  activeOpacity={0.7}
+                >
+                  <Text
+                    style={[
+                      s.durationPresetText,
+                      selectedMinutes === mins
+                        ? s.durationPresetTextActive
+                        : s.durationPresetTextInactive,
+                    ]}
+                  >
+                    {mins}
+                  </Text>
+                </TouchableOpacity>
+              ))}
             </View>
           </View>
         )}
 
         {/* Ambient sound picker */}
-        {!isActive && (
+        {!isActive && sessionType !== 'guided' && (
           <View style={s.soundSection}>
             <Text style={s.sectionLabel}>
               Ambient Sound
@@ -358,7 +665,7 @@ const MeditationTimerScreen = () => {
                       ? s.soundOptionActive
                       : s.soundOptionInactive,
                   ]}
-                  onPress={() => setSound(opt.key)}
+                  onPress={() => handleSoundSelect(opt.key)}
                   activeOpacity={0.7}
                 >
                   <Text style={s.soundOptionIcon}>{opt.icon}</Text>
@@ -380,8 +687,121 @@ const MeditationTimerScreen = () => {
                 soundLabel={
                   SOUND_OPTIONS.find((o) => o.key === selectedSound)?.label || ''
                 }
+                isPaused={isPreviewPaused || isPaused}
+                onToggle={() => {
+                  if (!isActive) {
+                    setIsPreviewPaused(!isPreviewPaused);
+                  }
+                }}
               />
             )}
+
+            {/* Chime Toggle */}
+            <TouchableOpacity
+              style={s.chimeToggleWrap}
+              onPress={() => setIntervalChime(!intervalChimeEnabled)}
+              activeOpacity={0.7}
+            >
+              <Text style={s.chimeToggleIcon}>{intervalChimeEnabled ? '\u{1F514}' : '\u{1F515}'}</Text>
+              <Text style={s.chimeToggleText}>
+                {intervalChimeEnabled ? 'Interval Chimes: ON' : 'Interval Chimes: OFF'}
+              </Text>
+            </TouchableOpacity>
+
+          </View>
+        )}
+
+        {/* Guided Sessions selector */}
+        {!isActive && sessionType === 'guided' && (
+          <View style={s.guidedSection}>
+            <Text style={s.sectionLabel}>
+              Choose a Guided Session
+            </Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={s.horizontalListPadding}
+            >
+              {GUIDED_SESSIONS.map((session) => (
+                <TouchableOpacity
+                  key={session.id}
+                  style={[
+                    s.guidedCard,
+                    selectedGuidedId === session.id
+                      ? s.guidedCardActive
+                      : s.guidedCardInactive,
+                  ]}
+                  onPress={() => setSelectedGuidedId(session.id)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={s.guidedCardEmoji}>{session.emoji}</Text>
+                  <View>
+                    <Text
+                      style={[
+                        s.guidedCardTitle,
+                        selectedGuidedId === session.id
+                          ? s.guidedCardTitleActive
+                          : s.guidedCardTitleInactive,
+                      ]}
+                    >
+                      {session.title}
+                    </Text>
+                    <Text style={s.guidedCardDuration}>
+                      {formatGuidedDuration(session.durationSeconds)}
+                    </Text>
+                    <Text style={s.guidedCardDescription}>
+                      {session.description}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+
+          </View>
+        )}
+
+        {/* Breathing Patterns selector */}
+        {!isActive && sessionType === 'breathing' && (
+          <View style={s.guidedSection}>
+            <Text style={s.sectionLabel}>
+              Choose a Breathing Pattern
+            </Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={s.horizontalListPadding}
+            >
+              {BREATHING_PATTERNS.map((pattern) => (
+                <TouchableOpacity
+                  key={pattern.id}
+                  style={[
+                    s.guidedCard,
+                    selectedBreathingPatternId === pattern.id
+                      ? s.guidedCardActive
+                      : s.guidedCardInactive,
+                  ]}
+                  onPress={() => setSelectedBreathingPatternId(pattern.id)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={s.guidedCardEmoji}>{pattern.emoji}</Text>
+                  <View>
+                    <Text
+                      style={[
+                        s.guidedCardTitle,
+                        selectedBreathingPatternId === pattern.id
+                          ? s.guidedCardTitleActive
+                          : s.guidedCardTitleInactive,
+                      ]}
+                    >
+                      {pattern.title}
+                    </Text>
+                    <Text style={s.guidedCardDescription}>
+                      {pattern.description}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
           </View>
         )}
 
@@ -423,7 +843,7 @@ const MeditationTimerScreen = () => {
           {!isActive ? (
             <TouchableOpacity
               style={s.startButton}
-              onPress={start}
+              onPress={handleStart}
               activeOpacity={0.8}
             >
               <Text style={s.startButtonText}>{'\u25B6'}</Text>
@@ -439,7 +859,7 @@ const MeditationTimerScreen = () => {
                 <Text style={s.stopButtonText}>{'\u25A0'}</Text>
               </TouchableOpacity>
 
-              {/* Pause/Resume */}
+              {/* Pause/Resume Timer */}
               <TouchableOpacity
                 style={s.startButton}
                 onPress={isRunning ? pause : resume}
@@ -449,6 +869,19 @@ const MeditationTimerScreen = () => {
                   {isRunning ? '\u23F8' : '\u25B6'}
                 </Text>
               </TouchableOpacity>
+
+              {/* Ambient Sound Toggle */}
+              {sessionType !== 'guided' && (
+                <TouchableOpacity
+                  style={s.ambientToggleButton}
+                  onPress={() => setIsPreviewPaused(!isPreviewPaused)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={s.ambientToggleText}>
+                    {isPreviewPaused ? '\u{1F507}' : '\u{1F50A}'}
+                  </Text>
+                </TouchableOpacity>
+              )}
             </View>
           )}
         </View>
@@ -647,6 +1080,21 @@ const s = StyleSheet.create({
     fontSize: 20,
     color: '#F87171',
   },
+  ambientToggleButton: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+    borderRadius: 28,
+    width: 56,
+    height: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 24,
+  },
+  ambientToggleText: {
+    fontSize: 20,
+    color: '#FFFFFF',
+  },
   completionWrap: {
     flex: 1,
     alignItems: 'center',
@@ -685,5 +1133,72 @@ const s = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: '700',
     fontSize: 16,
+  },
+  chimeToggleWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    alignSelf: 'center',
+    borderRadius: 999,
+  },
+  chimeToggleIcon: {
+    fontSize: 16,
+    marginRight: 8,
+  },
+  chimeToggleText: {
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  guidedSection: {
+    marginBottom: 24,
+    width: '100%',
+  },
+  guidedCard: {
+    width: 160,
+    padding: 16,
+    borderRadius: 16,
+    marginRight: 16,
+    borderWidth: 1.5,
+    justifyContent: 'space-between',
+    minHeight: 180,
+  },
+  guidedCardActive: {
+    backgroundColor: 'rgba(64,145,108,0.2)',
+    borderColor: '#40916C',
+  },
+  guidedCardInactive: {
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  guidedCardEmoji: {
+    fontSize: 28,
+    marginBottom: 8,
+  },
+  guidedCardTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  guidedCardTitleActive: {
+    color: '#FFFFFF',
+  },
+  guidedCardTitleInactive: {
+    color: 'rgba(255,255,255,0.85)',
+  },
+  guidedCardDuration: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#40916C',
+    marginBottom: 6,
+  },
+  guidedCardDescription: {
+    fontSize: 11,
+    color: 'rgba(255,255,255,0.5)',
+    lineHeight: 14,
   },
 });
