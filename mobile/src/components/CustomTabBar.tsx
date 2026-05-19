@@ -1,13 +1,21 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  ImageSourcePropType,
+} from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const TAB_ICONS: Record<string, string> = {
-  Journey: '\u{1F4D6}',
-  Courses: '\u{25B6}',
-  Home: '\u{1F3E0}',
-  Directory: '\u{25A6}',
-  Profile: '\u{1F464}',
+const TAB_ICONS: Record<string, ImageSourcePropType> = {
+  Journey: require('../assets/icons/my-journey-display.png'),
+  Courses: require('../assets/icons/courses-display.png'),
+  Home: require('../assets/icons/home-display.png'),
+  Directory: require('../assets/icons/directory-display.png'),
+  Profile: require('../assets/icons/profile-display.png'),
 };
 
 export const CustomTabBar = ({
@@ -15,8 +23,10 @@ export const CustomTabBar = ({
   descriptors,
   navigation,
 }: BottomTabBarProps) => {
+  const insets = useSafeAreaInsets();
+
   return (
-    <View style={s.container}>
+    <View style={[s.container, { bottom: Math.max(insets.bottom, 10) }]}>
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
         const label =
@@ -28,7 +38,7 @@ export const CustomTabBar = ({
 
         const isFocused = state.index === index;
         const isCenter = route.name === 'Home';
-        const icon = TAB_ICONS[route.name] || '\u{2B55}';
+        const icon = TAB_ICONS[route.name] || TAB_ICONS.Home;
 
         const onPress = () => {
           const event = navigation.emit({
@@ -59,14 +69,16 @@ export const CustomTabBar = ({
                   isFocused ? s.centerIconFocused : s.centerIconUnfocused,
                 ]}
               >
-                <Text style={s.centerIconText}>{icon}</Text>
+                <Image source={icon} style={s.centerIconImage} />
               </View>
             ) : (
-              <Text
-                style={[s.iconText, isFocused ? s.iconFocused : s.iconUnfocused]}
-              >
-                {icon}
-              </Text>
+              <Image
+                source={icon}
+                style={[
+                  s.iconImage,
+                  isFocused ? s.iconFocused : s.iconUnfocused,
+                ]}
+              />
             )}
             <Text
               style={[
@@ -85,55 +97,77 @@ export const CustomTabBar = ({
 
 const s = StyleSheet.create({
   container: {
+    position: 'absolute',
+    left: 12,
+    right: 12,
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    paddingBottom: 24,
-    paddingTop: 12,
-    paddingHorizontal: 8,
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
+    alignItems: 'center',
+    height: 64,
+    backgroundColor: '#FFF9F5',
+    paddingVertical: 7,
+    paddingHorizontal: 10,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: 'rgba(240, 127, 46, 0.12)',
+    shadowColor: '#7A3E1E',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.12,
+    shadowRadius: 18,
+    elevation: 14,
   },
   tabButton: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    minHeight: 50,
   },
   centerIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: -16,
+    marginTop: -28,
+    marginBottom: 1,
+    shadowColor: '#ED7624',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
+    elevation: 9,
   },
   centerIconFocused: {
-    backgroundColor: '#1B4332',
+    backgroundColor: '#ED7624',
   },
   centerIconUnfocused: {
-    backgroundColor: '#2D6A4F',
+    backgroundColor: '#FF9F59',
   },
-  centerIconText: {
-    fontSize: 20,
-    color: '#FFFFFF',
+  centerIconImage: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    resizeMode: 'contain',
   },
-  iconText: {
-    fontSize: 20,
+  iconImage: {
+    width: 28,
+    height: 28,
+    borderRadius: 8,
+    resizeMode: 'contain',
   },
   iconFocused: {
-    color: '#1B4332',
+    opacity: 1,
   },
   iconUnfocused: {
-    color: '#9CA3AF',
+    opacity: 0.55,
   },
   label: {
-    fontSize: 12,
-    marginTop: 4,
+    fontSize: 10,
+    marginTop: 2,
   },
   labelFocused: {
-    color: '#1B4332',
-    fontWeight: 'bold',
+    color: '#ED7624',
+    fontWeight: '700',
   },
   labelUnfocused: {
-    color: '#9CA3AF',
+    color: '#9F9693',
   },
 });
