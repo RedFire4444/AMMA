@@ -37,6 +37,7 @@ export const CustomTabBar = ({
               : route.name;
 
         const isFocused = state.index === index;
+        const isCenter = route.name === 'Home';
         const icon = TAB_ICONS[route.name] || TAB_ICONS.Home;
 
         const onPress = () => {
@@ -61,13 +62,25 @@ export const CustomTabBar = ({
             onPress={onPress}
             style={s.tabButton}
           >
-            <Image
-              source={icon}
-              style={[
-                s.iconImage,
-                isFocused ? s.iconFocused : s.iconUnfocused,
-              ]}
-            />
+            {isCenter ? (
+              <View style={s.centerIcon}>
+                <Image
+                  source={icon}
+                  style={[
+                    s.centerIconImage,
+                    isFocused ? s.iconFocused : s.iconUnfocused,
+                  ]}
+                />
+              </View>
+            ) : (
+              <Image
+                source={icon}
+                style={[
+                  s.iconImage,
+                  isFocused ? s.iconFocused : s.iconUnfocused,
+                ]}
+              />
+            )}
             <Text
               style={[
                 s.label,
@@ -110,6 +123,19 @@ const s = StyleSheet.create({
     minHeight: 50,
   },
 
+  centerIcon: {
+    width: 48,
+    height: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: -20,
+    marginBottom: 2,
+  },
+  centerIconImage: {
+    width: 44,
+    height: 44,
+    resizeMode: 'contain',
+  },
   iconImage: {
     width: 28,
     height: 28,
