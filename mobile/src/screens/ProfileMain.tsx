@@ -232,7 +232,7 @@ const ProfileMain = () => {
 const s = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: '#FFF5EE',
   },
   flex1: {
     flex: 1,
@@ -246,23 +246,28 @@ const s = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: colors.primary,
+    backgroundColor: '#ED7624', // Timer primary orange
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
+    elevation: 4,
+    shadowColor: '#ED7624',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
   },
   avatarInitials: {
     fontSize: 30,
     fontWeight: 'bold',
-    color: colors.white,
+    color: '#FFFFFF',
   },
   displayName: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: colors.textPrimary,
+    color: '#5C250E', // Timer text dark
   },
   levelBadge: {
-    backgroundColor: 'rgba(64, 145, 108, 0.2)',
+    backgroundColor: 'rgba(240, 127, 46, 0.15)',
     borderRadius: 24,
     paddingHorizontal: 12,
     paddingVertical: 4,
@@ -271,14 +276,14 @@ const s = StyleSheet.create({
   levelText: {
     fontSize: 12,
     fontWeight: '600',
-    color: colors.accent,
+    color: '#ED7624',
     textTransform: 'capitalize',
   },
   editProfileBtn: {
     marginTop: 8,
   },
   editProfileText: {
-    color: colors.accent,
+    color: '#ED7624',
     fontSize: 14,
     fontWeight: '600',
   },
@@ -293,10 +298,10 @@ const s = StyleSheet.create({
   },
   statCard: {
     width: '48%',
-    backgroundColor: colors.surface,
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: 'rgba(240, 127, 46, 0.12)',
     padding: 16,
     marginBottom: 12,
     alignItems: 'center',
@@ -304,25 +309,25 @@ const s = StyleSheet.create({
   statCardValue: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: colors.primary,
+    color: '#ED7624',
   },
   statCardLabel: {
     fontSize: 12,
-    color: colors.textSecondary,
+    color: '#87553E', // Timer text secondary
     marginTop: 4,
   },
   premiumCard: {
     marginHorizontal: 24,
     marginTop: 16,
     padding: 16,
-    backgroundColor: 'rgba(27, 67, 50, 0.05)',
+    backgroundColor: 'rgba(240, 127, 46, 0.05)',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(27, 67, 50, 0.2)',
+    borderColor: 'rgba(240, 127, 46, 0.12)',
   },
   premiumPlanLabel: {
     fontSize: 12,
-    color: colors.textSecondary,
+    color: '#87553E',
     textTransform: 'uppercase',
     letterSpacing: 1,
     marginBottom: 4,
@@ -330,22 +335,27 @@ const s = StyleSheet.create({
   premiumTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: colors.textPrimary,
+    color: '#5C250E',
     marginBottom: 8,
   },
   premiumDesc: {
     fontSize: 14,
-    color: colors.textSecondary,
+    color: '#87553E',
     marginBottom: 12,
   },
   premiumBtn: {
-    backgroundColor: colors.primary,
+    backgroundColor: '#ED7624',
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: 'center',
+    elevation: 3,
+    shadowColor: '#ED7624',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
   premiumBtnText: {
-    color: colors.white,
+    color: '#FFFFFF',
     fontWeight: 'bold',
   },
   settingsSection: {
@@ -359,19 +369,19 @@ const s = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: 'rgba(240, 127, 46, 0.12)',
   },
   settingsLabel: {
     fontSize: 16,
   },
   settingsLabelNormal: {
-    color: colors.textPrimary,
+    color: '#5C250E',
   },
   settingsLabelDanger: {
     color: colors.error,
   },
   settingsChevron: {
-    color: colors.textSecondary,
+    color: '#87553E',
     fontSize: 18,
   },
 });

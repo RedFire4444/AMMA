@@ -358,7 +358,7 @@ const JourneyMain = () => {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#1B4332"
+            tintColor="#ED7624"
           />
         }
       >
@@ -655,14 +655,14 @@ export default JourneyMain;
 const s = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAFAF5',
+    backgroundColor: '#FFF5EE',
   },
   horizontalListPadding: { paddingHorizontal: 24 },
   flex1: {
     flex: 1,
   },
   skeletonBlock: {
-    backgroundColor: '#E5E7EB',
+    backgroundColor: 'rgba(240, 127, 46, 0.12)',
     borderRadius: 12,
     marginHorizontal: 24,
     marginBottom: 16,
@@ -673,7 +673,7 @@ const s = StyleSheet.create({
     paddingBottom: 8,
   },
   skeletonHeaderBar: {
-    backgroundColor: '#E5E7EB',
+    backgroundColor: 'rgba(240, 127, 46, 0.12)',
     height: 32,
     width: 160,
     borderRadius: 12,
@@ -686,18 +686,18 @@ const s = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1B4332',
+    color: '#5C250E',
   },
   headerSubtitle: {
     fontSize: 14,
-    color: '#6B7280',
+    color: '#87553E',
     marginTop: 4,
   },
   meditationCta: {
     marginHorizontal: 24,
     marginTop: 12,
     marginBottom: 16,
-    backgroundColor: '#1B4332',
+    backgroundColor: '#ED7624',
     borderRadius: 12,
     paddingVertical: 16,
     paddingHorizontal: 20,
@@ -741,7 +741,7 @@ const s = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: 'rgba(240, 127, 46, 0.12)',
     marginHorizontal: 24,
     marginBottom: 16,
     padding: 16,
@@ -749,12 +749,12 @@ const s = StyleSheet.create({
   perfCardTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A1A2E',
+    color: '#5C250E',
     marginBottom: 4,
   },
   perfCardSubtitle: {
     fontSize: 12,
-    color: '#6B7280',
+    color: '#87553E',
     marginBottom: 16,
   },
   perfChartRow: {
@@ -762,7 +762,7 @@ const s = StyleSheet.create({
     alignItems: 'flex-end',
     height: 112,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: 'rgba(240, 127, 46, 0.12)',
     paddingBottom: 8,
   },
   perfBarWrap: {
@@ -771,13 +771,13 @@ const s = StyleSheet.create({
   },
   perfBar: {
     width: 24,
-    backgroundColor: '#40916C',
+    backgroundColor: '#ED7624',
     borderTopLeftRadius: 2,
     borderTopRightRadius: 2,
   },
   perfBarLabel: {
     fontSize: 12,
-    color: '#6B7280',
+    color: '#87553E',
     marginTop: 4,
   },
   rateTodayButton: {
@@ -788,7 +788,7 @@ const s = StyleSheet.create({
     marginTop: 12,
   },
   rateTodayText: {
-    color: '#1B4332',
+    color: '#5C250E',
     fontWeight: '600',
     fontSize: 14,
   },
@@ -805,19 +805,19 @@ const s = StyleSheet.create({
     fontSize: 12,
     textTransform: 'uppercase',
     letterSpacing: 2,
-    color: '#40916C',
+    color: '#ED7624',
     marginBottom: 12,
     fontWeight: '600',
   },
   affirmationQuote: {
     fontSize: 16,
-    color: '#1A1A2E',
+    color: '#5C250E',
     lineHeight: 24,
     fontStyle: 'italic',
   },
   affirmationAuthor: {
     fontSize: 14,
-    color: '#6B7280',
+    color: '#87553E',
     marginTop: 12,
   },
   visionBoardSection: {
@@ -833,17 +833,17 @@ const s = StyleSheet.create({
   visionBoardTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A1A2E',
+    color: '#5C250E',
   },
   visionBoardAdd: {
-    color: '#40916C',
+    color: '#ED7624',
     fontSize: 14,
     fontWeight: '600',
   },
   visionCard: {
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: 'rgba(240, 127, 46, 0.12)',
     borderRadius: 12,
     width: 144,
     height: 176,
@@ -864,14 +864,14 @@ const s = StyleSheet.create({
   },
   visionCardCaptionText: {
     fontSize: 12,
-    color: '#6B7280',
+    color: '#87553E',
   },
   visionBoardEmpty: {
     marginHorizontal: 24,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderStyle: 'dashed',
-    borderColor: '#E5E7EB',
+    borderColor: 'rgba(240, 127, 46, 0.12)',
     borderRadius: 12,
     paddingVertical: 32,
     alignItems: 'center',
@@ -882,7 +882,7 @@ const s = StyleSheet.create({
   },
   visionBoardEmptyText: {
     fontSize: 14,
-    color: '#6B7280',
+    color: '#87553E',
   },
   dayJourneySection: {
     marginBottom: 16,
@@ -890,7 +890,7 @@ const s = StyleSheet.create({
   dayJourneyTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A1A2E',
+    color: '#5C250E',
     paddingHorizontal: 24,
     marginBottom: 12,
   },
@@ -907,7 +907,7 @@ const s = StyleSheet.create({
   },
   dayJourneyCardPending: {
     backgroundColor: '#FFFFFF',
-    borderColor: '#E5E7EB',
+    borderColor: 'rgba(240, 127, 46, 0.12)',
   },
   dayJourneyCardIcon: {
     fontSize: 24,
@@ -916,16 +916,16 @@ const s = StyleSheet.create({
   dayJourneyCardLabel: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#1A1A2E',
+    color: '#5C250E',
     marginBottom: 2,
   },
   dayJourneyCardTime: {
     fontSize: 12,
-    color: '#6B7280',
+    color: '#87553E',
     marginBottom: 8,
   },
   dayJourneyBadgeDone: {
-    backgroundColor: '#40916C',
+    backgroundColor: '#ED7624',
     borderRadius: 999,
     paddingHorizontal: 8,
     paddingVertical: 2,
@@ -937,14 +937,14 @@ const s = StyleSheet.create({
     fontWeight: '600',
   },
   dayJourneyBadgePending: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'rgba(240, 127, 46, 0.05)',
     borderRadius: 999,
     paddingHorizontal: 8,
     paddingVertical: 2,
     alignSelf: 'flex-start',
   },
   dayJourneyBadgePendingText: {
-    color: '#6B7280',
+    color: '#87553E',
     fontSize: 12,
   },
   bottomSpacer: {
@@ -967,12 +967,12 @@ const s = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A1A2E',
+    color: '#5C250E',
     marginBottom: 4,
   },
   modalSubtitle: {
     fontSize: 13,
-    color: '#6B7280',
+    color: '#87553E',
     marginBottom: 16,
     lineHeight: 18,
   },
@@ -996,7 +996,7 @@ const s = StyleSheet.create({
   ratingChipText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1B4332',
+    color: '#5C250E',
   },
   visionPresetGrid: {
     flexDirection: 'row',
@@ -1021,17 +1021,17 @@ const s = StyleSheet.create({
   },
   visionPresetCaption: {
     fontSize: 11,
-    color: '#1B4332',
+    color: '#5C250E',
     fontWeight: '600',
   },
   modalCancel: {
     paddingVertical: 10,
     alignItems: 'center',
     borderRadius: 8,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'rgba(240, 127, 46, 0.05)',
   },
   modalCancelText: {
-    color: '#6B7280',
+    color: '#87553E',
     fontWeight: '600',
     fontSize: 14,
   },

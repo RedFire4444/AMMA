@@ -349,7 +349,7 @@ const CoursesMain = () => {
       {/* Courses List */}
       {loading && courses.length === 0 ? (
         <View style={s.loadingWrap}>
-          <ActivityIndicator size="large" color={colors.primary} />
+          <ActivityIndicator size="large" color="#ED7624" />
           <Text style={s.loadingText}>Loading courses...</Text>
         </View>
       ) : (
@@ -375,7 +375,7 @@ const CoursesMain = () => {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              tintColor={colors.primary}
+              tintColor="#ED7624"
             />
           }
         />
@@ -387,7 +387,7 @@ const CoursesMain = () => {
 const s = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: '#FFF5EE', // background
   },
   titleWrap: {
     paddingHorizontal: 24,
@@ -397,11 +397,11 @@ const s = StyleSheet.create({
   pageTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: colors.primary,
+    color: '#5C250E', // text dark
   },
   pageSubtitle: {
     fontSize: 14,
-    color: colors.textSecondary,
+    color: '#87553E', // text secondary
     marginTop: 4,
   },
   searchWrap: {
@@ -411,9 +411,9 @@ const s = StyleSheet.create({
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surface,
+    backgroundColor: '#FFFFFF', // surface
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: 'rgba(240, 127, 46, 0.12)', // border
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 10,
@@ -421,16 +421,16 @@ const s = StyleSheet.create({
   searchIcon: {
     fontSize: 16,
     marginRight: 8,
-    color: colors.textSecondary,
+    color: '#87553E', // text secondary
   },
   searchInput: {
     flex: 1,
     fontSize: 14,
-    color: colors.textPrimary,
+    color: '#5C250E', // text primary
     paddingVertical: 0,
   },
   searchClear: {
-    color: colors.textSecondary,
+    color: '#87553E', // text secondary
     fontSize: 16,
   },
   filterSection: {
@@ -452,16 +452,16 @@ const s = StyleSheet.create({
     borderWidth: 1,
   },
   filterPillActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
+    backgroundColor: '#ED7624', // primary
+    borderColor: '#ED7624',
   },
   catPillActive: {
-    backgroundColor: colors.accent,
-    borderColor: colors.accent,
+    backgroundColor: '#ED7624', // accent/primary
+    borderColor: '#ED7624',
   },
   filterPillInactive: {
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
+    backgroundColor: '#FFFFFF', // surface
+    borderColor: 'rgba(240, 127, 46, 0.12)', // border
   },
   filterPillText: {
     fontSize: 14,
@@ -472,10 +472,10 @@ const s = StyleSheet.create({
     fontWeight: '500',
   },
   filterPillTextActive: {
-    color: colors.white,
+    color: '#FFFFFF', // white
   },
   filterPillTextInactive: {
-    color: colors.textSecondary,
+    color: '#87553E', // text secondary
   },
   loadingWrap: {
     flex: 1,
@@ -485,7 +485,7 @@ const s = StyleSheet.create({
   },
   loadingText: {
     fontSize: 14,
-    color: colors.textSecondary,
+    color: '#87553E',
     marginTop: 12,
   },
   emptyWrap: {
@@ -501,12 +501,12 @@ const s = StyleSheet.create({
   emptyTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: colors.textPrimary,
+    color: '#5C250E',
     marginBottom: 4,
   },
   emptyDesc: {
     fontSize: 14,
-    color: colors.textSecondary,
+    color: '#87553E',
     textAlign: 'center',
   },
   footerSpacer: {
