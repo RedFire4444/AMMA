@@ -17,11 +17,13 @@ import {
   FlatList,
   Alert,
   StyleSheet,
+  Image,
+  Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { homeService, HomeFeedData } from '../services/home.service';
 import { ErrorBanner } from '../components/shared/ErrorBanner';
-import { colors } from '../utils/styles';
+import { getDailyQuote, getRandomQuote } from '../data/ammaQuotes';
 
 const getGreetingTime = (): string => {
   const hour = new Date().getHours();
@@ -38,71 +40,41 @@ const formatMinutes = (minutes: number): string => {
 };
 
 // Fallback data shown when backend is unreachable — keeps the screen populated for demo
+interface TrendingVideo {
+  id: string;
+  title: string;
+  instructor: string;
+  duration: string;
+  views: string;
+  youtubeId: string;
+  thumbnailUrl: string;
+}
+
+const TRENDING_VIDEOS: TrendingVideo[] = [
+  { id: '1', title: '10-Minute Meditation For Beginners', instructor: 'Goodful', duration: '10:00', views: '12M', youtubeId: 'U9YKY7fdwyg', thumbnailUrl: 'https://i.ytimg.com/vi/U9YKY7fdwyg/hqdefault.jpg' },
+  { id: '2', title: '5-Minute Meditation You Can Do Anywhere', instructor: 'Goodful', duration: '5:15', views: '5.1M', youtubeId: 'inpok4MKVLM', thumbnailUrl: 'https://i.ytimg.com/vi/inpok4MKVLM/hqdefault.jpg' },
+  { id: '3', title: 'Daily Calm | 10 Minute Mindfulness Meditation', instructor: 'Calm', duration: '10:20', views: '35M', youtubeId: 'syx3a1_LeFo', thumbnailUrl: 'https://i.ytimg.com/vi/syx3a1_LeFo/hqdefault.jpg' },
+  { id: '4', title: 'Shree Hanuman Chalisa Original', instructor: 'T-Series Bhakti Sagar', duration: '9:45', views: '3.4B', youtubeId: 'AETFvQonfV8', thumbnailUrl: 'https://i.ytimg.com/vi/AETFvQonfV8/hqdefault.jpg' },
+];
+
 const FALLBACK_FEED: HomeFeedData = {
   greeting: 'Friend',
   dailyQuote: {
-    quote_text:
-      'Love is our true essence. Love has no limitations of caste, religion, race, or nationality.',
+    quote_text: getDailyQuote(),
     author: 'Amma',
     category: 'wisdom',
   },
   trendingCourses: [
-    {
-      id: 'fc-1',
-      title: 'Guided Morning Meditation',
-      instructor_name: 'Amma',
-      thumbnail_url: null,
-      estimated_duration_minutes: 15,
-      difficulty_level: 'beginner',
-      is_premium: false,
-    } as HomeFeedData['trendingCourses'][number],
-    {
-      id: 'fc-2',
-      title: 'Amritavarsham 70 Discourse',
-      instructor_name: 'Swami Amritaswarupananda',
-      thumbnail_url: null,
-      estimated_duration_minutes: 45,
-      difficulty_level: 'intermediate',
-      is_premium: false,
-    } as HomeFeedData['trendingCourses'][number],
-    {
-      id: 'fc-3',
-      title: 'Pranayama: Art of Breath',
-      instructor_name: 'Dr. Meera Iyer',
-      thumbnail_url: null,
-      estimated_duration_minutes: 20,
-      difficulty_level: 'intermediate',
-      is_premium: false,
-    } as HomeFeedData['trendingCourses'][number],
-    {
-      id: 'fc-4',
-      title: 'Deep Sleep Yoga Nidra',
-      instructor_name: 'Ananya Sharma',
-      thumbnail_url: null,
-      estimated_duration_minutes: 30,
-      difficulty_level: 'beginner',
-      is_premium: true,
-    } as HomeFeedData['trendingCourses'][number],
+    { id: 'tc-1', title: '10-Minute Meditation For Beginners', instructor_name: 'Goodful', thumbnail_url: 'https://i.ytimg.com/vi/U9YKY7fdwyg/hqdefault.jpg', estimated_duration_minutes: 10, difficulty_level: 'beginner', is_premium: false } as HomeFeedData['trendingCourses'][number],
+    { id: 'tc-2', title: 'Daily Calm | Mindfulness Meditation', instructor_name: 'Calm', thumbnail_url: 'https://i.ytimg.com/vi/syx3a1_LeFo/hqdefault.jpg', estimated_duration_minutes: 10, difficulty_level: 'beginner', is_premium: false } as HomeFeedData['trendingCourses'][number],
+    { id: 'tc-3', title: 'Shree Hanuman Chalisa', instructor_name: 'T-Series Bhakti Sagar', thumbnail_url: 'https://i.ytimg.com/vi/AETFvQonfV8/hqdefault.jpg', estimated_duration_minutes: 10, difficulty_level: 'beginner', is_premium: false } as HomeFeedData['trendingCourses'][number],
+    { id: 'tc-4', title: 'Unwavering Focus | Dandapani', instructor_name: 'TEDx Talks', thumbnail_url: 'https://i.ytimg.com/vi/4O2JK_94g3Y/hqdefault.jpg', estimated_duration_minutes: 18, difficulty_level: 'intermediate', is_premium: false } as HomeFeedData['trendingCourses'][number],
+    { id: 'tc-5', title: 'Meditation For Anxiety', instructor_name: 'Goodful', thumbnail_url: 'https://i.ytimg.com/vi/O-6f5wQXSu8/hqdefault.jpg', estimated_duration_minutes: 10, difficulty_level: 'beginner', is_premium: false } as HomeFeedData['trendingCourses'][number],
   ],
   upcomingEvents: [
-    {
-      id: 'ev-1',
-      title: 'Global Sunday Satsang & Meditation',
-      event_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
-      instructor_name: 'Swami Prakash',
-      thumbnail_url: null,
-      is_live: true,
-      category: 'satsang',
-    } as HomeFeedData['upcomingEvents'][number],
-    {
-      id: 'ev-2',
-      title: 'Full Moon Meditation Circle',
-      event_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-      instructor_name: 'Dr. Meera Iyer',
-      thumbnail_url: null,
-      is_live: false,
-      category: 'meditation',
-    } as HomeFeedData['upcomingEvents'][number],
+    { id: 'ev-0', title: 'No Live Events', event_date: new Date().toISOString(), instructor_name: '', thumbnail_url: null, is_live: false, category: 'none' } as any,
+    { id: 'ev-1', title: 'IAM-20 Course & Refresher in Person', event_date: '2026-05-31T09:00:00.000Z', instructor_name: 'Amma IAM Team', thumbnail_url: null, is_live: false, category: 'meditation', booking_url: 'https://na.amma.org/groups/north-america/iam-meditation/events/iam-20-course-refresher-person' } as any,
+    { id: 'ev-2', title: 'IAM-20 Course & 8-Day Guided Immersion', event_date: '2026-06-11T09:00:00.000Z', instructor_name: 'Amma IAM Team', thumbnail_url: null, is_live: false, category: 'meditation', booking_url: 'https://na.amma.org/groups/north-america/iam-meditation/events/iam-20-course-southern-california-iam-team' } as any,
   ],
   stats: {
     totalMinutes: 0,
@@ -147,6 +119,11 @@ const HomeMain = () => {
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
+    // Pick a fresh random Amma quote on every pull-to-refresh
+    setFeed((prev) => prev ? {
+      ...prev,
+      dailyQuote: { quote_text: getRandomQuote(), author: 'Amma', category: 'wisdom' },
+    } : prev);
     loadFeed();
   }, [loadFeed]);
 
@@ -158,12 +135,20 @@ const HomeMain = () => {
     );
   };
 
-  const handleCoursePress = (title: string) => {
-    Alert.alert('Course', `Opening "${title}"...\n\nFull course player available after backend setup.`);
+  const handleTrendingVideoPress = (item: TrendingVideo) => {
+    Linking.openURL(`https://www.youtube.com/watch?v=${item.youtubeId}`).catch(() =>
+      Alert.alert('Error', 'Unable to open video')
+    );
   };
 
-  const handleEventPress = (title: string) => {
-    Alert.alert('Event', `Opening "${title}"...\n\nEvent details available after backend setup.`);
+  const handleEventPress = (item: any) => {
+    if (item.booking_url) {
+      Linking.openURL(item.booking_url).catch((err) =>
+        Alert.alert('Error', 'Unable to open booking page')
+      );
+    } else {
+      Alert.alert('Event', `Opening "${item.title}"...\n\nEvent details available after backend setup.`);
+    }
   };
 
   return (
@@ -175,7 +160,7 @@ const HomeMain = () => {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={colors.primary}
+            tintColor="#ED7624"
           />
         }
       >
@@ -227,30 +212,39 @@ const HomeMain = () => {
               contentContainerStyle={s.horizontalListPadding}
               data={feed.upcomingEvents}
               keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={s.eventCard}
-                  onPress={() => handleEventPress(item.title)}
-                  activeOpacity={0.8}
-                >
-                  {item.is_live && (
-                    <View style={s.liveBadge}>
-                      <Text style={s.liveBadgeText}>LIVE</Text>
-                    </View>
-                  )}
-                  <Text style={s.eventTitle} numberOfLines={2}>
-                    {item.title}
-                  </Text>
-                  <Text style={s.eventDate}>
-                    {new Date(item.event_date).toLocaleDateString('en-IN', {
-                      day: 'numeric',
-                      month: 'short',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </Text>
-                </TouchableOpacity>
-              )}
+              renderItem={({ item }) => {
+                const isNoLive = item.category === 'none';
+                return (
+                  <TouchableOpacity
+                    style={[s.eventCard, isNoLive && s.eventCardMuted]}
+                    onPress={() => isNoLive ? null : handleEventPress(item)}
+                    activeOpacity={isNoLive ? 1 : 0.8}
+                  >
+                    {item.is_live ? (
+                      <View style={s.liveBadge}>
+                        <Text style={s.liveBadgeText}>LIVE</Text>
+                      </View>
+                    ) : isNoLive ? (
+                      <View style={s.liveBadgeMuted}>
+                        <Text style={s.liveBadgeMutedText}>NO LIVE</Text>
+                      </View>
+                    ) : null}
+                    <Text style={[s.eventTitle, isNoLive && s.eventTitleMuted]} numberOfLines={2}>
+                      {item.title}
+                    </Text>
+                    {!isNoLive && (
+                      <Text style={s.eventDate}>
+                        {new Date(item.event_date).toLocaleDateString('en-IN', {
+                          day: 'numeric',
+                          month: 'short',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                );
+              }}
             />
           </View>
         )}
@@ -270,32 +264,39 @@ const HomeMain = () => {
               <SkeletonCard />
               <SkeletonCard />
             </View>
-          ) : (feed?.trendingCourses?.length ?? 0) > 0 ? (
+          ) : TRENDING_VIDEOS.length > 0 ? (
             <FlatList
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={s.horizontalListPadding}
-              data={feed?.trendingCourses || []}
+              data={TRENDING_VIDEOS}
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
                 <TouchableOpacity
                   style={s.trendingCard}
-                  onPress={() => handleCoursePress(item.title)}
+                  onPress={() => handleTrendingVideoPress(item)}
                   activeOpacity={0.85}
                 >
                   <View style={s.trendingThumb}>
-                    <Text style={s.trendingThumbIcon}>{'\u{1F3AC}'}</Text>
+                    <Image
+                      source={{ uri: item.thumbnailUrl }}
+                      style={StyleSheet.absoluteFillObject}
+                      resizeMode="cover"
+                    />
                     <View style={s.durationBadge}>
-                      <Text style={s.durationBadgeText}>
-                        {formatMinutes(item.estimated_duration_minutes)}
-                      </Text>
+                      <Text style={s.durationBadgeText}>{item.duration}</Text>
+                    </View>
+                    <View style={s.playOverlay}>
+                      <Text style={s.playIcon}>{'\u{25B6}'}</Text>
                     </View>
                   </View>
                   <View style={s.trendingInfo}>
                     <Text style={s.trendingTitle} numberOfLines={2}>
                       {item.title}
                     </Text>
-                    <Text style={s.trendingInstructor}>{item.instructor_name}</Text>
+                    <Text style={s.trendingInstructor} numberOfLines={1}>
+                      {item.instructor} · {item.views}
+                    </Text>
                   </View>
                 </TouchableOpacity>
               )}
@@ -323,7 +324,7 @@ const HomeMain = () => {
 };
 
 const s = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: colors.background },
+  safeArea: { flex: 1, backgroundColor: '#FFF5EE' },
   flex1: { flex: 1 },
   statPillSpaced: { marginLeft: 12 },
   horizontalListPadding: { paddingHorizontal: 24 },
@@ -335,14 +336,14 @@ const s = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 8,
   },
-  greeting: { fontSize: 24, fontWeight: 'bold', color: colors.primary },
+  greeting: { fontSize: 24, fontWeight: 'bold', color: '#5C250E' },
   bellBtn: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: colors.surface,
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: 'rgba(240, 127, 46, 0.12)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -351,16 +352,16 @@ const s = StyleSheet.create({
   statPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surface,
+    backgroundColor: '#FFFFFF',
     borderRadius: 24,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: 'rgba(240, 127, 46, 0.12)',
   },
   statIcon: { fontSize: 14, marginRight: 4 },
-  statValue: { fontSize: 14, fontWeight: '600', color: colors.textPrimary },
-  statLabel: { fontSize: 12, color: colors.textSecondary, marginLeft: 4 },
+  statValue: { fontSize: 14, fontWeight: '600', color: '#5C250E' },
+  statLabel: { fontSize: 12, color: '#87553E', marginLeft: 4 },
   sectionWrap: { marginTop: 24 },
   sectionHeaderRow: {
     flexDirection: 'row',
@@ -372,28 +373,31 @@ const s = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: colors.textPrimary,
+    color: '#5C250E',
     paddingHorizontal: 24,
     marginBottom: 12,
   },
-  sectionTitleInline: { fontSize: 18, fontWeight: 'bold', color: colors.textPrimary },
-  seeAllText: { color: colors.accent, fontSize: 14, fontWeight: '600' },
+  sectionTitleInline: { fontSize: 18, fontWeight: 'bold', color: '#5C250E' },
+  seeAllText: { color: '#ED7624', fontSize: 14, fontWeight: '600' },
   skeletonRow: { flexDirection: 'row', paddingHorizontal: 24 },
   skeletonCard: {
-    backgroundColor: colors.gray200,
+    backgroundColor: 'rgba(240, 127, 46, 0.1)',
     borderRadius: 12,
     height: 128,
     width: 192,
     marginRight: 12,
   },
   eventCard: {
-    backgroundColor: colors.primary,
+    backgroundColor: '#ED7624',
     borderRadius: 12,
     width: 256,
     height: 144,
     marginRight: 12,
     padding: 16,
     justifyContent: 'flex-end',
+  },
+  eventCardMuted: {
+    backgroundColor: '#C4B5A8',
   },
   liveBadge: {
     position: 'absolute',
@@ -404,23 +408,35 @@ const s = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
   },
-  liveBadgeText: { color: colors.white, fontSize: 12, fontWeight: 'bold' },
-  eventTitle: { color: colors.white, fontWeight: 'bold', fontSize: 16 },
+  liveBadgeText: { color: '#FFFFFF', fontSize: 12, fontWeight: 'bold' },
+  liveBadgeMuted: {
+    position: 'absolute',
+    top: 12,
+    left: 12,
+    backgroundColor: 'rgba(0,0,0,0.25)',
+    borderRadius: 24,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  liveBadgeMutedText: { color: 'rgba(255,255,255,0.7)', fontSize: 11, fontWeight: '600' },
+  eventTitle: { color: '#FFFFFF', fontWeight: 'bold', fontSize: 16 },
+  eventTitleMuted: { color: 'rgba(255,255,255,0.6)' },
   eventDate: { color: 'rgba(255, 255, 255, 0.7)', fontSize: 12, marginTop: 4 },
   trendingCard: {
-    backgroundColor: colors.surface,
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     width: 192,
     marginRight: 12,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: 'rgba(240, 127, 46, 0.12)',
     overflow: 'hidden',
   },
   trendingThumb: {
     height: 112,
-    backgroundColor: 'rgba(45, 106, 79, 0.2)',
+    backgroundColor: 'rgba(240, 127, 46, 0.2)',
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
   },
   trendingThumbIcon: { fontSize: 30 },
   durationBadge: {
@@ -432,33 +448,47 @@ const s = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 2,
   },
-  durationBadgeText: { color: colors.white, fontSize: 12 },
+  durationBadgeText: { color: '#FFFFFF', fontSize: 12 },
+  playOverlay: {
+    position: 'absolute',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  playIcon: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    marginLeft: 2,
+  },
   trendingInfo: { padding: 12 },
-  trendingTitle: { fontSize: 14, fontWeight: '600', color: colors.textPrimary },
-  trendingInstructor: { fontSize: 12, color: colors.textSecondary, marginTop: 4 },
+  trendingTitle: { fontSize: 14, fontWeight: '600', color: '#5C250E' },
+  trendingInstructor: { fontSize: 12, color: '#87553E', marginTop: 4 },
   emptyTrendingWrap: { paddingHorizontal: 24, paddingVertical: 16, alignItems: 'center' },
-  emptyTrendingText: { fontSize: 14, color: colors.textSecondary },
+  emptyTrendingText: { fontSize: 14, color: '#87553E' },
   quoteCard: {
     marginHorizontal: 24,
     marginTop: 24,
     marginBottom: 8,
     padding: 20,
-    backgroundColor: 'rgba(27, 67, 50, 0.05)',
+    backgroundColor: 'rgba(240, 127, 46, 0.05)',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(27, 67, 50, 0.2)',
+    borderColor: 'rgba(240, 127, 46, 0.2)',
   },
   quoteLabel: {
     fontSize: 12,
     textTransform: 'uppercase',
     letterSpacing: 2,
-    color: colors.accent,
+    color: '#ED7624',
     marginBottom: 12,
     fontWeight: '600',
   },
-  quoteText: { fontSize: 16, color: colors.textPrimary, lineHeight: 24, fontStyle: 'italic' },
-  quoteAuthor: { fontSize: 14, color: colors.textSecondary, marginTop: 12 },
-  bottomSpacer: { height: 32 },
+  quoteText: { fontSize: 16, color: '#5C250E', lineHeight: 24, fontStyle: 'italic' },
+  quoteAuthor: { fontSize: 14, color: '#87553E', marginTop: 12 },
+  bottomSpacer: { height: 110 },
 });
 
 export default HomeMain;

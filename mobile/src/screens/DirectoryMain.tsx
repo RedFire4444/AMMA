@@ -16,9 +16,11 @@ import {
   TouchableOpacity,
   RefreshControl,
   StyleSheet,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MiniPlayer } from '../components/directory/MiniPlayer';
+import YoutubePlayer from 'react-native-youtube-iframe';
 
 interface ContentItem {
   id: string;
@@ -30,6 +32,8 @@ interface ContentItem {
   isPremium: boolean;
   icon: string;
   type: 'video' | 'audio';
+  youtubeId?: string;
+  thumbnailUrl?: string;
 }
 
 // Damerau-Levenshtein-ish edit distance, capped for performance on short strings
@@ -119,13 +123,19 @@ const ContentThumbnail = ({ item }: ContentThumbnailProps) => {
   const theme = getTheme(item.category);
   return (
     <View style={[s.thumb, { backgroundColor: theme.bg }]}>
-      <View style={[s.thumbDecorLarge, { backgroundColor: theme.accent }]} />
-      <View style={[s.thumbDecorSmall, { backgroundColor: theme.accent }]} />
-      <Text style={s.thumbIcon}>{item.icon}</Text>
+      {item.thumbnailUrl ? (
+        <Image source={{ uri: item.thumbnailUrl }} style={StyleSheet.absoluteFillObject} />
+      ) : (
+        <>
+          <View style={[s.thumbDecorLarge, { backgroundColor: theme.accent }]} />
+          <View style={[s.thumbDecorSmall, { backgroundColor: theme.accent }]} />
+          <Text style={s.thumbIcon}>{item.icon}</Text>
+        </>
+      )}
       <View style={s.durationBadge}>
         <Text style={s.durationText}>{item.duration}</Text>
       </View>
-      {item.type === 'video' && (
+      {item.type === 'video' && !item.thumbnailUrl && (
         <View style={s.playOverlay}>
           <Text style={s.playIcon}>{'\u{25B6}'}</Text>
         </View>
@@ -140,16 +150,18 @@ const ContentThumbnail = ({ item }: ContentThumbnailProps) => {
 };
 
 const MOCK_CONTENT: ContentItem[] = [
-  { id: '1', title: 'Sri Lalitha Sahasranamam', instructor: 'Amma', category: 'chanting', duration: '45:30', views: '120k', isPremium: false, icon: '\u{1F3B5}', type: 'audio' },
-  { id: '2', title: 'Morning Guided Meditation', instructor: "Amma's Teachings", category: 'meditation', duration: '15:00', views: '85k', isPremium: false, icon: '\u{1F9D8}', type: 'audio' },
-  { id: '3', title: 'Satsang: The Power of Infinite Love', instructor: 'Swami Amritaswarupananda', category: 'satsang', duration: '1:12:00', views: '42k', isPremium: false, icon: '\u{1F3AC}', type: 'video' },
-  { id: '4', title: 'Stories of the Divine Mother', instructor: 'Br. Ramanandamrita', category: 'talk', duration: '22:15', views: '18k', isPremium: false, icon: '\u{1F3B5}', type: 'audio' },
-  { id: '5', title: 'Bhajans for Deep Inner Peace', instructor: 'MAA Global', category: 'bhajan', duration: '30:00', views: '210k', isPremium: false, icon: '\u{1F3AC}', type: 'video' },
-  { id: '6', title: 'Om Namah Shivaya - 108 Times', instructor: 'Amma', category: 'chanting', duration: '28:45', views: '340k', isPremium: false, icon: '\u{1F3B5}', type: 'audio' },
-  { id: '7', title: 'Guided Body Scan Meditation', instructor: 'Dr. Meera Iyer', category: 'meditation', duration: '20:00', views: '56k', isPremium: true, icon: '\u{1F9D8}', type: 'audio' },
-  { id: '8', title: 'Hanuman Chalisa - Sacred Chanting', instructor: 'MAA Global', category: 'bhajan', duration: '12:30', views: '180k', isPremium: false, icon: '\u{1F3B5}', type: 'audio' },
-  { id: '9', title: 'Evening Satsang: Finding Peace Within', instructor: 'Swamiji', category: 'satsang', duration: '55:00', views: '31k', isPremium: true, icon: '\u{1F3AC}', type: 'video' },
-  { id: '10', title: 'Pranayama: Art of Breathing', instructor: 'Dr. Meera Iyer', category: 'meditation', duration: '18:00', views: '67k', isPremium: false, icon: '\u{1F9D8}', type: 'audio' },
+  { id: '1', title: '10-Minute Meditation For Beginners', instructor: 'Goodful', category: 'meditation', duration: '10:00', views: '12M', isPremium: false, icon: '\u{1F9D8}', type: 'video', youtubeId: 'U9YKY7fdwyg', thumbnailUrl: 'https://i.ytimg.com/vi/U9YKY7fdwyg/hqdefault.jpg' },
+  { id: '2', title: '5-Minute Meditation You Can Do Anywhere', instructor: 'Goodful', category: 'meditation', duration: '5:15', views: '5.1M', isPremium: false, icon: '\u{1F9D8}', type: 'video', youtubeId: 'inpok4MKVLM', thumbnailUrl: 'https://i.ytimg.com/vi/inpok4MKVLM/hqdefault.jpg' },
+  { id: '3', title: 'Daily Calm | 10 Minute Mindfulness Meditation', instructor: 'Calm', category: 'meditation', duration: '10:20', views: '35M', isPremium: false, icon: '\u{1F9D8}', type: 'video', youtubeId: 'syx3a1_LeFo', thumbnailUrl: 'https://i.ytimg.com/vi/syx3a1_LeFo/hqdefault.jpg' },
+  { id: '4', title: 'Daily Calm | 10 Minute Meditation | Be Present', instructor: 'Calm', category: 'meditation', duration: '10:30', views: '11M', isPremium: false, icon: '\u{1F9D8}', type: 'video', youtubeId: 'ZToicYcHIOU', thumbnailUrl: 'https://i.ytimg.com/vi/ZToicYcHIOU/hqdefault.jpg' },
+  { id: '5', title: 'Shree Hanuman Chalisa Original', instructor: 'T-Series Bhakti Sagar', category: 'bhajan', duration: '9:45', views: '3.4B', isPremium: false, icon: '\u{1F3AC}', type: 'video', youtubeId: 'AETFvQonfV8', thumbnailUrl: 'https://i.ytimg.com/vi/AETFvQonfV8/hqdefault.jpg' },
+  { id: '6', title: 'Unwavering Focus | Dandapani', instructor: 'TEDx Talks', category: 'satsang', duration: '18:12', views: '10M', isPremium: false, icon: '\u{1F3B5}', type: 'video', youtubeId: '4O2JK_94g3Y', thumbnailUrl: 'https://i.ytimg.com/vi/4O2JK_94g3Y/hqdefault.jpg' },
+  { id: '7', title: '10-Minute Meditation For Anxiety', instructor: 'Goodful', category: 'meditation', duration: '10:00', views: '18M', isPremium: false, icon: '\u{1F9D8}', type: 'video', youtubeId: 'O-6f5wQXSu8', thumbnailUrl: 'https://i.ytimg.com/vi/O-6f5wQXSu8/hqdefault.jpg' },
+  { id: '8', title: 'Flying: Relaxing Sleep Music', instructor: 'Soothing Relaxation', category: 'bhajan', duration: '3:05:00', views: '514M', isPremium: false, icon: '\u{1F3B5}', type: 'video', youtubeId: '1ZYbU82GVz4', thumbnailUrl: 'https://i.ytimg.com/vi/1ZYbU82GVz4/hqdefault.jpg' },
+  { id: '9', title: 'A Ten Minute Guided Meditation', instructor: 'Great Meditation', category: 'meditation', duration: '10:00', views: '1.2M', isPremium: false, icon: '\u{1F3AC}', type: 'video', youtubeId: 'ez3GgRqhNvA', thumbnailUrl: 'https://i.ytimg.com/vi/ez3GgRqhNvA/hqdefault.jpg' },
+  { id: '10', title: 'The Scientific Power of Meditation', instructor: 'AsapSCIENCE', category: 'talk', duration: '3:05', views: '14M', isPremium: false, icon: '\u{1F9D8}', type: 'video', youtubeId: 'Aw71zanwMnY', thumbnailUrl: 'https://i.ytimg.com/vi/Aw71zanwMnY/hqdefault.jpg' },
+  { id: '11', title: 'OM Chanting @417 Hz | Removes All Negative Blocks', instructor: 'Meditative Mind', category: 'chanting', duration: '3:03:00', views: '43M', isPremium: false, icon: '\u{1F3B5}', type: 'video', youtubeId: '8sYK7lm3UKg', thumbnailUrl: 'https://i.ytimg.com/vi/8sYK7lm3UKg/hqdefault.jpg' },
+  { id: '12', title: 'OM Mantra Vibrations(528Hz) - 11 Hours', instructor: 'Meditation Channel', category: 'chanting', duration: '11:00:00', views: '8M', isPremium: false, icon: '\u{1F3B5}', type: 'video', youtubeId: 'B6RFo1SbBJQ', thumbnailUrl: 'https://i.ytimg.com/vi/B6RFo1SbBJQ/hqdefault.jpg' },
 ];
 
 const DirectoryMain = () => {
@@ -159,6 +171,7 @@ const DirectoryMain = () => {
   const [currentPlaying, setCurrentPlaying] = useState<ContentItem | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const { filteredContent, suggestion } = useMemo(() => {
     const inCategory = MOCK_CONTENT.filter(
@@ -298,28 +311,48 @@ const DirectoryMain = () => {
         ]}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#ED7624" />}
         renderItem={({ item }) => (
-          <TouchableOpacity
-            style={s.card}
-            onPress={() => { setCurrentPlaying(item); setIsPlaying(true); }}
-            activeOpacity={0.7}
-          >
-            {/* Thumbnail \u2014 category-themed artwork */}
-            <ContentThumbnail item={item} />
-
-            {/* Info */}
-            <View style={s.info}>
-              <Text style={s.cardTitle} numberOfLines={2}>{item.title}</Text>
-              <Text style={s.cardInstructor} numberOfLines={1}>{item.instructor}</Text>
-              <View style={s.cardMeta}>
-                <Text style={s.viewCount}>{'\u{25B6}'} {item.views}</Text>
-                <TouchableOpacity onPress={() => toggleBookmark(item.id)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-                  <Text style={[s.bookmark, bookmarkedIds.has(item.id) && s.bookmarkActive]}>
-                    {bookmarkedIds.has(item.id) ? '\u{2605}' : '\u{2606}'}
-                  </Text>
-                </TouchableOpacity>
+          <View>
+            <TouchableOpacity
+              style={s.card}
+              onPress={() => {
+                if (item.youtubeId) {
+                  setExpandedId(expandedId === item.id ? null : item.id);
+                } else {
+                  setCurrentPlaying(item);
+                  setIsPlaying(true);
+                }
+              }}
+              activeOpacity={0.7}
+            >
+              {/* Thumbnail \u2014 category-themed artwork */}
+              <ContentThumbnail item={item} />
+  
+              {/* Info */}
+              <View style={s.info}>
+                <Text style={s.cardTitle} numberOfLines={2}>{item.title}</Text>
+                <Text style={s.cardInstructor} numberOfLines={1}>{item.instructor}</Text>
+                <View style={s.cardMeta}>
+                  <Text style={s.viewCount}>{'\u{25B6}'} {item.views}</Text>
+                  <TouchableOpacity onPress={() => toggleBookmark(item.id)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                    <Text style={[s.bookmark, bookmarkedIds.has(item.id) && s.bookmarkActive]}>
+                      {bookmarkedIds.has(item.id) ? '\u{2605}' : '\u{2606}'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
-          </TouchableOpacity>
+            </TouchableOpacity>
+
+            {/* Embedded YouTube Player */}
+            {expandedId === item.id && item.youtubeId && (
+              <View style={s.webviewContainer}>
+                <YoutubePlayer
+                  height={200}
+                  play={true}
+                  videoId={item.youtubeId}
+                />
+              </View>
+            )}
+          </View>
         )}
         ListEmptyComponent={
           <View style={s.emptyWrap}>
@@ -365,7 +398,7 @@ const s = StyleSheet.create({
   tabTextActive: { color: '#FFFFFF' },
   tabTextInactive: { color: '#87553E' },
   card: { flexDirection: 'row', backgroundColor: '#FFFFFF', borderRadius: 12, marginBottom: 12, borderWidth: 1, borderColor: 'rgba(240, 127, 46, 0.12)', overflow: 'hidden', elevation: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3 },
-  thumb: { width: 120, height: 100, backgroundColor: '#87553E', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' },
+  thumb: { width: 120, backgroundColor: '#87553E', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', alignSelf: 'stretch' },
   thumbIcon: { fontSize: 32, color: '#FFFFFF' },
   thumbDecorLarge: { position: 'absolute', width: 60, height: 60, borderRadius: 30, opacity: 0.18, top: -30, right: -30 },
   thumbDecorSmall: { position: 'absolute', width: 30, height: 30, borderRadius: 15, opacity: 0.22, bottom: -15, left: -15 },
@@ -403,6 +436,27 @@ const s = StyleSheet.create({
   emptyText: { fontSize: 14, color: '#87553E' },
   tabListPadding: { paddingHorizontal: 16 },
   contentListPadding: { paddingHorizontal: 16 },
-  contentListPaddingPlaying: { paddingBottom: 90 },
-  contentListPaddingIdle: { paddingBottom: 20 },
+  contentListPaddingPlaying: { paddingBottom: 160 },
+  contentListPaddingIdle: { paddingBottom: 110 },
+  cardExpanded: {
+    marginBottom: 0,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+  },
+  webviewContainer: {
+    height: 200,
+    marginBottom: 16,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+    overflow: 'hidden',
+    backgroundColor: '#000',
+    borderWidth: 1,
+    borderTopWidth: 0,
+    borderColor: 'rgba(240, 127, 46, 0.12)',
+  },
+  webview: {
+    flex: 1,
+  },
 });

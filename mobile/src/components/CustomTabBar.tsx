@@ -11,11 +11,11 @@ import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const TAB_ICONS: Record<string, ImageSourcePropType> = {
-  Journey: require('../assets/icons/my-journey-display.png'),
-  Courses: require('../assets/icons/courses-display.png'),
-  Home: require('../assets/icons/home-display.png'),
-  Directory: require('../assets/icons/directory-display.png'),
-  Profile: require('../assets/icons/profile-display.png'),
+  Journey: require('../assets/icons/2D MY JOURNEY.png'),
+  Courses: require('../assets/icons/2D COURSES.png'),
+  Home: require('../assets/icons/2D HOME.png'),
+  Directory: require('../assets/icons/2D DIRECTORY.png'),
+  Profile: require('../assets/icons/2D PROFILE.png'),
 };
 
 export const CustomTabBar = ({

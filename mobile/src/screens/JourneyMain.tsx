@@ -353,6 +353,7 @@ const JourneyMain = () => {
     <SafeAreaView style={s.container} edges={['top']}>
       <ScrollView
         style={s.flex1}
+        contentContainerStyle={s.scrollContent}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -374,25 +375,27 @@ const JourneyMain = () => {
 
         {loadError ? <ErrorBanner message={loadError} onRetry={loadData} /> : null}
 
-        {/* Start Meditation button */}
+        {/* Start Meditation Giant CTA */}
         <TouchableOpacity
           style={s.meditationCta}
           onPress={() => navigation.navigate('MeditationTimer')}
-          activeOpacity={0.8}
+          activeOpacity={0.85}
         >
-          <View style={s.meditationCtaLeft}>
-            <Text style={s.meditationCtaIcon}>{'\u{1F9D8}'}</Text>
-            <View>
+          <View style={s.meditationCtaContent}>
+            <View style={s.meditationCtaIconWrap}>
+              <Text style={s.meditationCtaIcon}>{'\u{1F9D8}'}</Text>
+            </View>
+            <View style={s.meditationCtaTextWrap}>
               <Text style={s.meditationCtaTitle}>
                 Start Meditation
               </Text>
               <Text style={s.meditationCtaSubtitle}>
-                Begin your daily practice
+                Find your center. Begin your daily practice now.
               </Text>
             </View>
           </View>
           <View style={s.meditationCtaPlayWrap}>
-            <Text style={s.meditationCtaPlayText}>{'\u25B6'}</Text>
+            <Text style={s.meditationCtaPlayText}>{'\u25B6'}   BEGIN</Text>
           </View>
         </TouchableOpacity>
 
@@ -661,6 +664,9 @@ const s = StyleSheet.create({
   flex1: {
     flex: 1,
   },
+  scrollContent: {
+    paddingBottom: 110,
+  },
   skeletonBlock: {
     backgroundColor: 'rgba(240, 127, 46, 0.12)',
     borderRadius: 12,
@@ -695,47 +701,64 @@ const s = StyleSheet.create({
   },
   meditationCta: {
     marginHorizontal: 24,
-    marginTop: 12,
-    marginBottom: 16,
+    marginTop: 16,
+    marginBottom: 24,
     backgroundColor: '#ED7624',
-    borderRadius: 12,
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    borderRadius: 24,
+    padding: 24,
+    shadowColor: '#ED7624',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.35,
+    shadowRadius: 20,
+    elevation: 12,
   },
-  meditationCtaLeft: {
-    flexDirection: 'row',
+  meditationCtaContent: {
     alignItems: 'center',
+    marginBottom: 24,
+  },
+  meditationCtaIconWrap: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
   },
   meditationCtaIcon: {
-    fontSize: 24,
-    marginRight: 12,
+    fontSize: 48,
+  },
+  meditationCtaTextWrap: {
+    alignItems: 'center',
   },
   meditationCtaTitle: {
     color: '#FFFFFF',
-    fontWeight: '700',
-    fontSize: 16,
+    fontWeight: '800',
+    fontSize: 26,
+    marginBottom: 8,
+    textAlign: 'center',
   },
   meditationCtaSubtitle: {
-    color: 'rgba(255,255,255,0.7)',
-    fontSize: 12,
-    marginTop: 2,
+    color: 'rgba(255,255,255,0.9)',
+    fontSize: 15,
+    textAlign: 'center',
+    lineHeight: 22,
+    paddingHorizontal: 16,
   },
   meditationCtaPlayWrap: {
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    borderRadius: 20,
-    width: 40,
-    height: 40,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 32,
+    width: '100%',
+    height: 60,
     alignItems: 'center',
     justifyContent: 'center',
+    flexDirection: 'row',
   },
   meditationCtaPlayText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    marginLeft: 2,
-    includeFontPadding: false,
+    color: '#ED7624',
+    fontSize: 20,
+    fontWeight: '800',
+    marginLeft: 8,
   },
   perfCard: {
     backgroundColor: '#FFFFFF',

@@ -145,21 +145,21 @@ const SOUND_OPTIONS: Array<{ key: SoundOption; label: string; icon?: string }> =
 ];
 
 const SOUND_ICONS: Record<SoundOption, ImageSourcePropType> = {
-  nature: require('../assets/icons/nature-display.png'),
-  rain: require('../assets/icons/rain-display.png'),
-  ocean: require('../assets/icons/ocean-display.png'),
-  birds: require('../assets/icons/birds-display.png'),
-  bowl: require('../assets/icons/bowl-display.png'),
+  nature: require('../assets/icons/2D Nature.png'),
+  rain: require('../assets/icons/2D Rain.png'),
+  ocean: require('../assets/icons/2D Ocean.png'),
+  birds: require('../assets/icons/2D Bird.png'),
+  bowl: require('../assets/icons/2D Bowl.png'),
 };
 
 const TIMER_ICONS = {
-  back: require('../assets/icons/back.png'),
-  bell: require('../assets/icons/bell-display.png'),
-  mute: require('../assets/icons/mute-display.png'),
-  pause: require('../assets/icons/pause-display.png'),
-  play: require('../assets/icons/play-display.png'),
-  sound: require('../assets/icons/sound-display.png'),
-  stop: require('../assets/icons/stop-display.png'),
+  back: require('../assets/icons/2D BACK.png'),
+  bell: require('../assets/icons/2D BELL.png'),
+  mute: require('../assets/icons/2D MUTE.png'),
+  pause: require('../assets/icons/2D PAUSE.png'),
+  play: require('../assets/icons/2D PLAY.png'),
+  sound: require('../assets/icons/2D SOUND.png'),
+  stop: require('../assets/icons/2D STOP.png'),
 };
 
 const SESSION_TYPES: Array<{ key: SessionType; label: string }> = [

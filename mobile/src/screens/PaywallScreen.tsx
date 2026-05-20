@@ -109,7 +109,11 @@ const PaywallScreen = () => {
 
   return (
     <SafeAreaView style={s.container} edges={['top']}>
-      <ScrollView style={s.flex1} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={s.flex1}
+        contentContainerStyle={s.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Header */}
         <View style={s.headerRow}>
           <TouchableOpacity
@@ -285,10 +289,13 @@ export default PaywallScreen;
 const s = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAFAF5',
+    backgroundColor: '#FFF5EE',
   },
   flex1: {
     flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 96,
   },
   headerRow: {
     flexDirection: 'row',
@@ -305,12 +312,12 @@ const s = StyleSheet.create({
     borderRadius: 20,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: 'rgba(240, 127, 46, 0.12)',
   },
   backButtonText: {
     fontSize: 18,
     lineHeight: 20,
-    color: '#1A1A2E',
+    color: '#5C250E',
     textAlign: 'center',
     includeFontPadding: false,
     marginTop: -2,
@@ -322,11 +329,11 @@ const s = StyleSheet.create({
   pageTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1B4332',
+    color: '#5C250E',
   },
   pageSubtitle: {
     fontSize: 14,
-    color: '#6B7280',
+    color: '#87553E',
     marginTop: 8,
     lineHeight: 20,
   },
@@ -336,33 +343,33 @@ const s = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: 'rgba(240, 127, 46, 0.12)',
     padding: 16,
   },
   tableHeaderRow: {
     flexDirection: 'row',
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: 'rgba(240, 127, 46, 0.12)',
   },
   tableHeaderFeature: {
     flex: 1,
     fontSize: 14,
     fontWeight: '700',
-    color: '#1A1A2E',
+    color: '#5C250E',
   },
   tableHeaderFree: {
     width: 96,
     fontSize: 12,
     fontWeight: '700',
-    color: '#6B7280',
+    color: '#87553E',
     textAlign: 'center',
   },
   tableHeaderPremium: {
     width: 96,
     fontSize: 12,
     fontWeight: '700',
-    color: '#1B4332',
+    color: '#ED7624',
     textAlign: 'center',
   },
   tableRow: {
@@ -371,24 +378,24 @@ const s = StyleSheet.create({
   },
   tableRowBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: 'rgba(240, 127, 46, 0.12)',
   },
   tableFeatureCell: {
     flex: 1,
     fontSize: 14,
-    color: '#1A1A2E',
+    color: '#5C250E',
     fontWeight: '500',
   },
   tableFreeCell: {
     width: 96,
     fontSize: 12,
-    color: '#6B7280',
+    color: '#87553E',
     textAlign: 'center',
   },
   tablePremiumCell: {
     width: 96,
     fontSize: 12,
-    color: '#1B4332',
+    color: '#ED7624',
     textAlign: 'center',
     fontWeight: '600',
   },
@@ -399,7 +406,7 @@ const s = StyleSheet.create({
   planSectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A1A2E',
+    color: '#5C250E',
     marginBottom: 12,
   },
   planCard: {
@@ -409,11 +416,11 @@ const s = StyleSheet.create({
     marginBottom: 12,
   },
   planCardSelected: {
-    borderColor: '#1B4332',
-    backgroundColor: 'rgba(27,67,50,0.05)',
+    borderColor: '#ED7624',
+    backgroundColor: 'rgba(240, 127, 46, 0.05)',
   },
   planCardUnselected: {
-    borderColor: '#E5E7EB',
+    borderColor: 'rgba(240, 127, 46, 0.12)',
     backgroundColor: '#FFFFFF',
   },
   planCardRow: {
@@ -424,11 +431,11 @@ const s = StyleSheet.create({
   planName: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A1A2E',
+    color: '#5C250E',
   },
   planBillingLabel: {
     fontSize: 14,
-    color: '#6B7280',
+    color: '#87553E',
     marginTop: 4,
   },
   planPriceWrap: {
@@ -437,17 +444,17 @@ const s = StyleSheet.create({
   planPrice: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1B4332',
+    color: '#ED7624',
   },
   planPeriod: {
     fontSize: 12,
-    color: '#6B7280',
+    color: '#87553E',
   },
   saveBadge: {
     position: 'absolute',
     top: -12,
     right: 16,
-    backgroundColor: '#40916C',
+    backgroundColor: '#ED7624',
     borderRadius: 999,
     paddingHorizontal: 12,
     paddingVertical: 4,
@@ -466,10 +473,10 @@ const s = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 8,
     alignItems: 'center',
-    backgroundColor: '#1B4332',
+    backgroundColor: '#ED7624',
   },
   subscribeButtonDisabled: {
-    backgroundColor: 'rgba(27,67,50,0.5)',
+    backgroundColor: 'rgba(237, 118, 36, 0.5)',
   },
   subscribeButtonText: {
     color: '#FFFFFF',
@@ -478,7 +485,7 @@ const s = StyleSheet.create({
   },
   subscribeDisclaimer: {
     fontSize: 12,
-    color: '#6B7280',
+    color: '#87553E',
     textAlign: 'center',
     marginTop: 12,
     lineHeight: 16,
@@ -501,7 +508,7 @@ const s = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: 'rgba(64,145,108,0.1)',
+    backgroundColor: 'rgba(240, 127, 46, 0.12)',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
@@ -512,18 +519,18 @@ const s = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1A1A2E',
+    color: '#5C250E',
     marginBottom: 8,
   },
   modalBody: {
     fontSize: 14,
-    color: '#6B7280',
+    color: '#87553E',
     textAlign: 'center',
     marginBottom: 24,
     lineHeight: 20,
   },
   modalButton: {
-    backgroundColor: '#1B4332',
+    backgroundColor: '#ED7624',
     paddingVertical: 12,
     paddingHorizontal: 32,
     borderRadius: 8,

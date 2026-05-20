@@ -93,7 +93,11 @@ const ProfileMain = () => {
 
   return (
     <SafeAreaView style={s.safeArea} edges={['top']}>
-      <ScrollView style={s.flex1} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={s.flex1}
+        contentContainerStyle={s.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Avatar + Name */}
         <View style={s.avatarSection}>
           <View style={s.avatarCircle}>
@@ -236,6 +240,9 @@ const s = StyleSheet.create({
   },
   flex1: {
     flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 96,
   },
   avatarSection: {
     alignItems: 'center',
