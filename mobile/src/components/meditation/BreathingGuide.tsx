@@ -18,6 +18,7 @@ interface BreathingGuideProps {
   isRunning: boolean;
   isPaused: boolean;
   pattern: BreathingPattern;
+  embedded?: boolean;
 }
 
 const PHASE_LABELS: Record<BreathingPhase['phase'], string> = {
@@ -28,16 +29,17 @@ const PHASE_LABELS: Record<BreathingPhase['phase'], string> = {
 };
 
 const PHASE_COLORS: Record<BreathingPhase['phase'], string> = {
-  inhale: '#40916C', // Premium Soft Green
-  hold: '#2D6A4F',   // Darker Green
-  exhale: '#52B788', // Lighter Soft Green
-  hold_out: '#1B4332', // Deep forest Green
+  inhale: '#ED7624', // Premium Vibrant Orange
+  hold: '#FF9F59',   // Soft warm glowing orange
+  exhale: '#FF8C3A', // Glowing deep orange
+  hold_out: '#E06B1F', // Rich warm orange
 };
 
 export const BreathingGuide: React.FC<BreathingGuideProps> = ({
   isRunning,
   isPaused,
   pattern,
+  embedded = false,
 }) => {
   const [phaseIndex, setPhaseIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(pattern.sequence[0].duration);
@@ -131,12 +133,12 @@ export const BreathingGuide: React.FC<BreathingGuideProps> = ({
   const activeColor = PHASE_COLORS[activePhase.phase];
 
   return (
-    <View style={styles.container}>
+    <View style={embedded ? styles.embeddedContainer : styles.container}>
       {/* Outer pulsing shadow container */}
-      <View style={styles.guideWrapper}>
+      <View style={embedded ? styles.embeddedGuideWrapper : styles.guideWrapper}>
         <Animated.View
           style={[
-            styles.breathingCircle,
+            embedded ? styles.embeddedBreathingCircle : styles.breathingCircle,
             {
               transform: [{ scale: scaleAnim }],
               backgroundColor: activeColor,
@@ -145,15 +147,15 @@ export const BreathingGuide: React.FC<BreathingGuideProps> = ({
           ]}
         >
           {/* Inner ring overlay */}
-          <View style={styles.innerRing} />
+          <View style={embedded ? styles.embeddedInnerRing : styles.innerRing} />
         </Animated.View>
 
         {/* Text indicators layer (absolutely centered over the circle) */}
         <View style={styles.textLayer}>
-          <Text style={styles.phaseLabel}>
+          <Text style={embedded ? styles.embeddedPhaseLabel : styles.phaseLabel}>
             {PHASE_LABELS[activePhase.phase]}
           </Text>
-          <Text style={styles.countdownText}>
+          <Text style={embedded ? styles.embeddedCountdownText : styles.countdownText}>
             {timeLeft}
           </Text>
         </View>
@@ -169,6 +171,12 @@ const styles = StyleSheet.create({
     height: 320,
     width: '100%',
   },
+  embeddedContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 192,
+    width: 192,
+  },
   guideWrapper: {
     position: 'relative',
     alignItems: 'center',
@@ -176,14 +184,32 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200,
   },
+  embeddedGuideWrapper: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 192,
+    height: 192,
+  },
   breathingCircle: {
     width: 120,
     height: 120,
     borderRadius: 60,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.6,
-    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.25,
+    shadowRadius: 24,
     elevation: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  embeddedBreathingCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 6,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -192,6 +218,13 @@ const styles = StyleSheet.create({
     height: 110,
     borderRadius: 55,
     borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+  },
+  embeddedInnerRing: {
+    width: 92,
+    height: 92,
+    borderRadius: 46,
+    borderWidth: 1.5,
     borderColor: 'rgba(255, 255, 255, 0.15)',
   },
   textLayer: {
@@ -207,8 +240,22 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     opacity: 0.9,
   },
+  embeddedPhaseLabel: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    letterSpacing: 1.5,
+    marginBottom: 2,
+    opacity: 0.9,
+  },
   countdownText: {
     fontSize: 36,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    includeFontPadding: false,
+  },
+  embeddedCountdownText: {
+    fontSize: 26,
     fontWeight: '800',
     color: '#FFFFFF',
     includeFontPadding: false,

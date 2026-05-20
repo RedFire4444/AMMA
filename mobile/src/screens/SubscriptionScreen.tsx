@@ -178,7 +178,7 @@ const SubscriptionScreen = () => {
     return (
       <SafeAreaView style={s.container} edges={['top']}>
         <View style={s.loadingWrap}>
-          <ActivityIndicator size="large" color="#1B4332" />
+          <ActivityIndicator size="large" color="#ED7624" />
         </View>
       </SafeAreaView>
     );
@@ -258,7 +258,7 @@ const SubscriptionScreen = () => {
           <View style={s.billingCard}>
             {paymentsLoading ? (
               <View style={s.billingEmpty}>
-                <ActivityIndicator color="#1B4332" />
+                <ActivityIndicator color="#ED7624" />
               </View>
             ) : payments.length === 0 ? (
               <View style={s.billingEmpty}>
@@ -286,7 +286,7 @@ export default SubscriptionScreen;
 const s = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAFAF5',
+    backgroundColor: '#FFF5EE',
   },
   flex1: {
     flex: 1,
@@ -311,12 +311,12 @@ const s = StyleSheet.create({
     borderRadius: 20,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: 'rgba(240, 127, 46, 0.12)',
   },
   backButtonText: {
     fontSize: 18,
     lineHeight: 20,
-    color: '#1A1A2E',
+    color: '#5C250E',
     textAlign: 'center',
     includeFontPadding: false,
     marginTop: -2,
@@ -324,7 +324,7 @@ const s = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A1A2E',
+    color: '#5C250E',
     marginLeft: 12,
   },
   planCard: {
@@ -333,12 +333,12 @@ const s = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: 'rgba(240, 127, 46, 0.12)',
     padding: 20,
   },
   planCardLabel: {
     fontSize: 12,
-    color: '#6B7280',
+    color: '#87553E',
     textTransform: 'uppercase',
     letterSpacing: 1,
     marginBottom: 12,
@@ -354,10 +354,10 @@ const s = StyleSheet.create({
     paddingVertical: 8,
   },
   planBadgeFree: {
-    backgroundColor: '#E5E7EB',
+    backgroundColor: 'rgba(240, 127, 46, 0.08)',
   },
   planBadgePremium: {
-    backgroundColor: 'rgba(27,67,50,0.1)',
+    backgroundColor: 'rgba(240, 127, 46, 0.15)',
   },
   planBadgeText: {
     fontSize: 14,
@@ -365,16 +365,16 @@ const s = StyleSheet.create({
     textTransform: 'capitalize',
   },
   planBadgeTextFree: {
-    color: '#6B7280',
+    color: '#87553E',
   },
   planBadgeTextPremium: {
-    color: '#1B4332',
+    color: '#ED7624',
   },
   expirySection: {
     marginTop: 16,
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
+    borderTopColor: 'rgba(240, 127, 46, 0.12)',
   },
   expiryRow: {
     flexDirection: 'row',
@@ -383,12 +383,12 @@ const s = StyleSheet.create({
   },
   expiryLabel: {
     fontSize: 14,
-    color: '#6B7280',
+    color: '#87553E',
   },
   expiryValue: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1A1A2E',
+    color: '#5C250E',
   },
   planActionsWrap: {
     marginTop: 16,
@@ -407,7 +407,7 @@ const s = StyleSheet.create({
     fontSize: 14,
   },
   upgradeButton: {
-    backgroundColor: '#1B4332',
+    backgroundColor: '#ED7624',
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: 'center',
@@ -425,14 +425,14 @@ const s = StyleSheet.create({
   billingSectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A1A2E',
+    color: '#5C250E',
     marginBottom: 12,
   },
   billingCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: 'rgba(240, 127, 46, 0.12)',
     paddingHorizontal: 16,
   },
   billingEmpty: {
@@ -441,7 +441,7 @@ const s = StyleSheet.create({
   },
   billingEmptyText: {
     fontSize: 14,
-    color: '#6B7280',
+    color: '#87553E',
   },
   paymentRow: {
     flexDirection: 'row',
@@ -449,7 +449,7 @@ const s = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: 'rgba(240, 127, 46, 0.12)',
   },
   paymentRowLeft: {
     flex: 1,
@@ -458,12 +458,12 @@ const s = StyleSheet.create({
   paymentPlanLabel: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#1A1A2E',
+    color: '#5C250E',
     textTransform: 'capitalize',
   },
   paymentDate: {
     fontSize: 12,
-    color: '#6B7280',
+    color: '#87553E',
     marginTop: 4,
   },
   paymentRowRight: {
@@ -472,7 +472,7 @@ const s = StyleSheet.create({
   paymentAmount: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#1A1A2E',
+    color: '#5C250E',
   },
   paymentStatusWrap: {
     marginTop: 4,
@@ -483,7 +483,7 @@ const s = StyleSheet.create({
     paddingVertical: 4,
   },
   statusBadgeSuccess: {
-    backgroundColor: 'rgba(64,145,108,0.1)',
+    backgroundColor: 'rgba(240, 127, 46, 0.12)',
   },
   statusBadgePending: {
     backgroundColor: '#FEF9C3',
@@ -497,7 +497,7 @@ const s = StyleSheet.create({
     textTransform: 'capitalize',
   },
   statusBadgeTextSuccess: {
-    color: '#40916C',
+    color: '#ED7624',
   },
   statusBadgeTextPending: {
     color: '#A16207',

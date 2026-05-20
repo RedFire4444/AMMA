@@ -8,26 +8,26 @@ interface CourseCardProps {
 }
 
 const DIFFICULTY_BG: Record<string, string> = {
-  beginner: '#DCFCE7',
-  intermediate: '#FEF9C3',
-  advanced: '#FEE2E2',
+  beginner: 'rgba(240, 127, 46, 0.08)',
+  intermediate: 'rgba(240, 127, 46, 0.15)',
+  advanced: 'rgba(240, 127, 46, 0.25)',
 };
 
 const DIFFICULTY_TEXT: Record<string, string> = {
-  beginner: '#166534',
-  intermediate: '#854D0E',
-  advanced: '#991B1B',
+  beginner: '#87553E',
+  intermediate: '#5C250E',
+  advanced: '#D94329', // Slight reddish-orange for advanced
 };
 
 // Category-driven visual theme so cards feel distinct even without real images
 const CATEGORY_THEME: Record<string, { bg: string; accent: string; icon: string }> = {
-  meditation: { bg: '#1B4332', accent: '#52B788', icon: '\u{1F9D8}' },
-  yoga:       { bg: '#7F5AF0', accent: '#B8A1FF', icon: '\u{1F9D8}\u200D\u2640\uFE0F' },
-  pranayama:  { bg: '#2D6A4F', accent: '#95D5B2', icon: '\u{1F4A8}' },
-  mindfulness:{ bg: '#264653', accent: '#2A9D8F', icon: '\u{1F9E0}' },
-  sleep:      { bg: '#1D3557', accent: '#8ECAE6', icon: '\u{1F319}' },
-  stress:     { bg: '#9D4EDD', accent: '#C77DFF', icon: '\u{1F338}' },
-  default:    { bg: '#1B4332', accent: '#40916C', icon: '\u{1F54A}' },
+  meditation: { bg: '#87553E', accent: '#5C250E', icon: '\u{1F9D8}' },
+  yoga:       { bg: '#A64B29', accent: '#D97229', icon: '\u{1F9D8}\u200D\u2640\uFE0F' },
+  pranayama:  { bg: '#5C250E', accent: '#87553E', icon: '\u{1F4A8}' },
+  mindfulness:{ bg: '#C56127', accent: '#ED7624', icon: '\u{1F9E0}' },
+  sleep:      { bg: '#3D1A0D', accent: '#5C250E', icon: '\u{1F319}' },
+  stress:     { bg: '#ED7624', accent: '#F0A16C', icon: '\u{1F338}' },
+  default:    { bg: '#87553E', accent: '#ED7624', icon: '\u{1F54A}' },
 };
 
 const getCategoryTheme = (category: string | null | undefined) =>
@@ -144,7 +144,7 @@ const s = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: 'rgba(240, 127, 46, 0.12)',
     overflow: 'hidden',
     marginBottom: 16,
     marginHorizontal: 24,
@@ -197,10 +197,10 @@ const s = StyleSheet.create({
     paddingVertical: 4,
   },
   badgePremium: {
-    backgroundColor: '#F59E0B',
+    backgroundColor: '#ED7624',
   },
   badgeFree: {
-    backgroundColor: '#16A34A',
+    backgroundColor: 'rgba(240, 127, 46, 0.6)',
   },
   badgeText: {
     color: '#FFFFFF',
@@ -241,22 +241,22 @@ const s = StyleSheet.create({
   },
   lessonCount: {
     fontSize: 12,
-    color: '#6B7280',
+    color: '#87553E',
   },
   title: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#1A1A2E',
+    color: '#5C250E',
     marginBottom: 4,
   },
   instructor: {
     fontSize: 14,
-    color: '#6B7280',
+    color: '#87553E',
     marginBottom: 8,
   },
   description: {
     fontSize: 12,
-    color: '#6B7280',
+    color: '#87553E',
     marginBottom: 8,
   },
   footer: {
@@ -270,16 +270,16 @@ const s = StyleSheet.create({
   },
   starIcon: {
     fontSize: 12,
-    color: '#F59E0B',
+    color: '#ED7624',
     marginRight: 4,
   },
   enrollText: {
     fontSize: 12,
-    color: '#6B7280',
+    color: '#87553E',
   },
   category: {
     fontSize: 12,
-    color: '#40916C',
+    color: '#ED7624',
     fontWeight: '600',
   },
 });

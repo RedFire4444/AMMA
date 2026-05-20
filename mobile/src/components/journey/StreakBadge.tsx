@@ -20,9 +20,9 @@ const s = StyleSheet.create({
   badge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFBEB',
+    backgroundColor: 'rgba(240, 127, 46, 0.1)',
     borderWidth: 1,
-    borderColor: '#FDE68A',
+    borderColor: 'rgba(240, 127, 46, 0.3)',
     borderRadius: 999,
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -34,11 +34,11 @@ const s = StyleSheet.create({
   count: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#B45309',
+    color: '#ED7624',
   },
   label: {
     fontSize: 12,
-    color: '#D97706',
+    color: '#87553E',
     marginLeft: 4,
   },
 });

@@ -92,8 +92,8 @@ const OnboardingGoal = ({ route }: Props) => {
             <Switch
               value={notificationsEnabled}
               onValueChange={setNotificationsEnabled}
-              trackColor={{ false: '#E5E7EB', true: '#2D6A4F' }}
-              thumbColor={notificationsEnabled ? '#1B4332' : '#f4f4f4'}
+              trackColor={{ false: 'rgba(240, 127, 46, 0.2)', true: '#F0A16C' }}
+              thumbColor={notificationsEnabled ? '#ED7624' : '#f4f4f4'}
             />
           </View>
         </View>
@@ -127,7 +127,7 @@ const OnboardingGoal = ({ route }: Props) => {
 const s = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: '#FFF5EE',
   },
   container: {
     flex: 1,
@@ -139,12 +139,12 @@ const s = StyleSheet.create({
     fontSize: 24,
     fontFamily: 'PlayfairDisplay',
     fontWeight: 'bold',
-    color: colors.primary,
+    color: '#5C250E',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: colors.textSecondary,
+    color: '#87553E',
     marginBottom: 32,
   },
   durationsGrid: {
@@ -162,22 +162,22 @@ const s = StyleSheet.create({
     borderWidth: 2,
   },
   durationPillSelected: {
-    borderColor: colors.primary,
-    backgroundColor: colors.primary,
+    borderColor: '#ED7624',
+    backgroundColor: '#ED7624',
   },
   durationPillUnselected: {
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    borderColor: 'rgba(240, 127, 46, 0.12)',
+    backgroundColor: '#FFFFFF',
   },
   durationValue: {
     fontSize: 18,
     fontWeight: 'bold',
   },
   durationValueSelected: {
-    color: colors.white,
+    color: '#FFFFFF',
   },
   durationValueUnselected: {
-    color: colors.textPrimary,
+    color: '#5C250E',
   },
   durationUnit: {
     fontSize: 12,
@@ -186,17 +186,17 @@ const s = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.8)',
   },
   durationUnitUnselected: {
-    color: colors.textSecondary,
+    color: '#87553E',
   },
   reminderRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: colors.surface,
+    backgroundColor: '#FFFFFF',
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: 'rgba(240, 127, 46, 0.12)',
   },
   reminderTextWrap: {
     flex: 1,
@@ -205,11 +205,11 @@ const s = StyleSheet.create({
   reminderTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.textPrimary,
+    color: '#5C250E',
   },
   reminderDesc: {
     fontSize: 14,
-    color: colors.textSecondary,
+    color: '#87553E',
     marginTop: 4,
   },
   startBtn: {
@@ -219,13 +219,13 @@ const s = StyleSheet.create({
     alignItems: 'center',
   },
   startBtnActive: {
-    backgroundColor: colors.primary,
+    backgroundColor: '#ED7624',
   },
   startBtnLoading: {
-    backgroundColor: colors.primaryLight,
+    backgroundColor: '#F07F2E',
   },
   startBtnText: {
-    color: colors.white,
+    color: '#FFFFFF',
     fontWeight: 'bold',
     fontSize: 18,
   },
@@ -239,13 +239,13 @@ const s = StyleSheet.create({
     width: 32,
     height: 8,
     borderRadius: 4,
-    backgroundColor: colors.primary,
+    backgroundColor: '#ED7624',
   },
   dotInactive: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: colors.gray300,
+    backgroundColor: 'rgba(240, 127, 46, 0.2)',
   },
 });
 

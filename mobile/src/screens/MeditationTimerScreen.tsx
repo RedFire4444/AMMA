@@ -17,6 +17,8 @@ import {
   Animated,
   Easing,
   StyleSheet,
+  Image,
+  ImageSourcePropType,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -134,13 +136,31 @@ const DURATION_PRESETS = [3, 5, 10, 15, 20, 30] as const;
 type SoundOption = 'nature' | 'rain' | 'ocean' | 'birds' | 'bowl';
 type SessionType = 'free' | 'guided' | 'breathing';
 
-const SOUND_OPTIONS: Array<{ key: SoundOption; label: string; icon: string }> = [
-  { key: 'nature', label: 'Nature', icon: '\u{1F333}' },
-  { key: 'rain', label: 'Rain', icon: '\u{1F327}' },
-  { key: 'ocean', label: 'Ocean', icon: '\u{1F30A}' },
-  { key: 'birds', label: 'Birds', icon: '\u{1F426}' },
-  { key: 'bowl', label: 'Bowl', icon: '\u{1F3B6}' },
+const SOUND_OPTIONS: Array<{ key: SoundOption; label: string; icon?: string }> = [
+  { key: 'nature', label: 'Nature', icon: '🌳' },
+  { key: 'rain', label: 'Rain', icon: '🌧️' },
+  { key: 'ocean', label: 'Ocean', icon: '🌊' },
+  { key: 'birds', label: 'Birds', icon: '🐦' },
+  { key: 'bowl', label: 'Bowl', icon: '🥣' },
 ];
+
+const SOUND_ICONS: Record<SoundOption, ImageSourcePropType> = {
+  nature: require('../assets/icons/2D Nature.png'),
+  rain: require('../assets/icons/2D Rain.png'),
+  ocean: require('../assets/icons/2D Ocean.png'),
+  birds: require('../assets/icons/2D Bird.png'),
+  bowl: require('../assets/icons/2D Bowl.png'),
+};
+
+const TIMER_ICONS = {
+  back: require('../assets/icons/2D BACK.png'),
+  bell: require('../assets/icons/2D BELL.png'),
+  mute: require('../assets/icons/2D MUTE.png'),
+  pause: require('../assets/icons/2D PAUSE.png'),
+  play: require('../assets/icons/2D PLAY.png'),
+  sound: require('../assets/icons/2D SOUND.png'),
+  stop: require('../assets/icons/2D STOP.png'),
+};
 
 const SESSION_TYPES: Array<{ key: SessionType; label: string }> = [
   { key: 'free', label: 'Free' },
@@ -217,7 +237,7 @@ const SoundWaveIndicator = ({
                   inputRange: [0.3, 1],
                   outputRange: [0.5, 1],
                 }),
-                backgroundColor: isPaused ? 'rgba(255,255,255,0.4)' : '#52B788',
+                backgroundColor: isPaused ? '#A86D53' : '#ED7624',
               },
             ]}
           />
@@ -235,12 +255,14 @@ const waveStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 8,
+    marginTop: 12,
     paddingHorizontal: 16,
-    paddingVertical: 6,
+    paddingVertical: 8,
     alignSelf: 'center',
-    backgroundColor: 'rgba(64,145,108,0.15)',
+    backgroundColor: 'rgba(240, 127, 46, 0.06)',
     borderRadius: 999,
+    borderWidth: 1,
+    borderColor: 'rgba(240, 127, 46, 0.12)',
   },
   barsRow: {
     flexDirection: 'row',
@@ -251,16 +273,64 @@ const waveStyles = StyleSheet.create({
   bar: {
     width: 3,
     height: 16,
-    backgroundColor: '#52B788',
+    backgroundColor: '#ED7624',
     borderRadius: 2,
     marginHorizontal: 1.5,
   },
   label: {
-    color: 'rgba(255,255,255,0.85)',
-    fontSize: 12,
+    color: '#C95A1E',
+    fontSize: 13,
     fontWeight: '600',
   },
 });
+
+const interpolateColor = (color1: string, color2: string, factor: number) => {
+  const r1 = parseInt(color1.substring(1, 3), 16);
+  const g1 = parseInt(color1.substring(3, 5), 16);
+  const b1 = parseInt(color1.substring(5, 7), 16);
+
+  const r2 = parseInt(color2.substring(1, 3), 16);
+  const g2 = parseInt(color2.substring(3, 5), 16);
+  const b2 = parseInt(color2.substring(5, 7), 16);
+
+  const r = Math.round(r1 + factor * (r2 - r1));
+  const g = Math.round(g1 + factor * (g2 - g1));
+  const b = Math.round(b1 + factor * (b2 - b1));
+
+  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+};
+
+const SmoothGradient = ({
+  color1,
+  color2,
+  height,
+}: {
+  color1: string;
+  color2: string;
+  height: number;
+}) => {
+  const steps = 15;
+  const stepHeight = height / steps;
+  
+  return (
+    <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, overflow: 'hidden' }}>
+      {Array.from({ length: steps }).map((_, i) => {
+        const factor = i / (steps - 1);
+        const color = interpolateColor(color1, color2, factor);
+        return (
+          <View
+            key={i}
+            style={{
+              height: stepHeight,
+              backgroundColor: color,
+              alignSelf: 'stretch',
+            }}
+          />
+        );
+      })}
+    </View>
+  );
+};
 
 const MeditationTimerScreen = () => {
   const navigation = useNavigation<TimerNav>();
@@ -436,13 +506,15 @@ const MeditationTimerScreen = () => {
       // Session logging is best-effort — never block the user.
       if (__DEV__) console.warn('[MeditationTimer] Session log failed:', err);
     }
-  }, [startedAt, duration, sessionType]);
+  }, [startedAt, duration, sessionType, intervalChimeEnabled]);
 
   const handleDismissCompletion = useCallback(() => {
     setShowCompletion(false);
     reset();
     navigation.goBack();
   }, [reset, navigation]);
+
+  const isActive = isRunning || isPaused;
 
   const handleStart = useCallback(() => {
     start();
@@ -452,6 +524,19 @@ const MeditationTimerScreen = () => {
       audioService.play(activeKey, true); // Force replay from start
     }
   }, [start, getActiveSoundKey]);
+
+  const handleTimerPress = useCallback(() => {
+    if (!isActive) {
+      handleStart();
+      return;
+    }
+
+    if (isRunning) {
+      pause();
+    } else {
+      resume();
+    }
+  }, [handleStart, isActive, isRunning, pause, resume]);
 
   const handleStop = useCallback(() => {
     Alert.alert(
@@ -477,7 +562,20 @@ const MeditationTimerScreen = () => {
     );
   }, [stop, getActiveSoundKey, sessionType]);
 
-  const isActive = isRunning || isPaused;
+  useEffect(() => {
+    const unsubscribeBeforeRemove = navigation.addListener('beforeRemove', (e) => {
+      if (!isActive) {
+        return;
+      }
+
+      e.preventDefault();
+      handleStop();
+    });
+
+    return () => {
+      unsubscribeBeforeRemove();
+    };
+  }, [navigation, isActive, handleStop]);
 
   if (showCompletion) {
     return (
@@ -513,14 +611,10 @@ const MeditationTimerScreen = () => {
         <TouchableOpacity
           style={s.headerBackButton}
           onPress={() => {
-            if (isActive) {
-              handleStop();
-            } else {
-              navigation.goBack();
-            }
+            navigation.goBack();
           }}
         >
-          <Text style={s.headerBackText}>{'\u2190'}</Text>
+          <Image source={TIMER_ICONS.back} style={s.headerBackIcon} />
         </TouchableOpacity>
         <Text style={s.headerTitle}>
           Meditation
@@ -535,24 +629,26 @@ const MeditationTimerScreen = () => {
       >
         {/* Timer circle or Breathing guide */}
         <View style={s.timerWrap}>
-          {sessionType === 'breathing' ? (
-            <BreathingGuide
-              isRunning={isRunning}
-              isPaused={isPaused}
-              pattern={
-                BREATHING_PATTERNS.find((p) => p.id === selectedBreathingPatternId) ||
-                BREATHING_PATTERNS[0]
-              }
-            />
-          ) : (
-            <TimerCircle
-              remaining={remaining}
-              total={duration}
-              isRunning={isRunning}
-              isEndless={isEndless}
-              elapsedTime={elapsedTime}
-            />
-          )}
+          <TimerCircle
+            remaining={remaining}
+            total={duration}
+            isRunning={isRunning}
+            isEndless={isEndless}
+            elapsedTime={elapsedTime}
+            onPress={handleTimerPress}
+          >
+            {sessionType === 'breathing' ? (
+              <BreathingGuide
+                isRunning={isRunning}
+                isPaused={isPaused}
+                embedded
+                pattern={
+                  BREATHING_PATTERNS.find((p) => p.id === selectedBreathingPatternId) ||
+                  BREATHING_PATTERNS[0]
+                }
+              />
+            ) : null}
+          </TimerCircle>
         </View>
 
         {/* Duration presets */}
@@ -566,7 +662,7 @@ const MeditationTimerScreen = () => {
                 <TouchableOpacity
                   key={mins}
                   style={[
-                    s.durationPreset,
+                    s.durationPresetOuter,
                     selectedMinutes === mins
                       ? s.durationPresetActive
                       : s.durationPresetInactive,
@@ -574,36 +670,42 @@ const MeditationTimerScreen = () => {
                   onPress={() => setDuration(mins)}
                   activeOpacity={0.7}
                 >
-                  <Text
-                    style={[
-                      s.durationPresetText,
-                      selectedMinutes === mins
-                        ? s.durationPresetTextActive
-                        : s.durationPresetTextInactive,
-                    ]}
-                  >
-                    {mins}
-                  </Text>
+                  <View style={s.durationPresetInner}>
+                    {selectedMinutes === mins && <SmoothGradient color1="#FF9F59" color2="#D9531E" height={56} />}
+                    <Text
+                      style={[
+                        s.durationPresetText,
+                        selectedMinutes === mins
+                          ? s.durationPresetTextActive
+                          : s.durationPresetTextInactive,
+                      ]}
+                    >
+                      {mins}
+                    </Text>
+                  </View>
                 </TouchableOpacity>
               ))}
 
               {/* Endless Preset */}
               <TouchableOpacity
                 style={[
-                  s.durationPreset,
+                  s.durationPresetOuter,
                   isEndless ? s.durationPresetActive : s.durationPresetInactive,
                 ]}
                 onPress={() => setDuration(0)}
                 activeOpacity={0.7}
               >
-                <Text
-                  style={[
-                    s.durationPresetText,
-                    isEndless ? s.durationPresetTextActive : s.durationPresetTextInactive,
-                  ]}
-                >
-                  {'\u221E'}
-                </Text>
+                <View style={s.durationPresetInner}>
+                  {isEndless && <SmoothGradient color1="#FF9F59" color2="#D9531E" height={56} />}
+                  <Text
+                    style={[
+                      s.durationPresetText,
+                      isEndless ? s.durationPresetTextActive : s.durationPresetTextInactive,
+                    ]}
+                  >
+                    {'\u221E'}
+                  </Text>
+                </View>
               </TouchableOpacity>
 
             </View>
@@ -621,7 +723,7 @@ const MeditationTimerScreen = () => {
                 <TouchableOpacity
                   key={mins}
                   style={[
-                    s.durationPreset,
+                    s.durationPresetOuter,
                     selectedMinutes === mins
                       ? s.durationPresetActive
                       : s.durationPresetInactive,
@@ -629,16 +731,19 @@ const MeditationTimerScreen = () => {
                   onPress={() => setDuration(mins)}
                   activeOpacity={0.7}
                 >
-                  <Text
-                    style={[
-                      s.durationPresetText,
-                      selectedMinutes === mins
-                        ? s.durationPresetTextActive
-                        : s.durationPresetTextInactive,
-                    ]}
-                  >
-                    {mins}
-                  </Text>
+                  <View style={s.durationPresetInner}>
+                    {selectedMinutes === mins && <SmoothGradient color1="#FF9F59" color2="#D9531E" height={56} />}
+                    <Text
+                      style={[
+                        s.durationPresetText,
+                        selectedMinutes === mins
+                          ? s.durationPresetTextActive
+                          : s.durationPresetTextInactive,
+                      ]}
+                    >
+                      {mins}
+                    </Text>
+                  </View>
                 </TouchableOpacity>
               ))}
             </View>
@@ -668,7 +773,10 @@ const MeditationTimerScreen = () => {
                   onPress={() => handleSoundSelect(opt.key)}
                   activeOpacity={0.7}
                 >
-                  <Text style={s.soundOptionIcon}>{opt.icon}</Text>
+                  <Image
+                    source={SOUND_ICONS[opt.key]}
+                    style={s.soundOptionIcon}
+                  />
                   <Text
                     style={[
                       s.soundOptionLabel,
@@ -702,7 +810,7 @@ const MeditationTimerScreen = () => {
               onPress={() => setIntervalChime(!intervalChimeEnabled)}
               activeOpacity={0.7}
             >
-              <Text style={s.chimeToggleIcon}>{intervalChimeEnabled ? '\u{1F514}' : '\u{1F515}'}</Text>
+              <Image source={TIMER_ICONS.bell} style={s.chimeToggleIcon} />
               <Text style={s.chimeToggleText}>
                 {intervalChimeEnabled ? 'Interval Chimes: ON' : 'Interval Chimes: OFF'}
               </Text>
@@ -839,16 +947,8 @@ const MeditationTimerScreen = () => {
         )}
 
         {/* Controls */}
-        <View style={s.controlsRow}>
-          {!isActive ? (
-            <TouchableOpacity
-              style={s.startButton}
-              onPress={handleStart}
-              activeOpacity={0.8}
-            >
-              <Text style={s.startButtonText}>{'\u25B6'}</Text>
-            </TouchableOpacity>
-          ) : (
+        {isActive && (
+          <View style={s.controlsRow}>
             <View style={s.activeControlsRow}>
               {/* Stop button */}
               <TouchableOpacity
@@ -856,35 +956,39 @@ const MeditationTimerScreen = () => {
                 onPress={handleStop}
                 activeOpacity={0.8}
               >
-                <Text style={s.stopButtonText}>{'\u25A0'}</Text>
+                <Image source={TIMER_ICONS.stop} style={s.controlIcon} />
               </TouchableOpacity>
 
               {/* Pause/Resume Timer */}
               <TouchableOpacity
-                style={s.startButton}
+                style={s.playPauseButton}
                 onPress={isRunning ? pause : resume}
                 activeOpacity={0.8}
               >
-                <Text style={s.startButtonText}>
-                  {isRunning ? '\u23F8' : '\u25B6'}
-                </Text>
+                <Image
+                  source={isRunning ? TIMER_ICONS.pause : TIMER_ICONS.play}
+                  style={s.controlIcon}
+                />
               </TouchableOpacity>
 
-              {/* Ambient Sound Toggle */}
-              {sessionType !== 'guided' && (
+              {/* Ambient Sound Toggle or spacer placeholder for guided sessions */}
+              {sessionType !== 'guided' ? (
                 <TouchableOpacity
                   style={s.ambientToggleButton}
                   onPress={() => setIsPreviewPaused(!isPreviewPaused)}
                   activeOpacity={0.8}
                 >
-                  <Text style={s.ambientToggleText}>
-                    {isPreviewPaused ? '\u{1F507}' : '\u{1F50A}'}
-                  </Text>
+                  <Image
+                    source={isPreviewPaused ? TIMER_ICONS.mute : TIMER_ICONS.sound}
+                    style={s.ambientToggleIcon}
+                  />
                 </TouchableOpacity>
+              ) : (
+                <View style={s.spacerButton} />
               )}
             </View>
-          )}
-        </View>
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -895,9 +999,9 @@ export default MeditationTimerScreen;
 const s = StyleSheet.create({
   darkContainer: {
     flex: 1,
-    backgroundColor: '#0B2B1F',
+    backgroundColor: '#FFF5EE',
   },
-  scrollContent: { alignItems: 'center', paddingBottom: 32 },
+  scrollContent: { alignItems: 'center', paddingBottom: 132 },
   horizontalListPadding: { paddingHorizontal: 24 },
   flex1: {
     flex: 1,
@@ -910,26 +1014,21 @@ const s = StyleSheet.create({
     paddingBottom: 8,
   },
   headerBackButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    width: 56,
+    height: 56,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
   },
-  headerBackText: {
-    fontSize: 18,
-    lineHeight: 20,
-    color: '#FFFFFF',
-    textAlign: 'center',
-    includeFontPadding: false,
-    marginTop: -2,
+  headerBackIcon: {
+    width: 52,
+    height: 52,
+    resizeMode: 'contain',
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: '#5C250E',
     flex: 1,
   },
   timerWrap: {
@@ -938,9 +1037,10 @@ const s = StyleSheet.create({
   },
   sectionLabel: {
     fontSize: 14,
-    color: 'rgba(255,255,255,0.6)',
+    color: '#87553E',
     textAlign: 'center',
     marginBottom: 12,
+    fontWeight: '600',
   },
   durationSection: {
     marginBottom: 24,
@@ -952,30 +1052,41 @@ const s = StyleSheet.create({
     flexWrap: 'wrap',
     paddingHorizontal: 24,
   },
-  durationPreset: {
+  durationPresetOuter: {
     width: 56,
     height: 56,
-    borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
     marginHorizontal: 6,
     marginBottom: 8,
   },
+  durationPresetInner: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
   durationPresetActive: {
-    backgroundColor: '#40916C',
+    backgroundColor: '#ED7624',
+    borderRadius: 28,
   },
   durationPresetInactive: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: 'rgba(240, 127, 46, 0.12)',
+    borderRadius: 28,
   },
   durationPresetText: {
     fontSize: 16,
     fontWeight: '700',
+    zIndex: 2,
+    elevation: 2,
   },
   durationPresetTextActive: {
     color: '#FFFFFF',
   },
   durationPresetTextInactive: {
-    color: 'rgba(255,255,255,0.7)',
+    color: '#87553E',
   },
   soundSection: {
     marginBottom: 24,
@@ -983,44 +1094,48 @@ const s = StyleSheet.create({
   },
   soundOption: {
     alignItems: 'center',
-    marginRight: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 12,
-    borderWidth: 1,
+    justifyContent: 'center',
+    width: 88,
+    marginRight: 18,
+    paddingVertical: 2,
   },
   soundOptionActive: {
-    backgroundColor: 'rgba(64,145,108,0.2)',
-    borderColor: '#40916C',
+    opacity: 1,
   },
   soundOptionInactive: {
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderColor: 'rgba(255,255,255,0.1)',
+    opacity: 0.8,
   },
   soundOptionIcon: {
-    fontSize: 24,
-    marginBottom: 4,
+    width: 64,
+    height: 64,
+    borderRadius: 16,
+    marginBottom: 6,
+    resizeMode: 'contain',
   },
   soundOptionLabel: {
-    fontSize: 12,
-    fontWeight: '500',
+    fontSize: 13,
+    fontWeight: '600',
+    textAlign: 'center',
   },
   soundOptionLabelActive: {
-    color: '#40916C',
+    color: '#ED7624',
+    fontWeight: '700',
   },
   soundOptionLabelInactive: {
-    color: 'rgba(255,255,255,0.6)',
+    color: '#87553E',
   },
   sessionTypeSection: {
-    marginBottom: 32,
+    marginBottom: 104,
     paddingHorizontal: 24,
     alignSelf: 'stretch',
   },
   sessionTypeRow: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: 'rgba(240, 127, 46, 0.05)',
     borderRadius: 999,
     padding: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(240, 127, 46, 0.12)',
   },
   sessionTypeOption: {
     flex: 1,
@@ -1029,7 +1144,7 @@ const s = StyleSheet.create({
     alignItems: 'center',
   },
   sessionTypeOptionActive: {
-    backgroundColor: '#40916C',
+    backgroundColor: '#ED7624',
   },
   sessionTypeText: {
     fontSize: 14,
@@ -1039,7 +1154,7 @@ const s = StyleSheet.create({
     color: '#FFFFFF',
   },
   sessionTypeTextInactive: {
-    color: 'rgba(255,255,255,0.6)',
+    color: '#87553E',
   },
   controlsRow: {
     flexDirection: 'row',
@@ -1051,49 +1166,40 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  startButton: {
-    backgroundColor: '#40916C',
-    borderRadius: 40,
-    width: 80,
-    height: 80,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  startButtonText: {
-    fontSize: 30,
-    color: '#FFFFFF',
-    marginLeft: 4,
-    includeFontPadding: false,
-  },
   stopButton: {
-    backgroundColor: 'rgba(220,38,38,0.2)',
-    borderWidth: 1,
-    borderColor: '#DC2626',
-    borderRadius: 28,
-    width: 56,
-    height: 56,
+    width: 72,
+    height: 72,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 24,
   },
-  stopButtonText: {
-    fontSize: 20,
-    color: '#F87171',
+  playPauseButton: {
+    width: 72,
+    height: 72,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 32,
   },
   ambientToggleButton: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
-    borderRadius: 28,
-    width: 56,
-    height: 56,
+    width: 72,
+    height: 72,
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 24,
   },
-  ambientToggleText: {
-    fontSize: 20,
-    color: '#FFFFFF',
+  spacerButton: {
+    width: 72,
+    height: 72,
+  },
+  controlIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    resizeMode: 'contain',
+  },
+  ambientToggleIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    resizeMode: 'contain',
   },
   completionWrap: {
     flex: 1,
@@ -1108,23 +1214,23 @@ const s = StyleSheet.create({
   completionTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: '#5C250E',
     marginBottom: 12,
   },
   completionSubtitle: {
     fontSize: 16,
-    color: 'rgba(255,255,255,0.7)',
+    color: '#87553E',
     textAlign: 'center',
     marginBottom: 8,
   },
   completionNote: {
     fontSize: 14,
-    color: 'rgba(255,255,255,0.5)',
+    color: '#A86D53',
     textAlign: 'center',
     marginBottom: 32,
   },
   doneButton: {
-    backgroundColor: '#40916C',
+    backgroundColor: '#ED7624',
     borderRadius: 8,
     paddingHorizontal: 32,
     paddingVertical: 14,
@@ -1141,16 +1247,21 @@ const s = StyleSheet.create({
     marginTop: 16,
     paddingVertical: 8,
     paddingHorizontal: 16,
-    backgroundColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: 'rgba(240, 127, 46, 0.06)',
     alignSelf: 'center',
     borderRadius: 999,
+    borderWidth: 1,
+    borderColor: 'rgba(240, 127, 46, 0.12)',
   },
   chimeToggleIcon: {
-    fontSize: 16,
+    width: 26,
+    height: 26,
+    borderRadius: 8,
     marginRight: 8,
+    resizeMode: 'contain',
   },
   chimeToggleText: {
-    color: 'rgba(255,255,255,0.8)',
+    color: '#87553E',
     fontSize: 14,
     fontWeight: '600',
   },
@@ -1168,12 +1279,12 @@ const s = StyleSheet.create({
     minHeight: 180,
   },
   guidedCardActive: {
-    backgroundColor: 'rgba(64,145,108,0.2)',
-    borderColor: '#40916C',
+    backgroundColor: 'rgba(240, 127, 46, 0.06)',
+    borderColor: '#ED7624',
   },
   guidedCardInactive: {
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: '#FFFFFF',
+    borderColor: 'rgba(240, 127, 46, 0.12)',
   },
   guidedCardEmoji: {
     fontSize: 28,
@@ -1185,20 +1296,20 @@ const s = StyleSheet.create({
     marginBottom: 4,
   },
   guidedCardTitleActive: {
-    color: '#FFFFFF',
+    color: '#ED7624',
   },
   guidedCardTitleInactive: {
-    color: 'rgba(255,255,255,0.85)',
+    color: '#5C250E',
   },
   guidedCardDuration: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#40916C',
+    color: '#ED7624',
     marginBottom: 6,
   },
   guidedCardDescription: {
     fontSize: 11,
-    color: 'rgba(255,255,255,0.5)',
+    color: '#A86D53',
     lineHeight: 14,
   },
 });

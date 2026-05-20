@@ -174,16 +174,16 @@ export const MiniPlayer = ({
 
 const s = StyleSheet.create({
   container: {
-    backgroundColor: '#1B4332',
+    backgroundColor: '#FFF5EE',
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 10,
     borderTopWidth: 1,
-    borderTopColor: '#2D6A4F',
+    borderTopColor: 'rgba(240, 127, 46, 0.12)',
     elevation: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.1,
     shadowRadius: 6,
   },
   topRow: {
@@ -194,26 +194,26 @@ const s = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: 'rgba(240, 127, 46, 0.15)',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
   },
   thumbnailIcon: {
     fontSize: 20,
-    color: '#FFFFFF',
+    color: '#ED7624',
   },
   info: {
     flex: 1,
     marginRight: 12,
   },
   title: {
-    color: '#FFFFFF',
+    color: '#5C250E',
     fontSize: 14,
     fontWeight: '700',
   },
   artist: {
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: '#87553E',
     fontSize: 12,
     marginTop: 2,
   },
@@ -221,14 +221,14 @@ const s = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#40916C',
+    backgroundColor: '#ED7624',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 8,
     elevation: 4,
-    shadowColor: '#40916C',
+    shadowColor: '#ED7624',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.4,
+    shadowOpacity: 0.3,
     shadowRadius: 4,
   },
   playIcon: {
@@ -243,7 +243,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   closeIcon: {
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: '#87553E',
     fontSize: 18,
   },
   seekRow: {
@@ -252,7 +252,7 @@ const s = StyleSheet.create({
     marginTop: 10,
   },
   timeText: {
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: '#87553E',
     fontSize: 11,
     fontWeight: '600',
     width: 38,
@@ -266,13 +266,13 @@ const s = StyleSheet.create({
   },
   track: {
     height: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(240, 127, 46, 0.2)',
     borderRadius: 2,
     position: 'relative',
   },
   trackFill: {
     height: '100%',
-    backgroundColor: '#40916C',
+    backgroundColor: '#ED7624',
     borderRadius: 2,
   },
   thumb: {
@@ -283,11 +283,11 @@ const s = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: '#FFFFFF',
     borderWidth: 2,
-    borderColor: '#40916C',
+    borderColor: '#ED7624',
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.2,
     shadowRadius: 2,
   },
 });

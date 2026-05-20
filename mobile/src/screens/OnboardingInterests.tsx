@@ -122,7 +122,7 @@ const OnboardingInterests = () => {
 const s = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: '#FFF5EE',
   },
   container: {
     flex: 1,
@@ -136,20 +136,20 @@ const s = StyleSheet.create({
     alignSelf: 'flex-end',
   },
   skipText: {
-    color: colors.textSecondary,
+    color: '#87553E',
     fontSize: 16,
   },
   title: {
     fontSize: 24,
     fontFamily: 'PlayfairDisplay',
     fontWeight: 'bold',
-    color: colors.primary,
+    color: '#5C250E',
     marginTop: 16,
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: colors.textSecondary,
+    color: '#87553E',
     marginBottom: 24,
   },
   grid: {
@@ -166,12 +166,12 @@ const s = StyleSheet.create({
     alignItems: 'center',
   },
   chipSelected: {
-    borderColor: colors.primary,
-    backgroundColor: 'rgba(27, 67, 50, 0.1)',
+    borderColor: '#ED7624',
+    backgroundColor: 'rgba(240, 127, 46, 0.1)',
   },
   chipUnselected: {
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    borderColor: 'rgba(240, 127, 46, 0.12)',
+    backgroundColor: '#FFFFFF',
   },
   chipIcon: {
     fontSize: 30,
@@ -182,13 +182,13 @@ const s = StyleSheet.create({
     fontWeight: '600',
   },
   chipLabelSelected: {
-    color: colors.primary,
+    color: '#ED7624',
   },
   chipLabelUnselected: {
-    color: colors.textPrimary,
+    color: '#5C250E',
   },
   errorText: {
-    color: colors.error,
+    color: '#D94329',
     textAlign: 'center',
     fontSize: 14,
     marginBottom: 8,
@@ -201,13 +201,13 @@ const s = StyleSheet.create({
     marginTop: 16,
   },
   nextBtnActive: {
-    backgroundColor: colors.primary,
+    backgroundColor: '#ED7624',
   },
   nextBtnDisabled: {
-    backgroundColor: colors.gray300,
+    backgroundColor: 'rgba(240, 127, 46, 0.2)',
   },
   nextBtnText: {
-    color: colors.white,
+    color: '#FFFFFF',
     fontWeight: 'bold',
     fontSize: 18,
   },
@@ -221,13 +221,13 @@ const s = StyleSheet.create({
     width: 32,
     height: 8,
     borderRadius: 4,
-    backgroundColor: colors.primary,
+    backgroundColor: '#ED7624',
   },
   dotInactive: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: colors.gray300,
+    backgroundColor: 'rgba(240, 127, 46, 0.2)',
   },
 });
 

@@ -19,7 +19,17 @@ export const MainTabNavigator = () => {
   return (
     <Tab.Navigator
       tabBar={renderTabBar}
-      screenOptions={{ headerShown: false }}
+      screenOptions={{
+        headerShown: false,
+        tabBarTransparent: true,
+        tabBarBackground: () => null,
+        tabBarStyle: {
+          position: 'absolute',
+          backgroundColor: 'transparent',
+          borderTopWidth: 0,
+          elevation: 0,
+        },
+      }}
     >
       <Tab.Screen
         name="Journey"
