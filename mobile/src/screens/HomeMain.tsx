@@ -184,6 +184,15 @@ const HomeMain = () => {
 
         {feedError ? <ErrorBanner message={feedError} onRetry={loadFeed} /> : null}
 
+        {/* Daily Quote */}
+        {feed?.dailyQuote && (
+          <View style={s.quoteCard}>
+            <Text style={s.quoteLabel}>Daily Affirmation</Text>
+            <Text style={s.quoteText}>"{feed.dailyQuote.quote_text}"</Text>
+            <Text style={s.quoteAuthor}>— {feed.dailyQuote.author || 'Unknown'}</Text>
+          </View>
+        )}
+
         {/* Stats Pills */}
         <View style={s.statsRow}>
           <View style={s.statPill}>
@@ -307,15 +316,6 @@ const HomeMain = () => {
             </View>
           )}
         </View>
-
-        {/* Daily Quote */}
-        {feed?.dailyQuote && (
-          <View style={s.quoteCard}>
-            <Text style={s.quoteLabel}>Daily Affirmation</Text>
-            <Text style={s.quoteText}>"{feed.dailyQuote.quote_text}"</Text>
-            <Text style={s.quoteAuthor}>— {feed.dailyQuote.author || 'Unknown'}</Text>
-          </View>
-        )}
 
         <View style={s.bottomSpacer} />
       </ScrollView>
@@ -470,7 +470,7 @@ const s = StyleSheet.create({
   emptyTrendingText: { fontSize: 14, color: '#87553E' },
   quoteCard: {
     marginHorizontal: 24,
-    marginTop: 24,
+    marginTop: 12,
     marginBottom: 8,
     padding: 20,
     backgroundColor: 'rgba(240, 127, 46, 0.05)',
