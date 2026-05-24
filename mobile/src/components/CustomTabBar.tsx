@@ -11,11 +11,11 @@ import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const TAB_ICONS: Record<string, ImageSourcePropType> = {
-  Journey: require('../assets/icons/2D MY JOURNEY.png'),
-  Courses: require('../assets/icons/2D COURSES.png'),
-  Home: require('../assets/icons/2D HOME.png'),
-  Directory: require('../assets/icons/2D DIRECTORY.png'),
-  Profile: require('../assets/icons/2D PROFILE.png'),
+  Journey: require('../assets/icons/New folder/My journey.png'),
+  Courses: require('../assets/icons/New folder/Courses.png'),
+  Home: require('../assets/icons/New folder/Home.png'),
+  Directory: require('../assets/icons/New folder/Directory.png'),
+  Profile: require('../assets/icons/New folder/Profile.png'),
 };
 
 export const CustomTabBar = ({
@@ -76,7 +76,9 @@ export const CustomTabBar = ({
               <Image
                 source={icon}
                 style={[
-                  s.iconImage,
+                  (route.name === 'Journey' || route.name === 'Directory' || route.name === 'Profile')
+                    ? s.iconImageBigger
+                    : s.iconImage,
                   isFocused ? s.iconFocused : s.iconUnfocused,
                 ]}
               />
@@ -139,6 +141,12 @@ const s = StyleSheet.create({
   iconImage: {
     width: 28,
     height: 28,
+    borderRadius: 8,
+    resizeMode: 'contain',
+  },
+  iconImageBigger: {
+    width: 42,
+    height: 42,
     borderRadius: 8,
     resizeMode: 'contain',
   },

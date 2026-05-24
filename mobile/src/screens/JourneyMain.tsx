@@ -18,6 +18,7 @@ import {
   Alert,
   Modal,
   StyleSheet,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -39,25 +40,25 @@ type JourneyNav = NativeStackNavigationProp<JourneyStackParamList, 'JourneyMain'
 interface HabitConfig {
   type: string;
   name: string;
-  icon: string;
+  icon: any;
 }
 
 const HABITS: HabitConfig[] = [
-  { type: 'meditation', name: 'Meditation', icon: '\u{1F9D8}' },
-  { type: 'exercise', name: 'Exercise', icon: '\u{1F3CB}' },
-  { type: 'cold_shower', name: 'Cold Shower', icon: '\u{1F6BF}' },
-  { type: 'early_wakeup', name: 'Early Wakeup', icon: '\u{23F0}' },
+  { type: 'meditation', name: 'Meditation', icon: require('../assets/icons/New folder/Yoga.png') },
+  { type: 'exercise', name: 'Exercise', icon: require('../assets/icons/New folder/Exercise.png') },
+  { type: 'cold_shower', name: 'Cold Shower', icon: require('../assets/icons/New folder/Shower.png') },
+  { type: 'early_wakeup', name: 'Early Wakeup', icon: require('../assets/icons/New folder/Clock.png') },
 ];
 
 const DAY_PERIODS: Array<{
   period: 'morning' | 'afternoon' | 'night';
   label: string;
   timeRange: string;
-  icon: string;
+  icon: any;
 }> = [
-  { period: 'morning', label: 'Morning', timeRange: '5:00 - 12:00', icon: '\u{1F305}' },
-  { period: 'afternoon', label: 'Afternoon', timeRange: '12:00 - 18:00', icon: '\u{2600}' },
-  { period: 'night', label: 'Night', timeRange: '18:00 - 22:00', icon: '\u{1F319}' },
+  { period: 'morning', label: 'Morning', timeRange: '5:00 - 12:00', icon: require('../assets/icons/New folder/Morning.png') },
+  { period: 'afternoon', label: 'Afternoon', timeRange: '12:00 - 18:00', icon: require('../assets/icons/New folder/Afternoon.png') },
+  { period: 'night', label: 'Night', timeRange: '18:00 - 22:00', icon: require('../assets/icons/New folder/Night.png') },
 ];
 
 interface JourneyData {
@@ -383,7 +384,7 @@ const JourneyMain = () => {
         >
           <View style={s.meditationCtaContent}>
             <View style={s.meditationCtaIconWrap}>
-              <Text style={s.meditationCtaIcon}>{'\u{1F9D8}'}</Text>
+              <Image source={require('../assets/icons/New folder/Yoga.png')} style={s.meditationCtaIconImage} />
             </View>
             <View style={s.meditationCtaTextWrap}>
               <Text style={s.meditationCtaTitle}>
@@ -474,7 +475,7 @@ const JourneyMain = () => {
           {(() => {
             const remoteItems = (data?.visionBoard ?? []).map((v) => ({
               id: v.id,
-              icon: '\u{1F5BC}',
+              icon: require('../assets/icons/New folder/Vision Board.png'),
               caption: v.caption ?? '',
             }));
             const combined = [...localVisionImages, ...remoteItems];
@@ -488,7 +489,11 @@ const JourneyMain = () => {
                 renderItem={({ item }) => (
                   <View style={s.visionCard}>
                     <View style={s.visionCardImage}>
-                      <Text style={s.visionCardIcon}>{item.icon}</Text>
+                      {typeof item.icon === 'string' ? (
+                        <Text style={s.visionCardIcon}>{item.icon}</Text>
+                      ) : (
+                        <Image source={item.icon} style={s.visionCardIconImage} />
+                      )}
                     </View>
                     {!!item.caption && (
                       <View style={s.visionCardCaption}>
@@ -505,7 +510,7 @@ const JourneyMain = () => {
               />
             ) : (
               <View style={s.visionBoardEmpty}>
-                <Text style={s.visionBoardEmptyIcon}>{'\u{1F5BC}'}</Text>
+                <Image source={require('../assets/icons/New folder/Vision Board.png')} style={s.visionBoardEmptyIconImage} />
                 <Text style={s.visionBoardEmptyText}>
                   Add images to your vision board
                 </Text>
@@ -540,7 +545,11 @@ const JourneyMain = () => {
                       : s.dayJourneyCardPending,
                   ]}
                 >
-                  <Text style={s.dayJourneyCardIcon}>{item.icon}</Text>
+                  {typeof item.icon === 'string' ? (
+                    <Text style={s.dayJourneyCardIcon}>{item.icon}</Text>
+                  ) : (
+                    <Image source={item.icon} style={s.dayJourneyCardIconImage} />
+                  )}
                   <Text style={s.dayJourneyCardLabel}>
                     {item.label}
                   </Text>
@@ -720,13 +729,18 @@ const s = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: '#FFF5EE',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
   },
   meditationCtaIcon: {
     fontSize: 48,
+  },
+  meditationCtaIconImage: {
+    width: 52,
+    height: 52,
+    resizeMode: 'contain',
   },
   meditationCtaTextWrap: {
     alignItems: 'center',
@@ -882,6 +896,11 @@ const s = StyleSheet.create({
   visionCardIcon: {
     fontSize: 30,
   },
+  visionCardIconImage: {
+    width: 60,
+    height: 60,
+    resizeMode: 'contain',
+  },
   visionCardCaption: {
     padding: 8,
   },
@@ -902,6 +921,12 @@ const s = StyleSheet.create({
   visionBoardEmptyIcon: {
     fontSize: 24,
     marginBottom: 8,
+  },
+  visionBoardEmptyIconImage: {
+    width: 48,
+    height: 48,
+    marginBottom: 8,
+    resizeMode: 'contain',
   },
   visionBoardEmptyText: {
     fontSize: 14,
@@ -935,6 +960,12 @@ const s = StyleSheet.create({
   dayJourneyCardIcon: {
     fontSize: 24,
     marginBottom: 8,
+  },
+  dayJourneyCardIconImage: {
+    width: 32,
+    height: 32,
+    marginBottom: 8,
+    resizeMode: 'contain',
   },
   dayJourneyCardLabel: {
     fontSize: 14,

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { StreakBadge } from './StreakBadge';
 
 interface HabitLogEntry {
@@ -9,7 +9,7 @@ interface HabitLogEntry {
 
 interface HabitGridProps {
   habitType: string;
-  habitIcon: string;
+  habitIcon: any;
   habitName: string;
   logs: HabitLogEntry[];
   streakCount: number;
@@ -87,7 +87,11 @@ export const HabitGrid = ({
         activeOpacity={0.7}
       >
         <View style={s.headerLeft}>
-          <Text style={s.habitIcon}>{habitIcon}</Text>
+          {typeof habitIcon === 'string' ? (
+            <Text style={s.habitIcon}>{habitIcon}</Text>
+          ) : (
+            <Image source={habitIcon} style={s.habitIconImage} />
+          )}
           <Text style={s.habitName}>{habitName}</Text>
         </View>
 
@@ -189,6 +193,12 @@ const s = StyleSheet.create({
   habitIcon: {
     fontSize: 18,
     marginRight: 8,
+  },
+  habitIconImage: {
+    width: 24,
+    height: 24,
+    marginRight: 8,
+    resizeMode: 'contain',
   },
   habitName: {
     fontSize: 16,

@@ -36,7 +36,7 @@ interface GuidedSession {
   id: string;
   title: string;
   durationSeconds: number;
-  emoji: string;
+  icon: any;
   description: string;
   soundKey: SoundKey;
 }
@@ -46,7 +46,7 @@ const GUIDED_SESSIONS: GuidedSession[] = [
     id: 'clarity',
     title: 'Morning Clarity',
     durationSeconds: 80, // Exactly 1m 20s as per the wav file length
-    emoji: '\u{1F305}',
+    icon: require('../assets/icons/New folder/Morning clarity.png'),
     description: 'Awaken your mind and find focus.',
     soundKey: 'morning_clarity',
   },
@@ -54,7 +54,7 @@ const GUIDED_SESSIONS: GuidedSession[] = [
     id: 'anxiety',
     title: 'Anxiety Relief',
     durationSeconds: 40, // Exactly 40s as per the wav file length
-    emoji: '\u{1F343}',
+    icon: require('../assets/icons/New folder/Anxiety relief.png'),
     description: 'Calm your nervous system.',
     soundKey: 'anxiety_relief',
   },
@@ -62,7 +62,7 @@ const GUIDED_SESSIONS: GuidedSession[] = [
     id: 'sleep',
     title: 'Deep Sleep',
     durationSeconds: 40, // Exactly 40s as per the wav file length
-    emoji: '\u{1F30C}',
+    icon: require('../assets/icons/New folder/Deep sleep.png'),
     description: 'Drift off into restful sleep.',
     soundKey: 'deep_sleep',
   },
@@ -70,7 +70,7 @@ const GUIDED_SESSIONS: GuidedSession[] = [
     id: 'focus',
     title: 'Mindful Focus',
     durationSeconds: 80, // Temporarily matching morning clarity wav file length
-    emoji: '\u{1F9E0}',
+    icon: require('../assets/icons/New folder/Mindful focus.png'),
     description: 'Sharpen your concentration.',
     soundKey: 'mindful_focus',
   },
@@ -90,7 +90,7 @@ interface BreathingPhase {
 interface BreathingPattern {
   id: string;
   title: string;
-  emoji: string;
+  icon: any;
   description: string;
   sequence: BreathingPhase[];
 }
@@ -99,7 +99,7 @@ const BREATHING_PATTERNS: BreathingPattern[] = [
   {
     id: 'box',
     title: 'Box Breathing',
-    emoji: '\u{1F4E6}',
+    icon: require('../assets/icons/New folder/Box breathing.png'),
     description: 'Equal 4s inhale, hold, exhale, hold ratios for deep focus.',
     sequence: [
       { phase: 'inhale', duration: 4 },
@@ -111,7 +111,7 @@ const BREATHING_PATTERNS: BreathingPattern[] = [
   {
     id: 'relax',
     title: '4-7-8 Relax',
-    emoji: '\u{1F343}',
+    icon: require('../assets/icons/New folder/4 7 8 relax.png'),
     description: 'A natural tranquilizer that deeply settles the nervous system.',
     sequence: [
       { phase: 'inhale', duration: 4 },
@@ -122,7 +122,7 @@ const BREATHING_PATTERNS: BreathingPattern[] = [
   {
     id: 'equal',
     title: 'Equal Balance',
-    emoji: '\u{2616}',
+    icon: require('../assets/icons/New folder/Equal balance.png'),
     description: 'Simple equal 4s inhale and exhale breaths to center yourself.',
     sequence: [
       { phase: 'inhale', duration: 4 },
@@ -145,21 +145,21 @@ const SOUND_OPTIONS: Array<{ key: SoundOption; label: string; icon?: string }> =
 ];
 
 const SOUND_ICONS: Record<SoundOption, ImageSourcePropType> = {
-  nature: require('../assets/icons/2D Nature.png'),
-  rain: require('../assets/icons/2D Rain.png'),
-  ocean: require('../assets/icons/2D Ocean.png'),
-  birds: require('../assets/icons/2D Bird.png'),
-  bowl: require('../assets/icons/2D Bowl.png'),
+  nature: require('../assets/icons/New folder/Nature.png'),
+  rain: require('../assets/icons/New folder/rain.png'),
+  ocean: require('../assets/icons/New folder/ocean.png'),
+  birds: require('../assets/icons/New folder/Birds.png'),
+  bowl: require('../assets/icons/New folder/Bowl.png'),
 };
 
 const TIMER_ICONS = {
-  back: require('../assets/icons/2D BACK.png'),
-  bell: require('../assets/icons/2D BELL.png'),
-  mute: require('../assets/icons/2D MUTE.png'),
-  pause: require('../assets/icons/2D PAUSE.png'),
-  play: require('../assets/icons/2D PLAY.png'),
-  sound: require('../assets/icons/2D SOUND.png'),
-  stop: require('../assets/icons/2D STOP.png'),
+  back: require('../assets/icons/New folder/Back.png'),
+  bell: require('../assets/icons/New folder/Bell.png'),
+  mute: require('../assets/icons/New folder/Mute.png'),
+  pause: require('../assets/icons/New folder/Pause.png'),
+  play: require('../assets/icons/New folder/Play.png'),
+  sound: require('../assets/icons/New folder/sound.png'),
+  stop: require('../assets/icons/New folder/Finish.png'),
 };
 
 const SESSION_TYPES: Array<{ key: SessionType; label: string }> = [
@@ -842,7 +842,11 @@ const MeditationTimerScreen = () => {
                   onPress={() => setSelectedGuidedId(session.id)}
                   activeOpacity={0.7}
                 >
-                  <Text style={s.guidedCardEmoji}>{session.emoji}</Text>
+                  {typeof session.icon === 'string' ? (
+                    <Text style={s.guidedCardEmoji}>{session.icon}</Text>
+                  ) : (
+                    <Image source={session.icon} style={s.guidedCardIconImage} />
+                  )}
                   <View>
                     <Text
                       style={[
@@ -891,7 +895,11 @@ const MeditationTimerScreen = () => {
                   onPress={() => setSelectedBreathingPatternId(pattern.id)}
                   activeOpacity={0.7}
                 >
-                  <Text style={s.guidedCardEmoji}>{pattern.emoji}</Text>
+                  {typeof pattern.icon === 'string' ? (
+                    <Text style={s.guidedCardEmoji}>{pattern.icon}</Text>
+                  ) : (
+                    <Image source={pattern.icon} style={s.guidedCardIconImage} />
+                  )}
                   <View>
                     <Text
                       style={[
@@ -1289,6 +1297,12 @@ const s = StyleSheet.create({
   guidedCardEmoji: {
     fontSize: 28,
     marginBottom: 8,
+  },
+  guidedCardIconImage: {
+    width: 40,
+    height: 40,
+    marginBottom: 8,
+    resizeMode: 'contain',
   },
   guidedCardTitle: {
     fontSize: 15,

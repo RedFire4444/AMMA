@@ -150,18 +150,18 @@ const ContentThumbnail = ({ item }: ContentThumbnailProps) => {
 };
 
 const MOCK_CONTENT: ContentItem[] = [
-  { id: '1', title: '10-Minute Meditation For Beginners', instructor: 'Goodful', category: 'meditation', duration: '10:00', views: '12M', isPremium: false, icon: '\u{1F9D8}', type: 'video', youtubeId: 'U9YKY7fdwyg', thumbnailUrl: 'https://i.ytimg.com/vi/U9YKY7fdwyg/hqdefault.jpg' },
-  { id: '2', title: '5-Minute Meditation You Can Do Anywhere', instructor: 'Goodful', category: 'meditation', duration: '5:15', views: '5.1M', isPremium: false, icon: '\u{1F9D8}', type: 'video', youtubeId: 'inpok4MKVLM', thumbnailUrl: 'https://i.ytimg.com/vi/inpok4MKVLM/hqdefault.jpg' },
-  { id: '3', title: 'Daily Calm | 10 Minute Mindfulness Meditation', instructor: 'Calm', category: 'meditation', duration: '10:20', views: '35M', isPremium: false, icon: '\u{1F9D8}', type: 'video', youtubeId: 'syx3a1_LeFo', thumbnailUrl: 'https://i.ytimg.com/vi/syx3a1_LeFo/hqdefault.jpg' },
-  { id: '4', title: 'Daily Calm | 10 Minute Meditation | Be Present', instructor: 'Calm', category: 'meditation', duration: '10:30', views: '11M', isPremium: false, icon: '\u{1F9D8}', type: 'video', youtubeId: 'ZToicYcHIOU', thumbnailUrl: 'https://i.ytimg.com/vi/ZToicYcHIOU/hqdefault.jpg' },
-  { id: '5', title: 'Shree Hanuman Chalisa Original', instructor: 'T-Series Bhakti Sagar', category: 'bhajan', duration: '9:45', views: '3.4B', isPremium: false, icon: '\u{1F3AC}', type: 'video', youtubeId: 'AETFvQonfV8', thumbnailUrl: 'https://i.ytimg.com/vi/AETFvQonfV8/hqdefault.jpg' },
-  { id: '6', title: 'Unwavering Focus | Dandapani', instructor: 'TEDx Talks', category: 'satsang', duration: '18:12', views: '10M', isPremium: false, icon: '\u{1F3B5}', type: 'video', youtubeId: '4O2JK_94g3Y', thumbnailUrl: 'https://i.ytimg.com/vi/4O2JK_94g3Y/hqdefault.jpg' },
-  { id: '7', title: '10-Minute Meditation For Anxiety', instructor: 'Goodful', category: 'meditation', duration: '10:00', views: '18M', isPremium: false, icon: '\u{1F9D8}', type: 'video', youtubeId: 'O-6f5wQXSu8', thumbnailUrl: 'https://i.ytimg.com/vi/O-6f5wQXSu8/hqdefault.jpg' },
-  { id: '8', title: 'Flying: Relaxing Sleep Music', instructor: 'Soothing Relaxation', category: 'bhajan', duration: '3:05:00', views: '514M', isPremium: false, icon: '\u{1F3B5}', type: 'video', youtubeId: '1ZYbU82GVz4', thumbnailUrl: 'https://i.ytimg.com/vi/1ZYbU82GVz4/hqdefault.jpg' },
-  { id: '9', title: 'A Ten Minute Guided Meditation', instructor: 'Great Meditation', category: 'meditation', duration: '10:00', views: '1.2M', isPremium: false, icon: '\u{1F3AC}', type: 'video', youtubeId: 'ez3GgRqhNvA', thumbnailUrl: 'https://i.ytimg.com/vi/ez3GgRqhNvA/hqdefault.jpg' },
-  { id: '10', title: 'The Scientific Power of Meditation', instructor: 'AsapSCIENCE', category: 'talk', duration: '3:05', views: '14M', isPremium: false, icon: '\u{1F9D8}', type: 'video', youtubeId: 'Aw71zanwMnY', thumbnailUrl: 'https://i.ytimg.com/vi/Aw71zanwMnY/hqdefault.jpg' },
-  { id: '11', title: 'OM Chanting @417 Hz | Removes All Negative Blocks', instructor: 'Meditative Mind', category: 'chanting', duration: '3:03:00', views: '43M', isPremium: false, icon: '\u{1F3B5}', type: 'video', youtubeId: '8sYK7lm3UKg', thumbnailUrl: 'https://i.ytimg.com/vi/8sYK7lm3UKg/hqdefault.jpg' },
-  { id: '12', title: 'OM Mantra Vibrations(528Hz) - 11 Hours', instructor: 'Meditation Channel', category: 'chanting', duration: '11:00:00', views: '8M', isPremium: false, icon: '\u{1F3B5}', type: 'video', youtubeId: 'B6RFo1SbBJQ', thumbnailUrl: 'https://i.ytimg.com/vi/B6RFo1SbBJQ/hqdefault.jpg' },
+  { id: '1', title: 'Integrated Amrita Meditation (IAM) Guided Practice', instructor: 'Amrita Live', category: 'meditation', duration: '20:00', views: '950K', isPremium: false, icon: '\u{1F9D8}', type: 'video', youtubeId: '3DIWMA9OVs0', thumbnailUrl: 'https://i.ytimg.com/vi/3DIWMA9OVs0/hqdefault.jpg' },
+  { id: '2', title: 'Guided Meditation & Chanting for Inner Peace', instructor: 'Amma (Mata Amritanandamayi)', category: 'meditation', duration: '25:10', views: '480K', isPremium: false, icon: '\u{1F9D8}', type: 'video', youtubeId: 'B_iEiNyr88U', thumbnailUrl: 'https://i.ytimg.com/vi/B_iEiNyr88U/hqdefault.jpg' },
+  { id: '3', title: 'IAM-20 Quick Meditation | Mindful Breathing', instructor: 'Amrita Virtual Academy', category: 'meditation', duration: '15:45', views: '320K', isPremium: false, icon: '\u{1F9D8}', type: 'video', youtubeId: '3DIWMA9OVs0', thumbnailUrl: 'https://i.ytimg.com/vi/3DIWMA9OVs0/hqdefault.jpg' },
+  { id: '4', title: 'Varalunna Hridayattil | Soulful Devotional Bhajan', instructor: 'Amma (Mata Amritanandamayi)', category: 'bhajan', duration: '8:30', views: '2.8M', isPremium: false, icon: '\u{1F3B5}', type: 'video', youtubeId: '6QjD_uJ2GIk', thumbnailUrl: 'https://i.ytimg.com/vi/6QjD_uJ2GIk/hqdefault.jpg' },
+  { id: '5', title: 'Muralidhara Gopala | Soulful Krishna Bhajan', instructor: 'Amma (Mata Amritanandamayi)', category: 'bhajan', duration: '9:15', views: '1.5M', isPremium: false, icon: '\u{1F3B5}', type: 'video', youtubeId: 'US-ejM6b1wE', thumbnailUrl: 'https://i.ytimg.com/vi/US-ejM6b1wE/hqdefault.jpg' },
+  { id: '6', title: 'Devotional Bhajans & Chants Live from Amritapuri', instructor: 'Amma (Mata Amritanandamayi)', category: 'bhajan', duration: '12:45', views: '780K', isPremium: false, icon: '\u{1F3B5}', type: 'video', youtubeId: 'JDxKj5O48Bw', thumbnailUrl: 'https://i.ytimg.com/vi/JDxKj5O48Bw/hqdefault.jpg' },
+  { id: '7', title: "7 Steps for a Joyful Life | Amma's Special Message", instructor: 'Amma (Mata Amritanandamayi)', category: 'satsang', duration: '18:24', views: '1.2M', isPremium: false, icon: '\u{1F3AC}', type: 'video', youtubeId: 'tH_AbG1JMOE', thumbnailUrl: 'https://i.ytimg.com/vi/tH_AbG1JMOE/hqdefault.jpg' },
+  { id: '8', title: "Beautiful moments of Amma's Europe Tour | Devotee Satsang", instructor: 'Amrita Live', category: 'satsang', duration: '14:50', views: '520K', isPremium: false, icon: '\u{1F3AC}', type: 'video', youtubeId: 'lCF4K1Zxyck', thumbnailUrl: 'https://i.ytimg.com/vi/lCF4K1Zxyck/hqdefault.jpg' },
+  { id: '9', title: 'Conversations with Amma | Wisdom & Spiritual Teachings', instructor: 'Amma (Mata Amritanandamayi)', category: 'talk', duration: '22:15', views: '640K', isPremium: false, icon: '\u{1F3AC}', type: 'video', youtubeId: 'AbpBM_qKZ5g', thumbnailUrl: 'https://i.ytimg.com/vi/AbpBM_qKZ5g/hqdefault.jpg' },
+  { id: '10', title: "Why You Shouldn't Worry? | Soulful Satsang & Wisdom", instructor: 'Amma (Mata Amritanandamayi)', category: 'talk', duration: '16:40', views: '850K', isPremium: false, icon: '\u{1F3AC}', type: 'video', youtubeId: 'ABmEmQxCmYM', thumbnailUrl: 'https://i.ytimg.com/vi/ABmEmQxCmYM/hqdefault.jpg' },
+  { id: '11', title: 'Om Lokah Samastah Sukhino Bhavantu | Peace Prayer', instructor: 'Amma (Mata Amritanandamayi)', category: 'chanting', duration: '10:30', views: '3.5M', isPremium: false, icon: '\u{1F3B5}', type: 'video', youtubeId: '6QjD_uJ2GIk', thumbnailUrl: 'https://i.ytimg.com/vi/6QjD_uJ2GIk/hqdefault.jpg' },
+  { id: '12', title: 'Namah Shivaya Om | Sacred Chanting & Vibrations', instructor: 'Amrita Live', category: 'chanting', duration: '1:08:00', views: '1.8M', isPremium: false, icon: '\u{1F3B5}', type: 'video', youtubeId: 'B_iEiNyr88U', thumbnailUrl: 'https://i.ytimg.com/vi/B_iEiNyr88U/hqdefault.jpg' },
 ];
 
 const DirectoryMain = () => {
@@ -251,7 +251,7 @@ const DirectoryMain = () => {
       {/* Search Bar */}
       <View style={s.searchWrap}>
         <View style={s.searchBar}>
-          <Text style={s.searchIcon}>{'\u{1F50D}'}</Text>
+          <Image source={require('../assets/icons/New folder/Search.png')} style={s.searchIcon} />
           <TextInput
             style={s.searchInput}
             placeholder="Search teachings, bhajans..."
@@ -387,12 +387,12 @@ const s = StyleSheet.create({
   headerSubtitle: { fontSize: 14, color: '#87553E', marginTop: 4 },
   searchWrap: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 4 },
   searchBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(240, 127, 46, 0.12)', paddingHorizontal: 14 },
-  searchIcon: { fontSize: 16, color: '#87553E', marginRight: 8 },
+  searchIcon: { width: 18, height: 18, resizeMode: 'contain', marginRight: 8 },
   searchInput: { flex: 1, paddingVertical: 12, fontSize: 15, color: '#5C250E' },
   clearIcon: { color: '#87553E', fontSize: 16 },
   tabRow: { paddingVertical: 12 },
   tab: { marginRight: 10, paddingHorizontal: 20, paddingVertical: 12, borderRadius: 25, height: 44, justifyContent: 'center' as const, alignItems: 'center' as const },
-  tabActive: { backgroundColor: '#ED7624', elevation: 2, shadowColor: '#ED7624', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 },
+  tabActive: { backgroundColor: '#ED7624' },
   tabInactive: { backgroundColor: '#FFFFFF', borderWidth: 1.5, borderColor: 'rgba(240, 127, 46, 0.2)' },
   tabText: { fontSize: 14, fontWeight: '700' },
   tabTextActive: { color: '#FFFFFF' },

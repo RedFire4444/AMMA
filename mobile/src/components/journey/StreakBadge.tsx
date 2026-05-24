@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Image } from 'react-native';
 
 interface StreakBadgeProps {
   count: number;
@@ -9,7 +9,10 @@ interface StreakBadgeProps {
 export const StreakBadge = ({ count, label }: StreakBadgeProps) => {
   return (
     <View style={s.badge}>
-      <Text style={s.fireIcon}>{'\u{1F525}'}</Text>
+      <Image
+        source={require('../../assets/icons/New folder/Fire.png')}
+        style={s.fireIcon}
+      />
       <Text style={s.count}>{count}</Text>
       <Text style={s.label}>{label}</Text>
     </View>
@@ -28,7 +31,9 @@ const s = StyleSheet.create({
     paddingVertical: 6,
   },
   fireIcon: {
-    fontSize: 14,
+    width: 16,
+    height: 16,
+    resizeMode: 'contain',
     marginRight: 4,
   },
   count: {

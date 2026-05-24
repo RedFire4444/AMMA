@@ -51,10 +51,10 @@ interface TrendingVideo {
 }
 
 const TRENDING_VIDEOS: TrendingVideo[] = [
-  { id: '1', title: '10-Minute Meditation For Beginners', instructor: 'Goodful', duration: '10:00', views: '12M', youtubeId: 'U9YKY7fdwyg', thumbnailUrl: 'https://i.ytimg.com/vi/U9YKY7fdwyg/hqdefault.jpg' },
-  { id: '2', title: '5-Minute Meditation You Can Do Anywhere', instructor: 'Goodful', duration: '5:15', views: '5.1M', youtubeId: 'inpok4MKVLM', thumbnailUrl: 'https://i.ytimg.com/vi/inpok4MKVLM/hqdefault.jpg' },
-  { id: '3', title: 'Daily Calm | 10 Minute Mindfulness Meditation', instructor: 'Calm', duration: '10:20', views: '35M', youtubeId: 'syx3a1_LeFo', thumbnailUrl: 'https://i.ytimg.com/vi/syx3a1_LeFo/hqdefault.jpg' },
-  { id: '4', title: 'Shree Hanuman Chalisa Original', instructor: 'T-Series Bhakti Sagar', duration: '9:45', views: '3.4B', youtubeId: 'AETFvQonfV8', thumbnailUrl: 'https://i.ytimg.com/vi/AETFvQonfV8/hqdefault.jpg' },
+  { id: '1', title: 'Muralidhara Gopala | Soulful Krishna Bhajan', instructor: 'Amma (Mata Amritanandamayi)', duration: '9:15', views: '1.5M', youtubeId: 'US-ejM6b1wE', thumbnailUrl: 'https://i.ytimg.com/vi/US-ejM6b1wE/hqdefault.jpg' },
+  { id: '2', title: 'Integrated Amrita Meditation (IAM) Guided Practice', instructor: 'Amrita Live', duration: '20:00', views: '950K', youtubeId: '3DIWMA9OVs0', thumbnailUrl: 'https://i.ytimg.com/vi/3DIWMA9OVs0/hqdefault.jpg' },
+  { id: '3', title: 'Varalunna Hridayattil | Soulful Devotional Bhajan', instructor: 'Amma (Mata Amritanandamayi)', duration: '8:30', views: '2.8M', youtubeId: '6QjD_uJ2GIk', thumbnailUrl: 'https://i.ytimg.com/vi/6QjD_uJ2GIk/hqdefault.jpg' },
+  { id: '4', title: "7 Steps for a Joyful Life | Amma's Special Message", instructor: 'Amma (Mata Amritanandamayi)', duration: '18:24', views: '1.2M', youtubeId: 'tH_AbG1JMOE', thumbnailUrl: 'https://i.ytimg.com/vi/tH_AbG1JMOE/hqdefault.jpg' },
 ];
 
 const FALLBACK_FEED: HomeFeedData = {
@@ -65,11 +65,11 @@ const FALLBACK_FEED: HomeFeedData = {
     category: 'wisdom',
   },
   trendingCourses: [
-    { id: 'tc-1', title: '10-Minute Meditation For Beginners', instructor_name: 'Goodful', thumbnail_url: 'https://i.ytimg.com/vi/U9YKY7fdwyg/hqdefault.jpg', estimated_duration_minutes: 10, difficulty_level: 'beginner', is_premium: false } as HomeFeedData['trendingCourses'][number],
-    { id: 'tc-2', title: 'Daily Calm | Mindfulness Meditation', instructor_name: 'Calm', thumbnail_url: 'https://i.ytimg.com/vi/syx3a1_LeFo/hqdefault.jpg', estimated_duration_minutes: 10, difficulty_level: 'beginner', is_premium: false } as HomeFeedData['trendingCourses'][number],
-    { id: 'tc-3', title: 'Shree Hanuman Chalisa', instructor_name: 'T-Series Bhakti Sagar', thumbnail_url: 'https://i.ytimg.com/vi/AETFvQonfV8/hqdefault.jpg', estimated_duration_minutes: 10, difficulty_level: 'beginner', is_premium: false } as HomeFeedData['trendingCourses'][number],
-    { id: 'tc-4', title: 'Unwavering Focus | Dandapani', instructor_name: 'TEDx Talks', thumbnail_url: 'https://i.ytimg.com/vi/4O2JK_94g3Y/hqdefault.jpg', estimated_duration_minutes: 18, difficulty_level: 'intermediate', is_premium: false } as HomeFeedData['trendingCourses'][number],
-    { id: 'tc-5', title: 'Meditation For Anxiety', instructor_name: 'Goodful', thumbnail_url: 'https://i.ytimg.com/vi/O-6f5wQXSu8/hqdefault.jpg', estimated_duration_minutes: 10, difficulty_level: 'beginner', is_premium: false } as HomeFeedData['trendingCourses'][number],
+    { id: 'tc-1', title: 'Muralidhara Gopala | Soulful Krishna Bhajan', instructor_name: 'Amma (Mata Amritanandamayi)', thumbnail_url: 'https://i.ytimg.com/vi/US-ejM6b1wE/hqdefault.jpg', estimated_duration_minutes: 9, difficulty_level: 'beginner', is_premium: false } as HomeFeedData['trendingCourses'][number],
+    { id: 'tc-2', title: 'Integrated Amrita Meditation (IAM) Guided Practice', instructor_name: 'Amrita Live', thumbnail_url: 'https://i.ytimg.com/vi/3DIWMA9OVs0/hqdefault.jpg', estimated_duration_minutes: 20, difficulty_level: 'beginner', is_premium: false } as HomeFeedData['trendingCourses'][number],
+    { id: 'tc-3', title: 'Varalunna Hridayattil | Soulful Devotional Bhajan', instructor_name: 'Amma (Mata Amritanandamayi)', thumbnail_url: 'https://i.ytimg.com/vi/6QjD_uJ2GIk/hqdefault.jpg', estimated_duration_minutes: 8, difficulty_level: 'beginner', is_premium: false } as HomeFeedData['trendingCourses'][number],
+    { id: 'tc-4', title: 'Conversations with Amma | Wisdom & Teachings', instructor_name: 'Amma (Mata Amritanandamayi)', thumbnail_url: 'https://i.ytimg.com/vi/AbpBM_qKZ5g/hqdefault.jpg', estimated_duration_minutes: 22, difficulty_level: 'intermediate', is_premium: false } as HomeFeedData['trendingCourses'][number],
+    { id: 'tc-5', title: 'Guided Meditation & Chanting for Inner Peace', instructor_name: 'Amma (Mata Amritanandamayi)', thumbnail_url: 'https://i.ytimg.com/vi/B_iEiNyr88U/hqdefault.jpg', estimated_duration_minutes: 25, difficulty_level: 'beginner', is_premium: false } as HomeFeedData['trendingCourses'][number],
   ],
   upcomingEvents: [
     { id: 'ev-0', title: 'No Live Events', event_date: new Date().toISOString(), instructor_name: '', thumbnail_url: null, is_live: false, category: 'none' } as any,
@@ -143,14 +143,13 @@ const HomeMain = () => {
 
   const handleEventPress = (item: any) => {
     if (item.booking_url) {
-      Linking.openURL(item.booking_url).catch((err) =>
+      Linking.openURL(item.booking_url).catch(() =>
         Alert.alert('Error', 'Unable to open booking page')
       );
     } else {
       Alert.alert('Event', `Opening "${item.title}"...\n\nEvent details available after backend setup.`);
     }
   };
-
   return (
     <SafeAreaView style={s.safeArea} edges={['top']}>
       <ScrollView
@@ -178,7 +177,10 @@ const HomeMain = () => {
             accessibilityRole="button"
             accessibilityLabel="Notifications"
           >
-            <Text style={s.bellIcon}>{'\u{1F514}'}</Text>
+            <Image
+              source={require('../assets/icons/New folder/Bell.png')}
+              style={s.bellIconImg}
+            />
           </TouchableOpacity>
         </View>
 
@@ -196,14 +198,20 @@ const HomeMain = () => {
         {/* Stats Pills */}
         <View style={s.statsRow}>
           <View style={s.statPill}>
-            <Text style={s.statIcon}>{'\u{23F1}'}</Text>
+            <Image
+              source={require('../assets/icons/New folder/Clock.png')}
+              style={s.statIconImg}
+            />
             <Text style={s.statValue}>
               {loading ? '--' : formatMinutes(feed?.stats.totalMinutes ?? 0)}
             </Text>
             <Text style={s.statLabel}>Total Time</Text>
           </View>
           <View style={[s.statPill, s.statPillSpaced]}>
-            <Text style={s.statIcon}>{'\u{1F525}'}</Text>
+            <Image
+              source={require('../assets/icons/New folder/Fire.png')}
+              style={s.statIconImg}
+            />
             <Text style={s.statValue}>
               {loading ? '--' : feed?.stats.currentStreak ?? 0}
             </Text>
@@ -348,6 +356,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   bellIcon: { fontSize: 18 },
+  bellIconImg: { width: 20, height: 20, resizeMode: 'contain' },
   statsRow: { flexDirection: 'row', paddingHorizontal: 24, marginTop: 16 },
   statPill: {
     flexDirection: 'row',
@@ -360,6 +369,7 @@ const s = StyleSheet.create({
     borderColor: 'rgba(240, 127, 46, 0.12)',
   },
   statIcon: { fontSize: 14, marginRight: 4 },
+  statIconImg: { width: 18, height: 18, resizeMode: 'contain', marginRight: 4 },
   statValue: { fontSize: 14, fontWeight: '600', color: '#5C250E' },
   statLabel: { fontSize: 12, color: '#87553E', marginLeft: 4 },
   sectionWrap: { marginTop: 24 },
