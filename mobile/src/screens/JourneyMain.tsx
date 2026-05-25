@@ -120,6 +120,8 @@ const JourneyMain = () => {
   >([]);
   const [ratingModalOpen, setRatingModalOpen] = useState(false);
   const [visionModalOpen, setVisionModalOpen] = useState(false);
+  const [ratedAlertOpen, setRatedAlertOpen] = useState(false);
+  const [ratedRatingValue, setRatedRatingValue] = useState(0);
 
   const loadData = useCallback(async () => {
     try {
@@ -318,8 +320,9 @@ const JourneyMain = () => {
       const today = new Date().toISOString().split('T')[0];
       setLocalRatings((prev) => ({ ...prev, [today]: rating }));
       setRatingModalOpen(false);
-      Alert.alert('Rated!', `Today's performance logged as ${rating}/10. Keep it up!`);
-      // Best-effort backend sync \u2014 don't fail on offline
+      setRatedRatingValue(rating);
+      setRatedAlertOpen(true);
+      // Best-effort backend sync — don't fail on offline
       habitsService.ratePerformance(rating).catch(() => {});
     },
     [],
@@ -613,6 +616,33 @@ const JourneyMain = () => {
         </View>
       </Modal>
 
+      {/* Rated! Success Modal */}
+      <Modal
+        visible={ratedAlertOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setRatedAlertOpen(false)}
+      >
+        <View style={s.modalOverlay}>
+          <View style={[s.modalContent, { alignItems: 'center', padding: 24 }]}>
+            <View style={s.modalCheckWrap}>
+              <Text style={s.modalCheckIcon}>{'\u{2713}'}</Text>
+            </View>
+            <Text style={[s.modalTitle, { textAlign: 'center' }]}>Rated!</Text>
+            <Text style={s.modalBody}>
+              Today's performance logged as {ratedRatingValue}/10. Keep it up!
+            </Text>
+            <TouchableOpacity
+              onPress={() => setRatedAlertOpen(false)}
+              style={s.modalButton}
+              activeOpacity={0.8}
+            >
+              <Text style={s.modalButtonText}>Done</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
       {/* Vision Board Add Modal */}
       <Modal
         visible={visionModalOpen}
@@ -818,7 +848,7 @@ const s = StyleSheet.create({
     marginTop: 4,
   },
   rateTodayButton: {
-    backgroundColor: 'rgba(27,67,50,0.1)',
+    backgroundColor: 'rgba(240, 127, 46, 0.1)',
     borderRadius: 8,
     paddingVertical: 10,
     alignItems: 'center',
@@ -833,10 +863,10 @@ const s = StyleSheet.create({
     marginHorizontal: 24,
     marginBottom: 16,
     padding: 20,
-    backgroundColor: 'rgba(27,67,50,0.05)',
+    backgroundColor: 'rgba(240, 127, 46, 0.05)',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(27,67,50,0.2)',
+    borderColor: 'rgba(240, 127, 46, 0.15)',
   },
   affirmationLabel: {
     fontSize: 12,
@@ -889,7 +919,7 @@ const s = StyleSheet.create({
   },
   visionCardImage: {
     flex: 1,
-    backgroundColor: 'rgba(27,67,50,0.1)',
+    backgroundColor: 'rgba(240, 127, 46, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1040,9 +1070,9 @@ const s = StyleSheet.create({
     width: '18%',
     aspectRatio: 1,
     borderRadius: 8,
-    backgroundColor: 'rgba(27,67,50,0.08)',
+    backgroundColor: 'rgba(240, 127, 46, 0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(27,67,50,0.2)',
+    borderColor: 'rgba(240, 127, 46, 0.2)',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 8,
@@ -1062,9 +1092,9 @@ const s = StyleSheet.create({
     width: '31%',
     aspectRatio: 1,
     borderRadius: 12,
-    backgroundColor: 'rgba(27,67,50,0.06)',
+    backgroundColor: 'rgba(240, 127, 46, 0.06)',
     borderWidth: 1,
-    borderColor: 'rgba(27,67,50,0.2)',
+    borderColor: 'rgba(240, 127, 46, 0.2)',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 8,
@@ -1088,5 +1118,35 @@ const s = StyleSheet.create({
     color: '#87553E',
     fontWeight: '600',
     fontSize: 14,
+  },
+  modalCheckWrap: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: 'rgba(240, 127, 46, 0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  modalCheckIcon: {
+    fontSize: 30,
+    color: '#ED7624',
+  },
+  modalBody: {
+    fontSize: 14,
+    color: '#87553E',
+    textAlign: 'center',
+    marginBottom: 24,
+    lineHeight: 20,
+  },
+  modalButton: {
+    backgroundColor: '#ED7624',
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 8,
+  },
+  modalButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
   },
 });

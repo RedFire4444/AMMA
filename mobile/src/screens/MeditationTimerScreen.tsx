@@ -13,12 +13,12 @@ import {
   Text,
   TouchableOpacity,
   ScrollView,
-  Alert,
   Animated,
   Easing,
   StyleSheet,
   Image,
   ImageSourcePropType,
+  Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -340,6 +340,7 @@ const MeditationTimerScreen = () => {
   const [isPreviewPaused, setIsPreviewPaused] = useState(false);
   const [selectedGuidedId, setSelectedGuidedId] = useState<string>('clarity');
   const [selectedBreathingPatternId, setSelectedBreathingPatternId] = useState<string>('box');
+  const [showStopModal, setShowStopModal] = useState(false);
 
   useEffect(() => {
     isMountedRef.current = true;
@@ -539,27 +540,19 @@ const MeditationTimerScreen = () => {
   }, [handleStart, isActive, isRunning, pause, resume]);
 
   const handleStop = useCallback(() => {
-    Alert.alert(
-      'End Session?',
-      'Are you sure you want to end this meditation session?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'End Session',
-          style: 'destructive',
-          onPress: () => {
-            stop();
-            setIsPreviewPaused(false);
-            const activeKey = getActiveSoundKey();
-            if (activeKey && sessionType !== 'guided') {
-              audioService.play(activeKey, true); // Restart preview from start on setup screen
-            } else {
-              audioService.stop(); // Strictly stop for guided mode
-            }
-          },
-        },
-      ],
-    );
+    setShowStopModal(true);
+  }, []);
+
+  const handleConfirmStop = useCallback(() => {
+    setShowStopModal(false);
+    stop();
+    setIsPreviewPaused(false);
+    const activeKey = getActiveSoundKey();
+    if (activeKey && sessionType !== 'guided') {
+      audioService.play(activeKey, true); // Restart preview from start on setup screen
+    } else {
+      audioService.stop(); // Strictly stop for guided mode
+    }
   }, [stop, getActiveSoundKey, sessionType]);
 
   useEffect(() => {
@@ -998,6 +991,39 @@ const MeditationTimerScreen = () => {
           </View>
         )}
       </ScrollView>
+
+      {/* Custom End Session Confirmation Modal */}
+      <Modal
+        visible={showStopModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowStopModal(false)}
+      >
+        <View style={s.modalOverlay}>
+          <View style={s.modalContent}>
+            <Text style={s.modalTitle}>End Session?</Text>
+            <Text style={s.modalSubtitle}>
+              Are you sure you want to end this meditation session?
+            </Text>
+            <View style={s.modalButtonRow}>
+              <TouchableOpacity
+                style={[s.modalButton, s.modalCancelButton]}
+                onPress={() => setShowStopModal(false)}
+                activeOpacity={0.7}
+              >
+                <Text style={s.modalCancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[s.modalButton, s.modalConfirmButton]}
+                onPress={handleConfirmStop}
+                activeOpacity={0.7}
+              >
+                <Text style={s.modalConfirmButtonText}>End Session</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -1325,5 +1351,65 @@ const s = StyleSheet.create({
     fontSize: 11,
     color: '#A86D53',
     lineHeight: 14,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 24,
+    width: '100%',
+    maxWidth: 340,
+    borderWidth: 1,
+    borderColor: 'rgba(240, 127, 46, 0.12)',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#5C250E',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: '#87553E',
+    marginBottom: 24,
+    lineHeight: 20,
+    textAlign: 'center',
+  },
+  modalButtonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  modalButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalCancelButton: {
+    backgroundColor: 'rgba(240, 127, 46, 0.05)',
+    borderWidth: 1,
+    borderColor: 'rgba(240, 127, 46, 0.2)',
+  },
+  modalCancelButtonText: {
+    color: '#87553E',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  modalConfirmButton: {
+    backgroundColor: '#ED7624',
+  },
+  modalConfirmButtonText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    fontSize: 14,
   },
 });

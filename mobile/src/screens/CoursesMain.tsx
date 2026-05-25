@@ -1,7 +1,8 @@
 /**
  * File: CoursesMain.tsx
  *
- * Description: Courses screen with a single meditation course link.
+ * Description: Courses screen with an active meditation course link and several
+ * beautiful dummy placeholders for future meditation courses.
  *
  * Author: Navnit(Ninjacode911)
  */
@@ -11,6 +12,7 @@ import {
   Alert,
   Image,
   Linking,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -18,16 +20,68 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const MEDITATION_COURSE_URL =
-  'https://na.amma.org/meeting-amma/guides/meditation-course';
-const AMMA_THUMBNAIL_URL =
-  'https://www.amritapuri.org/images/2020/02/19yatra-28-1200x462.jpg';
+interface CourseItem {
+  id: string;
+  title: string;
+  description: string;
+  thumbnail: string;
+  url?: string;
+  actionText: string;
+  isDummy?: boolean;
+}
+
+const COURSES_DATA: CourseItem[] = [
+  {
+    id: '1',
+    title: 'Meditation Course',
+    description: "Learn Amma's meditation practice and course guidance.",
+    thumbnail: 'https://www.amritapuri.org/images/2020/02/19yatra-28-1200x462.jpg',
+    url: 'https://na.amma.org/meeting-amma/guides/meditation-course',
+    actionText: 'Open course',
+  },
+  {
+    id: '2',
+    title: 'Integrated Amrita Meditation (IAM)',
+    description: 'A powerful combination of yoga, breathing exercises, and meditation for holistic stress management.',
+    thumbnail: 'https://i.ytimg.com/vi/3DIWMA9OVs0/hqdefault.jpg',
+    url: 'https://na.amma.org/meeting-amma/guides/meditation-course',
+    actionText: 'Coming Soon',
+    isDummy: true,
+  },
+  {
+    id: '3',
+    title: 'Amrita Yoga Foundations',
+    description: "Explore physical yoga postures integrated with Amma's spiritual teachings to harmonize mind, body, and breath.",
+    thumbnail: 'https://i.ytimg.com/vi/B_iEiNyr88U/hqdefault.jpg',
+    url: 'https://na.amma.org/meeting-amma/guides/meditation-course',
+    actionText: 'Coming Soon',
+    isDummy: true,
+  },
+  {
+    id: '4',
+    title: 'Chantings & Bhajans Practice',
+    description: 'Master spiritual chants and traditional bhajans to evoke devotion, peace, and inner vibration alignment.',
+    thumbnail: 'https://i.ytimg.com/vi/6QjD_uJ2GIk/hqdefault.jpg',
+    url: 'https://na.amma.org/meeting-amma/guides/meditation-course',
+    actionText: 'Coming Soon',
+    isDummy: true,
+  },
+];
 
 const CoursesMain = () => {
-  const handleMeditationCoursePress = useCallback(() => {
-    Linking.openURL(MEDITATION_COURSE_URL).catch(() => {
-      Alert.alert('Error', 'Unable to open meditation course page');
-    });
+  const handleCoursePress = useCallback((course: CourseItem) => {
+    if (course.isDummy) {
+      Alert.alert(
+        'Coming Soon',
+        `The "${course.title}" course will be available soon. Stay tuned for future updates!`
+      );
+      return;
+    }
+    if (course.url) {
+      Linking.openURL(course.url).catch(() => {
+        Alert.alert('Error', 'Unable to open meditation course page');
+      });
+    }
   }, []);
 
   return (
@@ -37,27 +91,43 @@ const CoursesMain = () => {
         <Text style={s.pageSubtitle}>Explore Amma meditation guidance</Text>
       </View>
 
-      <TouchableOpacity
-        style={s.courseCard}
-        activeOpacity={0.75}
-        onPress={handleMeditationCoursePress}
+      <ScrollView
+        style={s.flex1}
+        contentContainerStyle={s.scrollContent}
+        showsVerticalScrollIndicator={false}
       >
-        <View style={s.courseArtwork}>
-          <Image
-            source={{ uri: AMMA_THUMBNAIL_URL }}
-            style={s.courseImage}
-            resizeMode="cover"
-          />
-        </View>
+        {COURSES_DATA.map((course) => (
+          <TouchableOpacity
+            key={course.id}
+            style={[s.courseCard, course.isDummy && s.dummyCard]}
+            activeOpacity={0.75}
+            onPress={() => handleCoursePress(course)}
+          >
+            <View style={s.courseArtwork}>
+              <Image
+                source={{ uri: course.thumbnail }}
+                style={s.courseImage}
+                resizeMode="cover"
+              />
+              {course.isDummy && (
+                <View style={s.badge}>
+                  <Text style={s.badgeText}>Placeholder</Text>
+                </View>
+              )}
+            </View>
 
-        <View style={s.courseBody}>
-          <Text style={s.courseTitle}>Meditation Course</Text>
-          <Text style={s.courseDescription}>
-            Learn Amma's meditation practice and course guidance.
-          </Text>
-          <Text style={s.courseAction}>Open course</Text>
-        </View>
-      </TouchableOpacity>
+            <View style={s.courseBody}>
+              <Text style={s.courseTitle}>{course.title}</Text>
+              <Text style={s.courseDescription}>
+                {course.description}
+              </Text>
+              <Text style={[s.courseAction, course.isDummy && s.dummyAction]}>
+                {course.actionText}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -66,6 +136,12 @@ const s = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: '#FFF5EE',
+  },
+  flex1: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 40,
   },
   titleWrap: {
     paddingHorizontal: 24,
@@ -90,6 +166,16 @@ const s = StyleSheet.create({
     overflow: 'hidden',
     marginHorizontal: 24,
     marginTop: 8,
+    marginBottom: 12,
+    elevation: 2,
+    shadowColor: '#ED7624',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+  },
+  dummyCard: {
+    borderColor: 'rgba(240, 127, 46, 0.08)',
+    opacity: 0.9,
   },
   courseArtwork: {
     height: 160,
@@ -99,6 +185,20 @@ const s = StyleSheet.create({
   courseImage: {
     width: '100%',
     height: '100%',
+  },
+  badge: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    backgroundColor: 'rgba(92, 37, 14, 0.75)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  badgeText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: 'bold',
   },
   courseBody: {
     padding: 16,
@@ -119,6 +219,9 @@ const s = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
     color: '#ED7624',
+  },
+  dummyAction: {
+    color: '#87553E',
   },
 });
 

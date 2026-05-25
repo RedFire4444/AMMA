@@ -17,6 +17,7 @@ import {
   ActivityIndicator,
   Alert,
   StyleSheet,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -192,8 +193,12 @@ const SubscriptionScreen = () => {
           <TouchableOpacity
             onPress={() => navigation.goBack()}
             style={s.backButton}
+            activeOpacity={0.7}
           >
-            <Text style={s.backButtonText}>{'\u{2190}'}</Text>
+            <Image
+              source={require('../assets/icons/New folder/Back.png')}
+              style={{ width: 24, height: 24, resizeMode: 'contain' }}
+            />
           </TouchableOpacity>
           <Text style={s.headerTitle}>
             Subscription
