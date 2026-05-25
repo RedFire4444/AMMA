@@ -87,15 +87,15 @@ const fuzzyScore = (haystack: string, needle: string): number => {
 
 const CATEGORIES = [
   { key: 'all', label: 'All' },
+  { key: 'amritganga_s1', label: 'Amrit Ganga S1' },
+  { key: 'amritganga_s2', label: 'Amrit Ganga S2' },
+  { key: 'amritganga_s3', label: 'Amrit Ganga S3' },
+  { key: 'amritganga_s4', label: 'Amrit Ganga S4' },
   { key: 'bhajan', label: 'Bhajans' },
   { key: 'meditation', label: 'Meditations' },
   { key: 'satsang', label: 'Satsangs' },
   { key: 'talk', label: 'Discourses' },
   { key: 'chanting', label: 'Chanting' },
-  { key: 'amritganga_s1', label: 'Amrit Ganga S1' },
-  { key: 'amritganga_s2', label: 'Amrit Ganga S2' },
-  { key: 'amritganga_s3', label: 'Amrit Ganga S3' },
-  { key: 'amritganga_s4', label: 'Amrit Ganga S4' },
 ];
 
 // Convert "MM:SS" or "H:MM:SS" duration strings to seconds for the mini-player seek bar
