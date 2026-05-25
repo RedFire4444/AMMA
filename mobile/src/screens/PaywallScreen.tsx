@@ -504,7 +504,7 @@ const s = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 24,
     width: '100%',
     alignItems: 'center',
