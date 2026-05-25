@@ -1035,7 +1035,7 @@ const s = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFF5EE',
   },
-  scrollContent: { alignItems: 'center', paddingBottom: 132 },
+  scrollContent: { alignItems: 'center', paddingBottom: 40 },
   horizontalListPadding: { paddingHorizontal: 24 },
   flex1: {
     flex: 1,
@@ -1066,8 +1066,8 @@ const s = StyleSheet.create({
     flex: 1,
   },
   timerWrap: {
-    marginTop: 32,
-    marginBottom: 32,
+    marginTop: 16,
+    marginBottom: 16,
   },
   sectionLabel: {
     fontSize: 14,
@@ -1159,7 +1159,7 @@ const s = StyleSheet.create({
     color: '#87553E',
   },
   sessionTypeSection: {
-    marginBottom: 104,
+    marginBottom: 24,
     paddingHorizontal: 24,
     alignSelf: 'stretch',
   },

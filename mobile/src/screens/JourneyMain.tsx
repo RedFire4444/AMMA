@@ -29,7 +29,6 @@ import {
   habitsService,
   HabitLog,
   PerformanceRating,
-  VisionBoardImage,
   DayJourneyEntry,
 } from '../services/habits.service';
 import { homeService } from '../services/home.service';
@@ -66,7 +65,6 @@ interface JourneyData {
   streaks: Record<string, { current_streak: number; longest_streak: number }>;
   weeklyPerformance: PerformanceRating[];
   dailyQuote: { quote_text: string; author: string } | null;
-  visionBoard: VisionBoardImage[];
   dayJourney: DayJourneyEntry[];
 }
 
@@ -113,13 +111,9 @@ const JourneyMain = () => {
     cold_shower: 0,
     early_wakeup: 0,
   });
-  // Local-only state so Rate Today and Vision Board Add work even without backend
+  // Local-only state so Rate Today works even without backend
   const [localRatings, setLocalRatings] = useState<Record<string, number>>({});
-  const [localVisionImages, setLocalVisionImages] = useState<
-    Array<{ id: string; icon: string; caption: string }>
-  >([]);
   const [ratingModalOpen, setRatingModalOpen] = useState(false);
-  const [visionModalOpen, setVisionModalOpen] = useState(false);
   const [ratedAlertOpen, setRatedAlertOpen] = useState(false);
   const [ratedRatingValue, setRatedRatingValue] = useState(0);
 
@@ -129,10 +123,9 @@ const JourneyMain = () => {
         habitsService.getAllHabits(),
         habitsService.getWeeklyPerformance(),
         homeService.getHomeFeed(),
-        habitsService.getVisionBoard(),
         habitsService.getDayJourney(),
       ]);
-      const [habitsData, perfData, feedData, visionData, journeyData] = results;
+      const [habitsData, perfData, feedData, journeyData] = results;
 
       const habits =
         habitsData.status === 'fulfilled' ? habitsData.value : { streaks: {}, logs: [] };
@@ -140,8 +133,6 @@ const JourneyMain = () => {
         perfData.status === 'fulfilled' ? perfData.value : [];
       const feed =
         feedData.status === 'fulfilled' ? feedData.value : null;
-      const vision =
-        visionData.status === 'fulfilled' ? visionData.value : [];
       const journey =
         journeyData.status === 'fulfilled' ? journeyData.value : [];
 
@@ -150,7 +141,6 @@ const JourneyMain = () => {
         streaks: habits.streaks || {},
         weeklyPerformance: perf || [],
         dailyQuote: feed?.dailyQuote ?? null,
-        visionBoard: vision || [],
         dayJourney: journey || [],
       });
 
@@ -167,7 +157,7 @@ const JourneyMain = () => {
         setLoadError(null);
       }
       if (__DEV__ && failed.length > 0) {
-        const sectionNames = ['habits', 'performance', 'feed', 'vision-board', 'day-journey'];
+        const sectionNames = ['habits', 'performance', 'feed', 'day-journey'];
         failed.forEach((i) =>
           console.warn(`[Journey] ${sectionNames[i]} fetch failed:`, (results[i] as PromiseRejectedResult).reason),
         );
@@ -328,14 +318,6 @@ const JourneyMain = () => {
     [],
   );
 
-  const addVisionImage = useCallback(
-    (icon: string, caption: string) => {
-      const id = `vision-${Date.now()}`;
-      setLocalVisionImages((prev) => [...prev, { id, icon, caption }]);
-      setVisionModalOpen(false);
-    },
-    [],
-  );
 
   if (loading) {
     return (
@@ -462,65 +444,6 @@ const JourneyMain = () => {
           </View>
         )}
 
-        {/* Vision Board */}
-        <View style={s.visionBoardSection}>
-          <View style={s.visionBoardHeader}>
-            <Text style={s.visionBoardTitle}>
-              Vision Board
-            </Text>
-            <TouchableOpacity onPress={() => setVisionModalOpen(true)}>
-              <Text style={s.visionBoardAdd}>
-                + Add
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          {(() => {
-            const remoteItems = (data?.visionBoard ?? []).map((v) => ({
-              id: v.id,
-              icon: require('../assets/icons/New folder/Vision Board.png'),
-              caption: v.caption ?? '',
-            }));
-            const combined = [...localVisionImages, ...remoteItems];
-            return combined.length > 0 ? (
-              <FlatList
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={s.horizontalListPadding}
-                data={combined}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                  <View style={s.visionCard}>
-                    <View style={s.visionCardImage}>
-                      {typeof item.icon === 'string' ? (
-                        <Text style={s.visionCardIcon}>{item.icon}</Text>
-                      ) : (
-                        <Image source={item.icon} style={s.visionCardIconImage} />
-                      )}
-                    </View>
-                    {!!item.caption && (
-                      <View style={s.visionCardCaption}>
-                        <Text
-                          style={s.visionCardCaptionText}
-                          numberOfLines={2}
-                        >
-                          {item.caption}
-                        </Text>
-                      </View>
-                    )}
-                  </View>
-                )}
-              />
-            ) : (
-              <View style={s.visionBoardEmpty}>
-                <Image source={require('../assets/icons/New folder/Vision Board.png')} style={s.visionBoardEmptyIconImage} />
-                <Text style={s.visionBoardEmptyText}>
-                  Add images to your vision board
-                </Text>
-              </View>
-            );
-          })()}
-        </View>
 
         {/* Day Journey */}
         <View style={s.dayJourneySection}>
@@ -643,51 +566,6 @@ const JourneyMain = () => {
         </View>
       </Modal>
 
-      {/* Vision Board Add Modal */}
-      <Modal
-        visible={visionModalOpen}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setVisionModalOpen(false)}
-      >
-        <View style={s.modalOverlay}>
-          <View style={s.modalContent}>
-            <Text style={s.modalTitle}>Add to Vision Board</Text>
-            <Text style={s.modalSubtitle}>
-              Pick an intention for your board.
-            </Text>
-            <View style={s.visionPresetGrid}>
-              {[
-                { icon: '\u{1F9D8}', caption: 'Inner Peace' },
-                { icon: '\u{1F33F}', caption: 'Growth' },
-                { icon: '\u{1F31E}', caption: 'Joy' },
-                { icon: '\u{1F4AA}', caption: 'Strength' },
-                { icon: '\u{1F4DA}', caption: 'Wisdom' },
-                { icon: '\u{1F3AF}', caption: 'Focus' },
-                { icon: '\u{1F64F}', caption: 'Gratitude' },
-                { icon: '\u{2764}', caption: 'Love' },
-                { icon: '\u{2728}', caption: 'Clarity' },
-              ].map((item) => (
-                <TouchableOpacity
-                  key={item.caption}
-                  style={s.visionPresetItem}
-                  onPress={() => addVisionImage(item.icon, item.caption)}
-                  activeOpacity={0.7}
-                >
-                  <Text style={s.visionPresetIcon}>{item.icon}</Text>
-                  <Text style={s.visionPresetCaption}>{item.caption}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-            <TouchableOpacity
-              style={s.modalCancel}
-              onPress={() => setVisionModalOpen(false)}
-            >
-              <Text style={s.modalCancelText}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
     </SafeAreaView>
   );
 };
@@ -887,81 +765,7 @@ const s = StyleSheet.create({
     color: '#87553E',
     marginTop: 12,
   },
-  visionBoardSection: {
-    marginBottom: 16,
-  },
-  visionBoardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 24,
-    marginBottom: 12,
-  },
-  visionBoardTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#5C250E',
-  },
-  visionBoardAdd: {
-    color: '#ED7624',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  visionCard: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: 'rgba(240, 127, 46, 0.12)',
-    borderRadius: 12,
-    width: 144,
-    height: 176,
-    marginRight: 12,
-    overflow: 'hidden',
-  },
-  visionCardImage: {
-    flex: 1,
-    backgroundColor: 'rgba(240, 127, 46, 0.1)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  visionCardIcon: {
-    fontSize: 30,
-  },
-  visionCardIconImage: {
-    width: 60,
-    height: 60,
-    resizeMode: 'contain',
-  },
-  visionCardCaption: {
-    padding: 8,
-  },
-  visionCardCaptionText: {
-    fontSize: 12,
-    color: '#87553E',
-  },
-  visionBoardEmpty: {
-    marginHorizontal: 24,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderStyle: 'dashed',
-    borderColor: 'rgba(240, 127, 46, 0.12)',
-    borderRadius: 12,
-    paddingVertical: 32,
-    alignItems: 'center',
-  },
-  visionBoardEmptyIcon: {
-    fontSize: 24,
-    marginBottom: 8,
-  },
-  visionBoardEmptyIconImage: {
-    width: 48,
-    height: 48,
-    marginBottom: 8,
-    resizeMode: 'contain',
-  },
-  visionBoardEmptyText: {
-    fontSize: 14,
-    color: '#87553E',
-  },
+
   dayJourneySection: {
     marginBottom: 16,
   },
