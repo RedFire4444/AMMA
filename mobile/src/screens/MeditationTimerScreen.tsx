@@ -1159,7 +1159,7 @@ const s = StyleSheet.create({
     color: '#87553E',
   },
   sessionTypeSection: {
-    marginBottom: 24,
+    marginBottom: 48,
     paddingHorizontal: 24,
     alignSelf: 'stretch',
   },
