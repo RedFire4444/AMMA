@@ -36,7 +36,7 @@ CREATE INDEX IF NOT EXISTS idx_habit_logs_completed ON habit_logs (completed) WH
 -- Unique constraint to prevent duplicate habit logs for the same day
 -- Note: This allows multiple entries per day but they should be handled in application logic
 CREATE UNIQUE INDEX IF NOT EXISTS idx_habit_logs_user_habit_day 
-ON habit_logs (user_id, habit_type, DATE(logged_at));
+ON habit_logs (user_id, habit_type, ((logged_at AT TIME ZONE 'UTC')::DATE));
 
 -- Update timestamp trigger
 CREATE TRIGGER update_habit_logs_updated_at 

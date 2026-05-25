@@ -17,29 +17,150 @@ import {
   Animated,
   Easing,
   StyleSheet,
+  Image,
+  ImageSourcePropType,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { TimerCircle } from '../components/meditation/TimerCircle';
+import { BreathingGuide } from '../components/meditation/BreathingGuide';
 import { useMeditationStore } from '../store/meditationStore';
 import { meditationService } from '../services/meditation.service';
 import { JourneyStackParamList } from '../navigation/types';
+import { audioService, SoundKey } from '../services/audio.service';
 
 type TimerNav = NativeStackNavigationProp<JourneyStackParamList, 'MeditationTimer'>;
+
+interface GuidedSession {
+  id: string;
+  title: string;
+  durationSeconds: number;
+  icon: any;
+  description: string;
+  soundKey: SoundKey;
+}
+
+const GUIDED_SESSIONS: GuidedSession[] = [
+  {
+    id: 'clarity',
+    title: 'Morning Clarity',
+    durationSeconds: 80, // Exactly 1m 20s as per the wav file length
+    icon: require('../assets/icons/New folder/Morning clarity.png'),
+    description: 'Awaken your mind and find focus.',
+    soundKey: 'morning_clarity',
+  },
+  {
+    id: 'anxiety',
+    title: 'Anxiety Relief',
+    durationSeconds: 40, // Exactly 40s as per the wav file length
+    icon: require('../assets/icons/New folder/Anxiety relief.png'),
+    description: 'Calm your nervous system.',
+    soundKey: 'anxiety_relief',
+  },
+  {
+    id: 'sleep',
+    title: 'Deep Sleep',
+    durationSeconds: 40, // Exactly 40s as per the wav file length
+    icon: require('../assets/icons/New folder/Deep sleep.png'),
+    description: 'Drift off into restful sleep.',
+    soundKey: 'deep_sleep',
+  },
+  {
+    id: 'focus',
+    title: 'Mindful Focus',
+    durationSeconds: 80, // Temporarily matching morning clarity wav file length
+    icon: require('../assets/icons/New folder/Mindful focus.png'),
+    description: 'Sharpen your concentration.',
+    soundKey: 'mindful_focus',
+  },
+];
+
+const formatGuidedDuration = (seconds: number): string => {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return s > 0 ? `${m}m ${s}s` : `${m} min`;
+};
+
+interface BreathingPhase {
+  phase: 'inhale' | 'hold' | 'exhale' | 'hold_out';
+  duration: number;
+}
+
+interface BreathingPattern {
+  id: string;
+  title: string;
+  icon: any;
+  description: string;
+  sequence: BreathingPhase[];
+}
+
+const BREATHING_PATTERNS: BreathingPattern[] = [
+  {
+    id: 'box',
+    title: 'Box Breathing',
+    icon: require('../assets/icons/New folder/Box breathing.png'),
+    description: 'Equal 4s inhale, hold, exhale, hold ratios for deep focus.',
+    sequence: [
+      { phase: 'inhale', duration: 4 },
+      { phase: 'hold', duration: 4 },
+      { phase: 'exhale', duration: 4 },
+      { phase: 'hold_out', duration: 4 },
+    ],
+  },
+  {
+    id: 'relax',
+    title: '4-7-8 Relax',
+    icon: require('../assets/icons/New folder/4 7 8 relax.png'),
+    description: 'A natural tranquilizer that deeply settles the nervous system.',
+    sequence: [
+      { phase: 'inhale', duration: 4 },
+      { phase: 'hold', duration: 7 },
+      { phase: 'exhale', duration: 8 },
+    ],
+  },
+  {
+    id: 'equal',
+    title: 'Equal Balance',
+    icon: require('../assets/icons/New folder/Equal balance.png'),
+    description: 'Simple equal 4s inhale and exhale breaths to center yourself.',
+    sequence: [
+      { phase: 'inhale', duration: 4 },
+      { phase: 'exhale', duration: 4 },
+    ],
+  },
+];
 
 const DURATION_PRESETS = [3, 5, 10, 15, 20, 30] as const;
 
 type SoundOption = 'nature' | 'rain' | 'ocean' | 'birds' | 'bowl';
 type SessionType = 'free' | 'guided' | 'breathing';
 
-const SOUND_OPTIONS: Array<{ key: SoundOption; label: string; icon: string }> = [
-  { key: 'nature', label: 'Nature', icon: '\u{1F333}' },
-  { key: 'rain', label: 'Rain', icon: '\u{1F327}' },
-  { key: 'ocean', label: 'Ocean', icon: '\u{1F30A}' },
-  { key: 'birds', label: 'Birds', icon: '\u{1F426}' },
-  { key: 'bowl', label: 'Bowl', icon: '\u{1F3B6}' },
+const SOUND_OPTIONS: Array<{ key: SoundOption; label: string; icon?: string }> = [
+  { key: 'nature', label: 'Nature', icon: '🌳' },
+  { key: 'rain', label: 'Rain', icon: '🌧️' },
+  { key: 'ocean', label: 'Ocean', icon: '🌊' },
+  { key: 'birds', label: 'Birds', icon: '🐦' },
+  { key: 'bowl', label: 'Bowl', icon: '🥣' },
 ];
+
+const SOUND_ICONS: Record<SoundOption, ImageSourcePropType> = {
+  nature: require('../assets/icons/New folder/Nature.png'),
+  rain: require('../assets/icons/New folder/rain.png'),
+  ocean: require('../assets/icons/New folder/ocean.png'),
+  birds: require('../assets/icons/New folder/Birds.png'),
+  bowl: require('../assets/icons/New folder/Bowl.png'),
+};
+
+const TIMER_ICONS = {
+  back: require('../assets/icons/New folder/Back.png'),
+  bell: require('../assets/icons/New folder/Bell.png'),
+  mute: require('../assets/icons/New folder/Mute.png'),
+  pause: require('../assets/icons/New folder/Pause.png'),
+  play: require('../assets/icons/New folder/Play.png'),
+  sound: require('../assets/icons/New folder/sound.png'),
+  stop: require('../assets/icons/New folder/Finish.png'),
+};
 
 const SESSION_TYPES: Array<{ key: SessionType; label: string }> = [
   { key: 'free', label: 'Free' },
@@ -49,11 +170,33 @@ const SESSION_TYPES: Array<{ key: SessionType; label: string }> = [
 
 // Animated bars that pulse while a sound is selected \u2014 visual confirmation that
 // playback is active. Actual audio playback requires a configured audio CDN.
-const SoundWaveIndicator = ({ soundLabel }: { soundLabel: string }) => {
+const SoundWaveIndicator = ({
+  soundLabel,
+  isPaused,
+  onToggle,
+}: {
+  soundLabel: string;
+  isPaused: boolean;
+  onToggle: () => void;
+}) => {
   const bars = useRef([0, 0, 0, 0].map(() => new Animated.Value(0.3))).current;
+  const loopsRef = useRef<Animated.CompositeAnimation[]>([]);
 
   useEffect(() => {
-    const loops = bars.map((bar, i) => {
+    if (isPaused) {
+      loopsRef.current.forEach((l) => l.stop());
+      // Reset bars to resting state when paused
+      bars.forEach((bar) =>
+        Animated.timing(bar, {
+          toValue: 0.3,
+          duration: 300,
+          useNativeDriver: false,
+        }).start()
+      );
+      return;
+    }
+
+    loopsRef.current = bars.map((bar, i) => {
       const loop = Animated.loop(
         Animated.sequence([
           Animated.timing(bar, {
@@ -68,16 +211,20 @@ const SoundWaveIndicator = ({ soundLabel }: { soundLabel: string }) => {
             easing: Easing.inOut(Easing.sin),
             useNativeDriver: false,
           }),
-        ]),
+        ])
       );
       loop.start();
       return loop;
     });
-    return () => loops.forEach((l) => l.stop());
-  }, [bars]);
+    return () => loopsRef.current.forEach((l) => l.stop());
+  }, [bars, isPaused]);
 
   return (
-    <View style={waveStyles.wrap}>
+    <TouchableOpacity
+      style={waveStyles.wrap}
+      onPress={onToggle}
+      activeOpacity={0.8}
+    >
       <View style={waveStyles.barsRow}>
         {bars.map((bar, i) => (
           <Animated.View
@@ -90,13 +237,16 @@ const SoundWaveIndicator = ({ soundLabel }: { soundLabel: string }) => {
                   inputRange: [0.3, 1],
                   outputRange: [0.5, 1],
                 }),
+                backgroundColor: isPaused ? '#A86D53' : '#ED7624',
               },
             ]}
           />
         ))}
       </View>
-      <Text style={waveStyles.label}>Now playing: {soundLabel}</Text>
-    </View>
+      <Text style={waveStyles.label}>
+        {isPaused ? `Paused: ${soundLabel}` : `Now playing: ${soundLabel}`}
+      </Text>
+    </TouchableOpacity>
   );
 };
 
@@ -105,12 +255,14 @@ const waveStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 8,
+    marginTop: 12,
     paddingHorizontal: 16,
-    paddingVertical: 6,
+    paddingVertical: 8,
     alignSelf: 'center',
-    backgroundColor: 'rgba(64,145,108,0.15)',
+    backgroundColor: 'rgba(240, 127, 46, 0.06)',
     borderRadius: 999,
+    borderWidth: 1,
+    borderColor: 'rgba(240, 127, 46, 0.12)',
   },
   barsRow: {
     flexDirection: 'row',
@@ -121,29 +273,89 @@ const waveStyles = StyleSheet.create({
   bar: {
     width: 3,
     height: 16,
-    backgroundColor: '#52B788',
+    backgroundColor: '#ED7624',
     borderRadius: 2,
     marginHorizontal: 1.5,
   },
   label: {
-    color: 'rgba(255,255,255,0.85)',
-    fontSize: 12,
+    color: '#C95A1E',
+    fontSize: 13,
     fontWeight: '600',
   },
 });
+
+const interpolateColor = (color1: string, color2: string, factor: number) => {
+  const r1 = parseInt(color1.substring(1, 3), 16);
+  const g1 = parseInt(color1.substring(3, 5), 16);
+  const b1 = parseInt(color1.substring(5, 7), 16);
+
+  const r2 = parseInt(color2.substring(1, 3), 16);
+  const g2 = parseInt(color2.substring(3, 5), 16);
+  const b2 = parseInt(color2.substring(5, 7), 16);
+
+  const r = Math.round(r1 + factor * (r2 - r1));
+  const g = Math.round(g1 + factor * (g2 - g1));
+  const b = Math.round(b1 + factor * (b2 - b1));
+
+  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+};
+
+const SmoothGradient = ({
+  color1,
+  color2,
+  height,
+}: {
+  color1: string;
+  color2: string;
+  height: number;
+}) => {
+  const steps = 15;
+  const stepHeight = height / steps;
+  
+  return (
+    <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, overflow: 'hidden' }}>
+      {Array.from({ length: steps }).map((_, i) => {
+        const factor = i / (steps - 1);
+        const color = interpolateColor(color1, color2, factor);
+        return (
+          <View
+            key={i}
+            style={{
+              height: stepHeight,
+              backgroundColor: color,
+              alignSelf: 'stretch',
+            }}
+          />
+        );
+      })}
+    </View>
+  );
+};
 
 const MeditationTimerScreen = () => {
   const navigation = useNavigation<TimerNav>();
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const isMountedRef = useRef(true);
   const [showCompletion, setShowCompletion] = useState(false);
+  const [isPreviewPaused, setIsPreviewPaused] = useState(false);
+  const [selectedGuidedId, setSelectedGuidedId] = useState<string>('clarity');
+  const [selectedBreathingPatternId, setSelectedBreathingPatternId] = useState<string>('box');
 
   useEffect(() => {
     isMountedRef.current = true;
+
+    // Stop audio immediately if screen loses focus/user navigates away
+    const unsubscribe = navigation.addListener('blur', () => {
+      audioService.stop();
+    });
+
     return () => {
       isMountedRef.current = false;
+      unsubscribe();
+      // Always stop audio when screen unmounts
+      audioService.stop();
     };
-  }, []);
+  }, [navigation]);
 
   const {
     duration,
@@ -162,9 +374,76 @@ const MeditationTimerScreen = () => {
     stop,
     tick,
     reset,
+    isEndless,
+    elapsedTime,
+    intervalChimeEnabled,
+    setIntervalChime,
   } = useMeditationStore();
 
-  const selectedMinutes = duration / 60;
+  const selectedMinutes = isEndless ? '\u221E' : duration / 60;
+
+  const handleSoundSelect = useCallback(
+    (key: SoundOption) => {
+      setSound(key);
+      setIsPreviewPaused(false);
+    },
+    [setSound]
+  );
+
+  const getActiveSoundKey = useCallback((): SoundKey | null => {
+    if (sessionType === 'guided') {
+      const activeSession = GUIDED_SESSIONS.find((s) => s.id === selectedGuidedId);
+      return activeSession ? activeSession.soundKey : null;
+    }
+    return selectedSound ? (selectedSound as SoundKey) : null;
+  }, [sessionType, selectedGuidedId, selectedSound]);
+
+  useEffect(() => {
+    if (sessionType === 'guided') {
+      const activeSession = GUIDED_SESSIONS.find((s) => s.id === selectedGuidedId);
+      if (activeSession) {
+        setDuration(activeSession.durationSeconds / 60);
+      }
+    }
+  }, [sessionType, selectedGuidedId, setDuration]);
+
+  useEffect(() => {
+    if (sessionType === 'breathing') {
+      setDuration(2);
+    }
+  }, [sessionType, setDuration]);
+
+  // -- Audio: play sound immediately when selected, pause if preview paused --
+  useEffect(() => {
+    // We do NOT want to preview guided voice tracks beforehand
+    if (sessionType === 'guided') {
+      audioService.stop();
+      return;
+    }
+
+    const activeKey = getActiveSoundKey();
+    if (isPreviewPaused) {
+      audioService.pause();
+    } else if (showCompletion) {
+      audioService.stop();
+    } else if (activeKey) {
+      audioService.play(activeKey);
+    }
+  }, [getActiveSoundKey, showCompletion, isPreviewPaused, sessionType]);
+
+  // -- Audio: handle guided mode pause/resume strictly tied to the timer state --
+  useEffect(() => {
+    if (sessionType === 'guided' || sessionType === 'breathing') {
+      if (isPaused) {
+        audioService.pause();
+      } else if (isRunning) {
+        const activeKey = getActiveSoundKey();
+        if (activeKey) {
+          audioService.play(activeKey);
+        }
+      }
+    }
+  }, [sessionType, isRunning, isPaused, getActiveSoundKey]);
 
   // Countdown interval
   useEffect(() => {
@@ -186,16 +465,30 @@ const MeditationTimerScreen = () => {
     };
   }, [isRunning, tick]);
 
+  // Trigger interval chime every 5 minutes
+  useEffect(() => {
+    if (isRunning && intervalChimeEnabled && elapsedTime > 0 && elapsedTime % 300 === 0) {
+      audioService.playChime();
+    }
+  }, [isRunning, elapsedTime, intervalChimeEnabled]);
+
   // Detect completion
   useEffect(() => {
-    if (remaining === 0 && startedAt && !isRunning && !isPaused) {
+    if (!isEndless && remaining === 0 && startedAt && !isRunning && !isPaused) {
       handleCompletion();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- handleCompletion is defined below and stable via useCallback
-  }, [remaining, startedAt, isRunning, isPaused]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- handleCompletion is defined below and stable via useCallback
+  }, [remaining, startedAt, isRunning, isPaused, isEndless]);
 
   const handleCompletion = useCallback(async () => {
     if (!startedAt) return;
+
+    // Stop ambient sound on completion
+    audioService.stop();
+    // Play completion chime
+    if (intervalChimeEnabled) {
+      audioService.playChime();
+    }
 
     if (isMountedRef.current) setShowCompletion(true);
 
@@ -213,13 +506,37 @@ const MeditationTimerScreen = () => {
       // Session logging is best-effort — never block the user.
       if (__DEV__) console.warn('[MeditationTimer] Session log failed:', err);
     }
-  }, [startedAt, duration, sessionType]);
+  }, [startedAt, duration, sessionType, intervalChimeEnabled]);
 
   const handleDismissCompletion = useCallback(() => {
     setShowCompletion(false);
     reset();
     navigation.goBack();
   }, [reset, navigation]);
+
+  const isActive = isRunning || isPaused;
+
+  const handleStart = useCallback(() => {
+    start();
+    setIsPreviewPaused(false);
+    const activeKey = getActiveSoundKey();
+    if (activeKey) {
+      audioService.play(activeKey, true); // Force replay from start
+    }
+  }, [start, getActiveSoundKey]);
+
+  const handleTimerPress = useCallback(() => {
+    if (!isActive) {
+      handleStart();
+      return;
+    }
+
+    if (isRunning) {
+      pause();
+    } else {
+      resume();
+    }
+  }, [handleStart, isActive, isRunning, pause, resume]);
 
   const handleStop = useCallback(() => {
     Alert.alert(
@@ -232,13 +549,33 @@ const MeditationTimerScreen = () => {
           style: 'destructive',
           onPress: () => {
             stop();
+            setIsPreviewPaused(false);
+            const activeKey = getActiveSoundKey();
+            if (activeKey && sessionType !== 'guided') {
+              audioService.play(activeKey, true); // Restart preview from start on setup screen
+            } else {
+              audioService.stop(); // Strictly stop for guided mode
+            }
           },
         },
       ],
     );
-  }, [stop]);
+  }, [stop, getActiveSoundKey, sessionType]);
 
-  const isActive = isRunning || isPaused;
+  useEffect(() => {
+    const unsubscribeBeforeRemove = navigation.addListener('beforeRemove', (e) => {
+      if (!isActive) {
+        return;
+      }
+
+      e.preventDefault();
+      handleStop();
+    });
+
+    return () => {
+      unsubscribeBeforeRemove();
+    };
+  }, [navigation, isActive, handleStop]);
 
   if (showCompletion) {
     return (
@@ -274,14 +611,10 @@ const MeditationTimerScreen = () => {
         <TouchableOpacity
           style={s.headerBackButton}
           onPress={() => {
-            if (isActive) {
-              handleStop();
-            } else {
-              navigation.goBack();
-            }
+            navigation.goBack();
           }}
         >
-          <Text style={s.headerBackText}>{'\u2190'}</Text>
+          <Image source={TIMER_ICONS.back} style={s.headerBackIcon} />
         </TouchableOpacity>
         <Text style={s.headerTitle}>
           Meditation
@@ -294,17 +627,32 @@ const MeditationTimerScreen = () => {
         scrollEnabled={!isActive}
         contentContainerStyle={s.scrollContent}
       >
-        {/* Timer circle */}
+        {/* Timer circle or Breathing guide */}
         <View style={s.timerWrap}>
           <TimerCircle
             remaining={remaining}
             total={duration}
             isRunning={isRunning}
-          />
+            isEndless={isEndless}
+            elapsedTime={elapsedTime}
+            onPress={handleTimerPress}
+          >
+            {sessionType === 'breathing' ? (
+              <BreathingGuide
+                isRunning={isRunning}
+                isPaused={isPaused}
+                embedded
+                pattern={
+                  BREATHING_PATTERNS.find((p) => p.id === selectedBreathingPatternId) ||
+                  BREATHING_PATTERNS[0]
+                }
+              />
+            ) : null}
+          </TimerCircle>
         </View>
 
         {/* Duration presets */}
-        {!isActive && (
+        {!isActive && sessionType === 'free' && (
           <View style={s.durationSection}>
             <Text style={s.sectionLabel}>
               Duration (minutes)
@@ -314,7 +662,7 @@ const MeditationTimerScreen = () => {
                 <TouchableOpacity
                   key={mins}
                   style={[
-                    s.durationPreset,
+                    s.durationPresetOuter,
                     selectedMinutes === mins
                       ? s.durationPresetActive
                       : s.durationPresetInactive,
@@ -322,16 +670,80 @@ const MeditationTimerScreen = () => {
                   onPress={() => setDuration(mins)}
                   activeOpacity={0.7}
                 >
+                  <View style={s.durationPresetInner}>
+                    {selectedMinutes === mins && <SmoothGradient color1="#FF9F59" color2="#D9531E" height={56} />}
+                    <Text
+                      style={[
+                        s.durationPresetText,
+                        selectedMinutes === mins
+                          ? s.durationPresetTextActive
+                          : s.durationPresetTextInactive,
+                      ]}
+                    >
+                      {mins}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+
+              {/* Endless Preset */}
+              <TouchableOpacity
+                style={[
+                  s.durationPresetOuter,
+                  isEndless ? s.durationPresetActive : s.durationPresetInactive,
+                ]}
+                onPress={() => setDuration(0)}
+                activeOpacity={0.7}
+              >
+                <View style={s.durationPresetInner}>
+                  {isEndless && <SmoothGradient color1="#FF9F59" color2="#D9531E" height={56} />}
                   <Text
                     style={[
                       s.durationPresetText,
-                      selectedMinutes === mins
-                        ? s.durationPresetTextActive
-                        : s.durationPresetTextInactive,
+                      isEndless ? s.durationPresetTextActive : s.durationPresetTextInactive,
                     ]}
                   >
-                    {mins}
+                    {'\u221E'}
                   </Text>
+                </View>
+              </TouchableOpacity>
+
+            </View>
+          </View>
+        )}
+
+        {/* Breathing Duration presets */}
+        {!isActive && sessionType === 'breathing' && (
+          <View style={s.durationSection}>
+            <Text style={s.sectionLabel}>
+              Breathing Duration (minutes)
+            </Text>
+            <View style={s.durationRow}>
+              {[2, 5, 10].map((mins) => (
+                <TouchableOpacity
+                  key={mins}
+                  style={[
+                    s.durationPresetOuter,
+                    selectedMinutes === mins
+                      ? s.durationPresetActive
+                      : s.durationPresetInactive,
+                  ]}
+                  onPress={() => setDuration(mins)}
+                  activeOpacity={0.7}
+                >
+                  <View style={s.durationPresetInner}>
+                    {selectedMinutes === mins && <SmoothGradient color1="#FF9F59" color2="#D9531E" height={56} />}
+                    <Text
+                      style={[
+                        s.durationPresetText,
+                        selectedMinutes === mins
+                          ? s.durationPresetTextActive
+                          : s.durationPresetTextInactive,
+                      ]}
+                    >
+                      {mins}
+                    </Text>
+                  </View>
                 </TouchableOpacity>
               ))}
             </View>
@@ -339,7 +751,7 @@ const MeditationTimerScreen = () => {
         )}
 
         {/* Ambient sound picker */}
-        {!isActive && (
+        {!isActive && sessionType !== 'guided' && (
           <View style={s.soundSection}>
             <Text style={s.sectionLabel}>
               Ambient Sound
@@ -358,10 +770,13 @@ const MeditationTimerScreen = () => {
                       ? s.soundOptionActive
                       : s.soundOptionInactive,
                   ]}
-                  onPress={() => setSound(opt.key)}
+                  onPress={() => handleSoundSelect(opt.key)}
                   activeOpacity={0.7}
                 >
-                  <Text style={s.soundOptionIcon}>{opt.icon}</Text>
+                  <Image
+                    source={SOUND_ICONS[opt.key]}
+                    style={s.soundOptionIcon}
+                  />
                   <Text
                     style={[
                       s.soundOptionLabel,
@@ -380,8 +795,129 @@ const MeditationTimerScreen = () => {
                 soundLabel={
                   SOUND_OPTIONS.find((o) => o.key === selectedSound)?.label || ''
                 }
+                isPaused={isPreviewPaused || isPaused}
+                onToggle={() => {
+                  if (!isActive) {
+                    setIsPreviewPaused(!isPreviewPaused);
+                  }
+                }}
               />
             )}
+
+            {/* Chime Toggle */}
+            <TouchableOpacity
+              style={s.chimeToggleWrap}
+              onPress={() => setIntervalChime(!intervalChimeEnabled)}
+              activeOpacity={0.7}
+            >
+              <Image source={TIMER_ICONS.bell} style={s.chimeToggleIcon} />
+              <Text style={s.chimeToggleText}>
+                {intervalChimeEnabled ? 'Interval Chimes: ON' : 'Interval Chimes: OFF'}
+              </Text>
+            </TouchableOpacity>
+
+          </View>
+        )}
+
+        {/* Guided Sessions selector */}
+        {!isActive && sessionType === 'guided' && (
+          <View style={s.guidedSection}>
+            <Text style={s.sectionLabel}>
+              Choose a Guided Session
+            </Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={s.horizontalListPadding}
+            >
+              {GUIDED_SESSIONS.map((session) => (
+                <TouchableOpacity
+                  key={session.id}
+                  style={[
+                    s.guidedCard,
+                    selectedGuidedId === session.id
+                      ? s.guidedCardActive
+                      : s.guidedCardInactive,
+                  ]}
+                  onPress={() => setSelectedGuidedId(session.id)}
+                  activeOpacity={0.7}
+                >
+                  {typeof session.icon === 'string' ? (
+                    <Text style={s.guidedCardEmoji}>{session.icon}</Text>
+                  ) : (
+                    <Image source={session.icon} style={s.guidedCardIconImage} />
+                  )}
+                  <View>
+                    <Text
+                      style={[
+                        s.guidedCardTitle,
+                        selectedGuidedId === session.id
+                          ? s.guidedCardTitleActive
+                          : s.guidedCardTitleInactive,
+                      ]}
+                    >
+                      {session.title}
+                    </Text>
+                    <Text style={s.guidedCardDuration}>
+                      {formatGuidedDuration(session.durationSeconds)}
+                    </Text>
+                    <Text style={s.guidedCardDescription}>
+                      {session.description}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+
+          </View>
+        )}
+
+        {/* Breathing Patterns selector */}
+        {!isActive && sessionType === 'breathing' && (
+          <View style={s.guidedSection}>
+            <Text style={s.sectionLabel}>
+              Choose a Breathing Pattern
+            </Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={s.horizontalListPadding}
+            >
+              {BREATHING_PATTERNS.map((pattern) => (
+                <TouchableOpacity
+                  key={pattern.id}
+                  style={[
+                    s.guidedCard,
+                    selectedBreathingPatternId === pattern.id
+                      ? s.guidedCardActive
+                      : s.guidedCardInactive,
+                  ]}
+                  onPress={() => setSelectedBreathingPatternId(pattern.id)}
+                  activeOpacity={0.7}
+                >
+                  {typeof pattern.icon === 'string' ? (
+                    <Text style={s.guidedCardEmoji}>{pattern.icon}</Text>
+                  ) : (
+                    <Image source={pattern.icon} style={s.guidedCardIconImage} />
+                  )}
+                  <View>
+                    <Text
+                      style={[
+                        s.guidedCardTitle,
+                        selectedBreathingPatternId === pattern.id
+                          ? s.guidedCardTitleActive
+                          : s.guidedCardTitleInactive,
+                      ]}
+                    >
+                      {pattern.title}
+                    </Text>
+                    <Text style={s.guidedCardDescription}>
+                      {pattern.description}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
           </View>
         )}
 
@@ -419,16 +955,8 @@ const MeditationTimerScreen = () => {
         )}
 
         {/* Controls */}
-        <View style={s.controlsRow}>
-          {!isActive ? (
-            <TouchableOpacity
-              style={s.startButton}
-              onPress={start}
-              activeOpacity={0.8}
-            >
-              <Text style={s.startButtonText}>{'\u25B6'}</Text>
-            </TouchableOpacity>
-          ) : (
+        {isActive && (
+          <View style={s.controlsRow}>
             <View style={s.activeControlsRow}>
               {/* Stop button */}
               <TouchableOpacity
@@ -436,22 +964,39 @@ const MeditationTimerScreen = () => {
                 onPress={handleStop}
                 activeOpacity={0.8}
               >
-                <Text style={s.stopButtonText}>{'\u25A0'}</Text>
+                <Image source={TIMER_ICONS.stop} style={s.controlIcon} />
               </TouchableOpacity>
 
-              {/* Pause/Resume */}
+              {/* Pause/Resume Timer */}
               <TouchableOpacity
-                style={s.startButton}
+                style={s.playPauseButton}
                 onPress={isRunning ? pause : resume}
                 activeOpacity={0.8}
               >
-                <Text style={s.startButtonText}>
-                  {isRunning ? '\u23F8' : '\u25B6'}
-                </Text>
+                <Image
+                  source={isRunning ? TIMER_ICONS.pause : TIMER_ICONS.play}
+                  style={s.controlIcon}
+                />
               </TouchableOpacity>
+
+              {/* Ambient Sound Toggle or spacer placeholder for guided sessions */}
+              {sessionType !== 'guided' ? (
+                <TouchableOpacity
+                  style={s.ambientToggleButton}
+                  onPress={() => setIsPreviewPaused(!isPreviewPaused)}
+                  activeOpacity={0.8}
+                >
+                  <Image
+                    source={isPreviewPaused ? TIMER_ICONS.mute : TIMER_ICONS.sound}
+                    style={s.ambientToggleIcon}
+                  />
+                </TouchableOpacity>
+              ) : (
+                <View style={s.spacerButton} />
+              )}
             </View>
-          )}
-        </View>
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -462,9 +1007,9 @@ export default MeditationTimerScreen;
 const s = StyleSheet.create({
   darkContainer: {
     flex: 1,
-    backgroundColor: '#0B2B1F',
+    backgroundColor: '#FFF5EE',
   },
-  scrollContent: { alignItems: 'center', paddingBottom: 32 },
+  scrollContent: { alignItems: 'center', paddingBottom: 132 },
   horizontalListPadding: { paddingHorizontal: 24 },
   flex1: {
     flex: 1,
@@ -477,26 +1022,21 @@ const s = StyleSheet.create({
     paddingBottom: 8,
   },
   headerBackButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    width: 56,
+    height: 56,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
   },
-  headerBackText: {
-    fontSize: 18,
-    lineHeight: 20,
-    color: '#FFFFFF',
-    textAlign: 'center',
-    includeFontPadding: false,
-    marginTop: -2,
+  headerBackIcon: {
+    width: 52,
+    height: 52,
+    resizeMode: 'contain',
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: '#5C250E',
     flex: 1,
   },
   timerWrap: {
@@ -505,9 +1045,10 @@ const s = StyleSheet.create({
   },
   sectionLabel: {
     fontSize: 14,
-    color: 'rgba(255,255,255,0.6)',
+    color: '#87553E',
     textAlign: 'center',
     marginBottom: 12,
+    fontWeight: '600',
   },
   durationSection: {
     marginBottom: 24,
@@ -519,30 +1060,41 @@ const s = StyleSheet.create({
     flexWrap: 'wrap',
     paddingHorizontal: 24,
   },
-  durationPreset: {
+  durationPresetOuter: {
     width: 56,
     height: 56,
-    borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
     marginHorizontal: 6,
     marginBottom: 8,
   },
+  durationPresetInner: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
   durationPresetActive: {
-    backgroundColor: '#40916C',
+    backgroundColor: '#ED7624',
+    borderRadius: 28,
   },
   durationPresetInactive: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: 'rgba(240, 127, 46, 0.12)',
+    borderRadius: 28,
   },
   durationPresetText: {
     fontSize: 16,
     fontWeight: '700',
+    zIndex: 2,
+    elevation: 2,
   },
   durationPresetTextActive: {
     color: '#FFFFFF',
   },
   durationPresetTextInactive: {
-    color: 'rgba(255,255,255,0.7)',
+    color: '#87553E',
   },
   soundSection: {
     marginBottom: 24,
@@ -550,44 +1102,48 @@ const s = StyleSheet.create({
   },
   soundOption: {
     alignItems: 'center',
-    marginRight: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 12,
-    borderWidth: 1,
+    justifyContent: 'center',
+    width: 88,
+    marginRight: 18,
+    paddingVertical: 2,
   },
   soundOptionActive: {
-    backgroundColor: 'rgba(64,145,108,0.2)',
-    borderColor: '#40916C',
+    opacity: 1,
   },
   soundOptionInactive: {
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderColor: 'rgba(255,255,255,0.1)',
+    opacity: 0.8,
   },
   soundOptionIcon: {
-    fontSize: 24,
-    marginBottom: 4,
+    width: 64,
+    height: 64,
+    borderRadius: 16,
+    marginBottom: 6,
+    resizeMode: 'contain',
   },
   soundOptionLabel: {
-    fontSize: 12,
-    fontWeight: '500',
+    fontSize: 13,
+    fontWeight: '600',
+    textAlign: 'center',
   },
   soundOptionLabelActive: {
-    color: '#40916C',
+    color: '#ED7624',
+    fontWeight: '700',
   },
   soundOptionLabelInactive: {
-    color: 'rgba(255,255,255,0.6)',
+    color: '#87553E',
   },
   sessionTypeSection: {
-    marginBottom: 32,
+    marginBottom: 104,
     paddingHorizontal: 24,
     alignSelf: 'stretch',
   },
   sessionTypeRow: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: 'rgba(240, 127, 46, 0.05)',
     borderRadius: 999,
     padding: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(240, 127, 46, 0.12)',
   },
   sessionTypeOption: {
     flex: 1,
@@ -596,7 +1152,7 @@ const s = StyleSheet.create({
     alignItems: 'center',
   },
   sessionTypeOptionActive: {
-    backgroundColor: '#40916C',
+    backgroundColor: '#ED7624',
   },
   sessionTypeText: {
     fontSize: 14,
@@ -606,7 +1162,7 @@ const s = StyleSheet.create({
     color: '#FFFFFF',
   },
   sessionTypeTextInactive: {
-    color: 'rgba(255,255,255,0.6)',
+    color: '#87553E',
   },
   controlsRow: {
     flexDirection: 'row',
@@ -618,34 +1174,40 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  startButton: {
-    backgroundColor: '#40916C',
-    borderRadius: 40,
-    width: 80,
-    height: 80,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  startButtonText: {
-    fontSize: 30,
-    color: '#FFFFFF',
-    marginLeft: 4,
-    includeFontPadding: false,
-  },
   stopButton: {
-    backgroundColor: 'rgba(220,38,38,0.2)',
-    borderWidth: 1,
-    borderColor: '#DC2626',
-    borderRadius: 28,
-    width: 56,
-    height: 56,
+    width: 72,
+    height: 72,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 24,
   },
-  stopButtonText: {
-    fontSize: 20,
-    color: '#F87171',
+  playPauseButton: {
+    width: 72,
+    height: 72,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 32,
+  },
+  ambientToggleButton: {
+    width: 72,
+    height: 72,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  spacerButton: {
+    width: 72,
+    height: 72,
+  },
+  controlIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    resizeMode: 'contain',
+  },
+  ambientToggleIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    resizeMode: 'contain',
   },
   completionWrap: {
     flex: 1,
@@ -660,23 +1222,23 @@ const s = StyleSheet.create({
   completionTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: '#5C250E',
     marginBottom: 12,
   },
   completionSubtitle: {
     fontSize: 16,
-    color: 'rgba(255,255,255,0.7)',
+    color: '#87553E',
     textAlign: 'center',
     marginBottom: 8,
   },
   completionNote: {
     fontSize: 14,
-    color: 'rgba(255,255,255,0.5)',
+    color: '#A86D53',
     textAlign: 'center',
     marginBottom: 32,
   },
   doneButton: {
-    backgroundColor: '#40916C',
+    backgroundColor: '#ED7624',
     borderRadius: 8,
     paddingHorizontal: 32,
     paddingVertical: 14,
@@ -685,5 +1247,83 @@ const s = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: '700',
     fontSize: 16,
+  },
+  chimeToggleWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: 'rgba(240, 127, 46, 0.06)',
+    alignSelf: 'center',
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: 'rgba(240, 127, 46, 0.12)',
+  },
+  chimeToggleIcon: {
+    width: 26,
+    height: 26,
+    borderRadius: 8,
+    marginRight: 8,
+    resizeMode: 'contain',
+  },
+  chimeToggleText: {
+    color: '#87553E',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  guidedSection: {
+    marginBottom: 24,
+    width: '100%',
+  },
+  guidedCard: {
+    width: 160,
+    padding: 16,
+    borderRadius: 16,
+    marginRight: 16,
+    borderWidth: 1.5,
+    justifyContent: 'space-between',
+    minHeight: 180,
+  },
+  guidedCardActive: {
+    backgroundColor: 'rgba(240, 127, 46, 0.06)',
+    borderColor: '#ED7624',
+  },
+  guidedCardInactive: {
+    backgroundColor: '#FFFFFF',
+    borderColor: 'rgba(240, 127, 46, 0.12)',
+  },
+  guidedCardEmoji: {
+    fontSize: 28,
+    marginBottom: 8,
+  },
+  guidedCardIconImage: {
+    width: 40,
+    height: 40,
+    marginBottom: 8,
+    resizeMode: 'contain',
+  },
+  guidedCardTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  guidedCardTitleActive: {
+    color: '#ED7624',
+  },
+  guidedCardTitleInactive: {
+    color: '#5C250E',
+  },
+  guidedCardDuration: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#ED7624',
+    marginBottom: 6,
+  },
+  guidedCardDescription: {
+    fontSize: 11,
+    color: '#A86D53',
+    lineHeight: 14,
   },
 });

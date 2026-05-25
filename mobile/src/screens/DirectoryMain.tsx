@@ -16,9 +16,11 @@ import {
   TouchableOpacity,
   RefreshControl,
   StyleSheet,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MiniPlayer } from '../components/directory/MiniPlayer';
+import YoutubePlayer from 'react-native-youtube-iframe';
 
 interface ContentItem {
   id: string;
@@ -30,6 +32,8 @@ interface ContentItem {
   isPremium: boolean;
   icon: string;
   type: 'video' | 'audio';
+  youtubeId?: string;
+  thumbnailUrl?: string;
 }
 
 // Damerau-Levenshtein-ish edit distance, capped for performance on short strings
@@ -100,12 +104,12 @@ const parseDurationToSeconds = (duration: string): number => {
 
 // Category-driven visual theme so content cards feel distinct without real images
 const CATEGORY_THEME: Record<string, { bg: string; accent: string }> = {
-  chanting:   { bg: '#9D4EDD', accent: '#C77DFF' },
-  meditation: { bg: '#1B4332', accent: '#52B788' },
-  satsang:    { bg: '#264653', accent: '#2A9D8F' },
-  talk:       { bg: '#1D3557', accent: '#8ECAE6' },
-  bhajan:     { bg: '#7F5AF0', accent: '#B8A1FF' },
-  default:    { bg: '#2D6A4F', accent: '#95D5B2' },
+  chanting:   { bg: '#5C250E', accent: '#87553E' },
+  meditation: { bg: '#87553E', accent: '#5C250E' },
+  satsang:    { bg: '#C56127', accent: '#ED7624' },
+  talk:       { bg: '#A64B29', accent: '#D97229' },
+  bhajan:     { bg: '#3D1A0D', accent: '#5C250E' },
+  default:    { bg: '#87553E', accent: '#ED7624' },
 };
 const getTheme = (cat: string) => CATEGORY_THEME[cat] || CATEGORY_THEME.default;
 
@@ -119,13 +123,19 @@ const ContentThumbnail = ({ item }: ContentThumbnailProps) => {
   const theme = getTheme(item.category);
   return (
     <View style={[s.thumb, { backgroundColor: theme.bg }]}>
-      <View style={[s.thumbDecorLarge, { backgroundColor: theme.accent }]} />
-      <View style={[s.thumbDecorSmall, { backgroundColor: theme.accent }]} />
-      <Text style={s.thumbIcon}>{item.icon}</Text>
+      {item.thumbnailUrl ? (
+        <Image source={{ uri: item.thumbnailUrl }} style={StyleSheet.absoluteFillObject} />
+      ) : (
+        <>
+          <View style={[s.thumbDecorLarge, { backgroundColor: theme.accent }]} />
+          <View style={[s.thumbDecorSmall, { backgroundColor: theme.accent }]} />
+          <Text style={s.thumbIcon}>{item.icon}</Text>
+        </>
+      )}
       <View style={s.durationBadge}>
         <Text style={s.durationText}>{item.duration}</Text>
       </View>
-      {item.type === 'video' && (
+      {item.type === 'video' && !item.thumbnailUrl && (
         <View style={s.playOverlay}>
           <Text style={s.playIcon}>{'\u{25B6}'}</Text>
         </View>
@@ -140,16 +150,18 @@ const ContentThumbnail = ({ item }: ContentThumbnailProps) => {
 };
 
 const MOCK_CONTENT: ContentItem[] = [
-  { id: '1', title: 'Sri Lalitha Sahasranamam', instructor: 'Amma', category: 'chanting', duration: '45:30', views: '120k', isPremium: false, icon: '\u{1F3B5}', type: 'audio' },
-  { id: '2', title: 'Morning Guided Meditation', instructor: "Amma's Teachings", category: 'meditation', duration: '15:00', views: '85k', isPremium: false, icon: '\u{1F9D8}', type: 'audio' },
-  { id: '3', title: 'Satsang: The Power of Infinite Love', instructor: 'Swami Amritaswarupananda', category: 'satsang', duration: '1:12:00', views: '42k', isPremium: false, icon: '\u{1F3AC}', type: 'video' },
-  { id: '4', title: 'Stories of the Divine Mother', instructor: 'Br. Ramanandamrita', category: 'talk', duration: '22:15', views: '18k', isPremium: false, icon: '\u{1F3B5}', type: 'audio' },
-  { id: '5', title: 'Bhajans for Deep Inner Peace', instructor: 'MAA Global', category: 'bhajan', duration: '30:00', views: '210k', isPremium: false, icon: '\u{1F3AC}', type: 'video' },
-  { id: '6', title: 'Om Namah Shivaya - 108 Times', instructor: 'Amma', category: 'chanting', duration: '28:45', views: '340k', isPremium: false, icon: '\u{1F3B5}', type: 'audio' },
-  { id: '7', title: 'Guided Body Scan Meditation', instructor: 'Dr. Meera Iyer', category: 'meditation', duration: '20:00', views: '56k', isPremium: true, icon: '\u{1F9D8}', type: 'audio' },
-  { id: '8', title: 'Hanuman Chalisa - Sacred Chanting', instructor: 'MAA Global', category: 'bhajan', duration: '12:30', views: '180k', isPremium: false, icon: '\u{1F3B5}', type: 'audio' },
-  { id: '9', title: 'Evening Satsang: Finding Peace Within', instructor: 'Swamiji', category: 'satsang', duration: '55:00', views: '31k', isPremium: true, icon: '\u{1F3AC}', type: 'video' },
-  { id: '10', title: 'Pranayama: Art of Breathing', instructor: 'Dr. Meera Iyer', category: 'meditation', duration: '18:00', views: '67k', isPremium: false, icon: '\u{1F9D8}', type: 'audio' },
+  { id: '1', title: 'Integrated Amrita Meditation (IAM) Guided Practice', instructor: 'Amrita Live', category: 'meditation', duration: '20:00', views: '950K', isPremium: false, icon: '\u{1F9D8}', type: 'video', youtubeId: '3DIWMA9OVs0', thumbnailUrl: 'https://i.ytimg.com/vi/3DIWMA9OVs0/hqdefault.jpg' },
+  { id: '2', title: 'Guided Meditation & Chanting for Inner Peace', instructor: 'Amma (Mata Amritanandamayi)', category: 'meditation', duration: '25:10', views: '480K', isPremium: false, icon: '\u{1F9D8}', type: 'video', youtubeId: 'B_iEiNyr88U', thumbnailUrl: 'https://i.ytimg.com/vi/B_iEiNyr88U/hqdefault.jpg' },
+  { id: '3', title: 'IAM-20 Quick Meditation | Mindful Breathing', instructor: 'Amrita Virtual Academy', category: 'meditation', duration: '15:45', views: '320K', isPremium: false, icon: '\u{1F9D8}', type: 'video', youtubeId: '3DIWMA9OVs0', thumbnailUrl: 'https://i.ytimg.com/vi/3DIWMA9OVs0/hqdefault.jpg' },
+  { id: '4', title: 'Varalunna Hridayattil | Soulful Devotional Bhajan', instructor: 'Amma (Mata Amritanandamayi)', category: 'bhajan', duration: '8:30', views: '2.8M', isPremium: false, icon: '\u{1F3B5}', type: 'video', youtubeId: '6QjD_uJ2GIk', thumbnailUrl: 'https://i.ytimg.com/vi/6QjD_uJ2GIk/hqdefault.jpg' },
+  { id: '5', title: 'Muralidhara Gopala | Soulful Krishna Bhajan', instructor: 'Amma (Mata Amritanandamayi)', category: 'bhajan', duration: '9:15', views: '1.5M', isPremium: false, icon: '\u{1F3B5}', type: 'video', youtubeId: 'US-ejM6b1wE', thumbnailUrl: 'https://i.ytimg.com/vi/US-ejM6b1wE/hqdefault.jpg' },
+  { id: '6', title: 'Devotional Bhajans & Chants Live from Amritapuri', instructor: 'Amma (Mata Amritanandamayi)', category: 'bhajan', duration: '12:45', views: '780K', isPremium: false, icon: '\u{1F3B5}', type: 'video', youtubeId: 'JDxKj5O48Bw', thumbnailUrl: 'https://i.ytimg.com/vi/JDxKj5O48Bw/hqdefault.jpg' },
+  { id: '7', title: "7 Steps for a Joyful Life | Amma's Special Message", instructor: 'Amma (Mata Amritanandamayi)', category: 'satsang', duration: '18:24', views: '1.2M', isPremium: false, icon: '\u{1F3AC}', type: 'video', youtubeId: 'tH_AbG1JMOE', thumbnailUrl: 'https://i.ytimg.com/vi/tH_AbG1JMOE/hqdefault.jpg' },
+  { id: '8', title: "Beautiful moments of Amma's Europe Tour | Devotee Satsang", instructor: 'Amrita Live', category: 'satsang', duration: '14:50', views: '520K', isPremium: false, icon: '\u{1F3AC}', type: 'video', youtubeId: 'lCF4K1Zxyck', thumbnailUrl: 'https://i.ytimg.com/vi/lCF4K1Zxyck/hqdefault.jpg' },
+  { id: '9', title: 'Conversations with Amma | Wisdom & Spiritual Teachings', instructor: 'Amma (Mata Amritanandamayi)', category: 'talk', duration: '22:15', views: '640K', isPremium: false, icon: '\u{1F3AC}', type: 'video', youtubeId: 'AbpBM_qKZ5g', thumbnailUrl: 'https://i.ytimg.com/vi/AbpBM_qKZ5g/hqdefault.jpg' },
+  { id: '10', title: "Why You Shouldn't Worry? | Soulful Satsang & Wisdom", instructor: 'Amma (Mata Amritanandamayi)', category: 'talk', duration: '16:40', views: '850K', isPremium: false, icon: '\u{1F3AC}', type: 'video', youtubeId: 'ABmEmQxCmYM', thumbnailUrl: 'https://i.ytimg.com/vi/ABmEmQxCmYM/hqdefault.jpg' },
+  { id: '11', title: 'Om Lokah Samastah Sukhino Bhavantu | Peace Prayer', instructor: 'Amma (Mata Amritanandamayi)', category: 'chanting', duration: '10:30', views: '3.5M', isPremium: false, icon: '\u{1F3B5}', type: 'video', youtubeId: '6QjD_uJ2GIk', thumbnailUrl: 'https://i.ytimg.com/vi/6QjD_uJ2GIk/hqdefault.jpg' },
+  { id: '12', title: 'Namah Shivaya Om | Sacred Chanting & Vibrations', instructor: 'Amrita Live', category: 'chanting', duration: '1:08:00', views: '1.8M', isPremium: false, icon: '\u{1F3B5}', type: 'video', youtubeId: 'B_iEiNyr88U', thumbnailUrl: 'https://i.ytimg.com/vi/B_iEiNyr88U/hqdefault.jpg' },
 ];
 
 const DirectoryMain = () => {
@@ -159,6 +171,7 @@ const DirectoryMain = () => {
   const [currentPlaying, setCurrentPlaying] = useState<ContentItem | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const { filteredContent, suggestion } = useMemo(() => {
     const inCategory = MOCK_CONTENT.filter(
@@ -238,7 +251,7 @@ const DirectoryMain = () => {
       {/* Search Bar */}
       <View style={s.searchWrap}>
         <View style={s.searchBar}>
-          <Text style={s.searchIcon}>{'\u{1F50D}'}</Text>
+          <Image source={require('../assets/icons/New folder/Search.png')} style={s.searchIcon} />
           <TextInput
             style={s.searchInput}
             placeholder="Search teachings, bhajans..."
@@ -296,30 +309,50 @@ const DirectoryMain = () => {
           s.contentListPadding,
           currentPlaying ? s.contentListPaddingPlaying : s.contentListPaddingIdle,
         ]}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#1B4332" />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#ED7624" />}
         renderItem={({ item }) => (
-          <TouchableOpacity
-            style={s.card}
-            onPress={() => { setCurrentPlaying(item); setIsPlaying(true); }}
-            activeOpacity={0.7}
-          >
-            {/* Thumbnail \u2014 category-themed artwork */}
-            <ContentThumbnail item={item} />
-
-            {/* Info */}
-            <View style={s.info}>
-              <Text style={s.cardTitle} numberOfLines={2}>{item.title}</Text>
-              <Text style={s.cardInstructor} numberOfLines={1}>{item.instructor}</Text>
-              <View style={s.cardMeta}>
-                <Text style={s.viewCount}>{'\u{25B6}'} {item.views}</Text>
-                <TouchableOpacity onPress={() => toggleBookmark(item.id)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-                  <Text style={[s.bookmark, bookmarkedIds.has(item.id) && s.bookmarkActive]}>
-                    {bookmarkedIds.has(item.id) ? '\u{2605}' : '\u{2606}'}
-                  </Text>
-                </TouchableOpacity>
+          <View>
+            <TouchableOpacity
+              style={s.card}
+              onPress={() => {
+                if (item.youtubeId) {
+                  setExpandedId(expandedId === item.id ? null : item.id);
+                } else {
+                  setCurrentPlaying(item);
+                  setIsPlaying(true);
+                }
+              }}
+              activeOpacity={0.7}
+            >
+              {/* Thumbnail \u2014 category-themed artwork */}
+              <ContentThumbnail item={item} />
+  
+              {/* Info */}
+              <View style={s.info}>
+                <Text style={s.cardTitle} numberOfLines={2}>{item.title}</Text>
+                <Text style={s.cardInstructor} numberOfLines={1}>{item.instructor}</Text>
+                <View style={s.cardMeta}>
+                  <Text style={s.viewCount}>{'\u{25B6}'} {item.views}</Text>
+                  <TouchableOpacity onPress={() => toggleBookmark(item.id)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                    <Text style={[s.bookmark, bookmarkedIds.has(item.id) && s.bookmarkActive]}>
+                      {bookmarkedIds.has(item.id) ? '\u{2605}' : '\u{2606}'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
-          </TouchableOpacity>
+            </TouchableOpacity>
+
+            {/* Embedded YouTube Player */}
+            {expandedId === item.id && item.youtubeId && (
+              <View style={s.webviewContainer}>
+                <YoutubePlayer
+                  height={200}
+                  play={true}
+                  videoId={item.youtubeId}
+                />
+              </View>
+            )}
+          </View>
         )}
         ListEmptyComponent={
           <View style={s.emptyWrap}>
@@ -348,24 +381,24 @@ const DirectoryMain = () => {
 export default DirectoryMain;
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FAFAF5' },
+  container: { flex: 1, backgroundColor: '#FFF5EE' },
   header: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 4 },
-  headerTitle: { fontSize: 26, fontWeight: 'bold', color: '#1B4332' },
-  headerSubtitle: { fontSize: 14, color: '#6B7280', marginTop: 4 },
+  headerTitle: { fontSize: 26, fontWeight: 'bold', color: '#5C250E' },
+  headerSubtitle: { fontSize: 14, color: '#87553E', marginTop: 4 },
   searchWrap: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 4 },
-  searchBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 12, borderWidth: 1, borderColor: '#E5E7EB', paddingHorizontal: 14 },
-  searchIcon: { fontSize: 16, color: '#6B7280', marginRight: 8 },
-  searchInput: { flex: 1, paddingVertical: 12, fontSize: 15, color: '#1A1A2E' },
-  clearIcon: { color: '#6B7280', fontSize: 16 },
+  searchBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(240, 127, 46, 0.12)', paddingHorizontal: 14 },
+  searchIcon: { width: 18, height: 18, resizeMode: 'contain', marginRight: 8 },
+  searchInput: { flex: 1, paddingVertical: 12, fontSize: 15, color: '#5C250E' },
+  clearIcon: { color: '#87553E', fontSize: 16 },
   tabRow: { paddingVertical: 12 },
   tab: { marginRight: 10, paddingHorizontal: 20, paddingVertical: 12, borderRadius: 25, height: 44, justifyContent: 'center' as const, alignItems: 'center' as const },
-  tabActive: { backgroundColor: '#1B4332', elevation: 2, shadowColor: '#1B4332', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 },
-  tabInactive: { backgroundColor: '#FFFFFF', borderWidth: 1.5, borderColor: '#D1D5DB' },
+  tabActive: { backgroundColor: '#ED7624' },
+  tabInactive: { backgroundColor: '#FFFFFF', borderWidth: 1.5, borderColor: 'rgba(240, 127, 46, 0.2)' },
   tabText: { fontSize: 14, fontWeight: '700' },
   tabTextActive: { color: '#FFFFFF' },
-  tabTextInactive: { color: '#374151' },
-  card: { flexDirection: 'row', backgroundColor: '#FFFFFF', borderRadius: 12, marginBottom: 12, borderWidth: 1, borderColor: '#F3F4F6', overflow: 'hidden', elevation: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3 },
-  thumb: { width: 120, height: 100, backgroundColor: '#2D6A4F', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' },
+  tabTextInactive: { color: '#87553E' },
+  card: { flexDirection: 'row', backgroundColor: '#FFFFFF', borderRadius: 12, marginBottom: 12, borderWidth: 1, borderColor: 'rgba(240, 127, 46, 0.12)', overflow: 'hidden', elevation: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3 },
+  thumb: { width: 120, backgroundColor: '#87553E', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', alignSelf: 'stretch' },
   thumbIcon: { fontSize: 32, color: '#FFFFFF' },
   thumbDecorLarge: { position: 'absolute', width: 60, height: 60, borderRadius: 30, opacity: 0.18, top: -30, right: -30 },
   thumbDecorSmall: { position: 'absolute', width: 30, height: 30, borderRadius: 15, opacity: 0.22, bottom: -15, left: -15 },
@@ -373,15 +406,15 @@ const s = StyleSheet.create({
   durationText: { color: '#FFFFFF', fontSize: 11, fontWeight: '600' },
   playOverlay: { position: 'absolute', width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(0,0,0,0.4)', alignItems: 'center', justifyContent: 'center' },
   playIcon: { color: '#FFFFFF', fontSize: 14, marginLeft: 2 },
-  premiumBadge: { position: 'absolute', top: 6, left: 6, backgroundColor: '#40916C', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 },
+  premiumBadge: { position: 'absolute', top: 6, left: 6, backgroundColor: '#ED7624', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 },
   premiumText: { color: '#FFFFFF', fontSize: 9, fontWeight: 'bold' },
   info: { flex: 1, padding: 12, justifyContent: 'space-between' },
-  cardTitle: { fontSize: 14, fontWeight: '600', color: '#1A1A2E', lineHeight: 20 },
-  cardInstructor: { fontSize: 12, color: '#6B7280', marginTop: 4 },
+  cardTitle: { fontSize: 14, fontWeight: '600', color: '#5C250E', lineHeight: 20 },
+  cardInstructor: { fontSize: 12, color: '#87553E', marginTop: 4 },
   cardMeta: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 },
-  viewCount: { fontSize: 12, color: '#9CA3AF' },
-  bookmark: { fontSize: 20, color: '#D1D5DB' },
-  bookmarkActive: { color: '#40916C' },
+  viewCount: { fontSize: 12, color: 'rgba(135, 85, 62, 0.7)' },
+  bookmark: { fontSize: 20, color: 'rgba(240, 127, 46, 0.3)' },
+  bookmarkActive: { color: '#ED7624' },
   suggestionBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -394,15 +427,36 @@ const s = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(64, 145, 108, 0.3)',
   },
-  suggestionLabel: { fontSize: 13, color: '#6B7280' },
-  suggestionWord: { fontSize: 13, color: '#1B4332', fontWeight: '700' },
-  suggestionTap: { fontSize: 13, color: '#40916C', fontWeight: '700' },
+  suggestionLabel: { fontSize: 13, color: '#87553E' },
+  suggestionWord: { fontSize: 13, color: '#5C250E', fontWeight: '700' },
+  suggestionTap: { fontSize: 13, color: '#ED7624', fontWeight: '700' },
   emptyWrap: { alignItems: 'center', paddingVertical: 60 },
   emptyIcon: { fontSize: 40, marginBottom: 12 },
-  emptyTitle: { fontSize: 18, fontWeight: 'bold', color: '#1A1A2E', marginBottom: 4 },
-  emptyText: { fontSize: 14, color: '#6B7280' },
+  emptyTitle: { fontSize: 18, fontWeight: 'bold', color: '#5C250E', marginBottom: 4 },
+  emptyText: { fontSize: 14, color: '#87553E' },
   tabListPadding: { paddingHorizontal: 16 },
   contentListPadding: { paddingHorizontal: 16 },
-  contentListPaddingPlaying: { paddingBottom: 90 },
-  contentListPaddingIdle: { paddingBottom: 20 },
+  contentListPaddingPlaying: { paddingBottom: 160 },
+  contentListPaddingIdle: { paddingBottom: 110 },
+  cardExpanded: {
+    marginBottom: 0,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+  },
+  webviewContainer: {
+    height: 200,
+    marginBottom: 16,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+    overflow: 'hidden',
+    backgroundColor: '#000',
+    borderWidth: 1,
+    borderTopWidth: 0,
+    borderColor: 'rgba(240, 127, 46, 0.12)',
+  },
+  webview: {
+    flex: 1,
+  },
 });

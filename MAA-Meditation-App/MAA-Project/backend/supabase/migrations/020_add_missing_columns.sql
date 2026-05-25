@@ -36,6 +36,7 @@ $$;
 -- Fix SECURITY DEFINER functions: add SET search_path
 -- Recreate functions from migration 016 with proper search_path
 -- =====================================================
+DROP FUNCTION IF EXISTS calculate_streak(UUID, TEXT);
 
 CREATE OR REPLACE FUNCTION calculate_streak(
   p_user_id UUID,
@@ -76,6 +77,7 @@ BEGIN
   RETURN streak;
 END;
 $$;
+DROP FUNCTION IF EXISTS get_user_streaks(UUID);
 
 CREATE OR REPLACE FUNCTION get_user_streaks(p_user_id UUID)
 RETURNS TABLE(habit_type TEXT, current_streak INTEGER)
@@ -90,6 +92,7 @@ BEGIN
   WHERE hl.user_id = p_user_id;
 END;
 $$;
+DROP FUNCTION IF EXISTS get_habit_stats(UUID, TEXT, INTEGER);
 
 CREATE OR REPLACE FUNCTION get_habit_stats(
   p_user_id UUID,

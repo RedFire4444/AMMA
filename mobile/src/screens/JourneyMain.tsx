@@ -18,6 +18,7 @@ import {
   Alert,
   Modal,
   StyleSheet,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -39,25 +40,25 @@ type JourneyNav = NativeStackNavigationProp<JourneyStackParamList, 'JourneyMain'
 interface HabitConfig {
   type: string;
   name: string;
-  icon: string;
+  icon: any;
 }
 
 const HABITS: HabitConfig[] = [
-  { type: 'meditation', name: 'Meditation', icon: '\u{1F9D8}' },
-  { type: 'exercise', name: 'Exercise', icon: '\u{1F3CB}' },
-  { type: 'cold_shower', name: 'Cold Shower', icon: '\u{1F6BF}' },
-  { type: 'early_wakeup', name: 'Early Wakeup', icon: '\u{23F0}' },
+  { type: 'meditation', name: 'Meditation', icon: require('../assets/icons/New folder/Yoga.png') },
+  { type: 'exercise', name: 'Exercise', icon: require('../assets/icons/New folder/Exercise.png') },
+  { type: 'cold_shower', name: 'Cold Shower', icon: require('../assets/icons/New folder/Shower.png') },
+  { type: 'early_wakeup', name: 'Early Wakeup', icon: require('../assets/icons/New folder/Clock.png') },
 ];
 
 const DAY_PERIODS: Array<{
   period: 'morning' | 'afternoon' | 'night';
   label: string;
   timeRange: string;
-  icon: string;
+  icon: any;
 }> = [
-  { period: 'morning', label: 'Morning', timeRange: '5:00 - 12:00', icon: '\u{1F305}' },
-  { period: 'afternoon', label: 'Afternoon', timeRange: '12:00 - 18:00', icon: '\u{2600}' },
-  { period: 'night', label: 'Night', timeRange: '18:00 - 22:00', icon: '\u{1F319}' },
+  { period: 'morning', label: 'Morning', timeRange: '5:00 - 12:00', icon: require('../assets/icons/New folder/Morning.png') },
+  { period: 'afternoon', label: 'Afternoon', timeRange: '12:00 - 18:00', icon: require('../assets/icons/New folder/Afternoon.png') },
+  { period: 'night', label: 'Night', timeRange: '18:00 - 22:00', icon: require('../assets/icons/New folder/Night.png') },
 ];
 
 interface JourneyData {
@@ -100,11 +101,11 @@ const JourneyMain = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   // Local-only state so the "Log Today" button works even without backend connectivity
-  const [localLogs, setLocalLogs] = useState<Record<string, Set<string>>>({
-    meditation: new Set(),
-    exercise: new Set(),
-    cold_shower: new Set(),
-    early_wakeup: new Set(),
+  const [localLogs, setLocalLogs] = useState<Record<string, Record<string, boolean>>>({
+    meditation: {},
+    exercise: {},
+    cold_shower: {},
+    early_wakeup: {},
   });
   const [localStreaks, setLocalStreaks] = useState<Record<string, number>>({
     meditation: 0,
@@ -190,7 +191,7 @@ const JourneyMain = () => {
   const handleLogHabit = useCallback(
     async (habitType: string) => {
       const today = new Date().toISOString().split('T')[0];
-      const alreadyLogged = localLogs[habitType]?.has(today);
+      const alreadyLogged = localLogs[habitType]?.[today] === true;
 
       if (alreadyLogged) {
         Alert.alert('Already Logged', 'You already logged this habit today.');
@@ -200,9 +201,7 @@ const JourneyMain = () => {
       // Update local state immediately for responsive UX
       setLocalLogs((prev) => {
         const next = { ...prev };
-        const set = new Set(next[habitType] || []);
-        set.add(today);
-        next[habitType] = set;
+        next[habitType] = { ...next[habitType], [today]: true };
         return next;
       });
       setLocalStreaks((prev) => ({
@@ -221,25 +220,66 @@ const JourneyMain = () => {
     [localLogs],
   );
 
-  const getHabitLogs = (
-    habitType: string,
-  ): Array<{ date: string; completed: boolean }> => {
-    // Ensure we are working with an array before filtering
-    const logsArray = Array.isArray(data?.habitLogs) ? data.habitLogs : [];
+  const getHabitLogs = useCallback(
+    (habitType: string): Array<{ date: string; completed: boolean }> => {
+      const logsArray = Array.isArray(data?.habitLogs) ? data.habitLogs : [];
 
-    const remoteLogs = logsArray
-      .filter((log) => log && log.habit_type === habitType)
-      .map((log) => ({
-        date: log.logged_at,
-        completed: log.completed,
+      const remoteLogs = logsArray
+        .filter((log) => log && log.habit_type === habitType)
+        .map((log) => ({
+          date: log.logged_at,
+          completed: log.completed,
+        }));
+
+      const localMap = localLogs[habitType] || {};
+      const mergedMap = new Map<string, boolean>();
+
+      for (const log of remoteLogs) {
+        mergedMap.set(log.date, log.completed);
+      }
+      for (const [dateStr, isCompleted] of Object.entries(localMap)) {
+        mergedMap.set(dateStr, isCompleted);
+      }
+
+      return Array.from(mergedMap.entries()).map(([date, completed]) => ({
+        date,
+        completed,
       }));
+    },
+    [data, localLogs],
+  );
 
-    // Merge local logs — local takes precedence
-    const localSet = localLogs[habitType] || new Set();
-    const localOnly = Array.from(localSet).map((date) => ({ date, completed: true }));
-    const seen = new Set(localOnly.map((l) => l.date));
-    return [...localOnly, ...remoteLogs.filter((l) => !seen.has(l.date))];
-  };
+  const handleToggleHabitDate = useCallback(
+    async (habitType: string, dateStr: string) => {
+      const currentLogs = getHabitLogs(habitType);
+      const wasCompleted = currentLogs.find((l) => l.date === dateStr)?.completed ?? false;
+      const nextCompleted = !wasCompleted;
+
+      // Update local state immediately for instant responsive UI feedback
+      setLocalLogs((prev) => {
+        const next = { ...prev };
+        next[habitType] = { ...next[habitType], [dateStr]: nextCompleted };
+        return next;
+      });
+
+      // Adjust streak count based on toggle
+      setLocalStreaks((prev) => {
+        const currentStreak = prev[habitType] || 0;
+        return {
+          ...prev,
+          [habitType]: nextCompleted ? currentStreak + 1 : Math.max(0, currentStreak - 1),
+        };
+      });
+
+      // Best-effort backend sync — don't fail if offline
+      try {
+        await habitsService.logHabit(habitType, { completed: nextCompleted, logged_at: dateStr } as any);
+      } catch {
+        // Silent fail — local state already holds the true value
+      }
+    },
+    [getHabitLogs],
+  );
 
   const getStreakCount = (habitType: string): number => {
     const remote = data?.streaks?.[habitType]?.current_streak ?? 0;
@@ -314,12 +354,13 @@ const JourneyMain = () => {
     <SafeAreaView style={s.container} edges={['top']}>
       <ScrollView
         style={s.flex1}
+        contentContainerStyle={s.scrollContent}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#1B4332"
+            tintColor="#ED7624"
           />
         }
       >
@@ -335,25 +376,27 @@ const JourneyMain = () => {
 
         {loadError ? <ErrorBanner message={loadError} onRetry={loadData} /> : null}
 
-        {/* Start Meditation button */}
+        {/* Start Meditation Giant CTA */}
         <TouchableOpacity
           style={s.meditationCta}
           onPress={() => navigation.navigate('MeditationTimer')}
-          activeOpacity={0.8}
+          activeOpacity={0.85}
         >
-          <View style={s.meditationCtaLeft}>
-            <Text style={s.meditationCtaIcon}>{'\u{1F9D8}'}</Text>
-            <View>
+          <View style={s.meditationCtaContent}>
+            <View style={s.meditationCtaIconWrap}>
+              <Image source={require('../assets/icons/New folder/Yoga.png')} style={s.meditationCtaIconImage} />
+            </View>
+            <View style={s.meditationCtaTextWrap}>
               <Text style={s.meditationCtaTitle}>
                 Start Meditation
               </Text>
               <Text style={s.meditationCtaSubtitle}>
-                Begin your daily practice
+                Find your center. Begin your daily practice now.
               </Text>
             </View>
           </View>
           <View style={s.meditationCtaPlayWrap}>
-            <Text style={s.meditationCtaPlayText}>{'\u25B6'}</Text>
+            <Text style={s.meditationCtaPlayText}>{'\u25B6'}   BEGIN</Text>
           </View>
         </TouchableOpacity>
 
@@ -367,6 +410,7 @@ const JourneyMain = () => {
             logs={getHabitLogs(habit.type)}
             streakCount={getStreakCount(habit.type)}
             onLogToday={() => handleLogHabit(habit.type)}
+            onToggleDate={(dateStr) => handleToggleHabitDate(habit.type, dateStr)}
           />
         ))}
 
@@ -431,7 +475,7 @@ const JourneyMain = () => {
           {(() => {
             const remoteItems = (data?.visionBoard ?? []).map((v) => ({
               id: v.id,
-              icon: '\u{1F5BC}',
+              icon: require('../assets/icons/New folder/Vision Board.png'),
               caption: v.caption ?? '',
             }));
             const combined = [...localVisionImages, ...remoteItems];
@@ -445,7 +489,11 @@ const JourneyMain = () => {
                 renderItem={({ item }) => (
                   <View style={s.visionCard}>
                     <View style={s.visionCardImage}>
-                      <Text style={s.visionCardIcon}>{item.icon}</Text>
+                      {typeof item.icon === 'string' ? (
+                        <Text style={s.visionCardIcon}>{item.icon}</Text>
+                      ) : (
+                        <Image source={item.icon} style={s.visionCardIconImage} />
+                      )}
                     </View>
                     {!!item.caption && (
                       <View style={s.visionCardCaption}>
@@ -462,7 +510,7 @@ const JourneyMain = () => {
               />
             ) : (
               <View style={s.visionBoardEmpty}>
-                <Text style={s.visionBoardEmptyIcon}>{'\u{1F5BC}'}</Text>
+                <Image source={require('../assets/icons/New folder/Vision Board.png')} style={s.visionBoardEmptyIconImage} />
                 <Text style={s.visionBoardEmptyText}>
                   Add images to your vision board
                 </Text>
@@ -497,7 +545,11 @@ const JourneyMain = () => {
                       : s.dayJourneyCardPending,
                   ]}
                 >
-                  <Text style={s.dayJourneyCardIcon}>{item.icon}</Text>
+                  {typeof item.icon === 'string' ? (
+                    <Text style={s.dayJourneyCardIcon}>{item.icon}</Text>
+                  ) : (
+                    <Image source={item.icon} style={s.dayJourneyCardIconImage} />
+                  )}
                   <Text style={s.dayJourneyCardLabel}>
                     {item.label}
                   </Text>
@@ -615,14 +667,17 @@ export default JourneyMain;
 const s = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAFAF5',
+    backgroundColor: '#FFF5EE',
   },
   horizontalListPadding: { paddingHorizontal: 24 },
   flex1: {
     flex: 1,
   },
+  scrollContent: {
+    paddingBottom: 110,
+  },
   skeletonBlock: {
-    backgroundColor: '#E5E7EB',
+    backgroundColor: 'rgba(240, 127, 46, 0.12)',
     borderRadius: 12,
     marginHorizontal: 24,
     marginBottom: 16,
@@ -633,7 +688,7 @@ const s = StyleSheet.create({
     paddingBottom: 8,
   },
   skeletonHeaderBar: {
-    backgroundColor: '#E5E7EB',
+    backgroundColor: 'rgba(240, 127, 46, 0.12)',
     height: 32,
     width: 160,
     borderRadius: 12,
@@ -646,62 +701,84 @@ const s = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1B4332',
+    color: '#5C250E',
   },
   headerSubtitle: {
     fontSize: 14,
-    color: '#6B7280',
+    color: '#87553E',
     marginTop: 4,
   },
   meditationCta: {
     marginHorizontal: 24,
-    marginTop: 12,
-    marginBottom: 16,
-    backgroundColor: '#1B4332',
-    borderRadius: 12,
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    marginTop: 16,
+    marginBottom: 24,
+    backgroundColor: '#ED7624',
+    borderRadius: 24,
+    padding: 24,
+    shadowColor: '#ED7624',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.35,
+    shadowRadius: 20,
+    elevation: 12,
   },
-  meditationCtaLeft: {
-    flexDirection: 'row',
+  meditationCtaContent: {
     alignItems: 'center',
+    marginBottom: 24,
+  },
+  meditationCtaIconWrap: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#FFF5EE',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
   },
   meditationCtaIcon: {
-    fontSize: 24,
-    marginRight: 12,
+    fontSize: 48,
+  },
+  meditationCtaIconImage: {
+    width: 52,
+    height: 52,
+    resizeMode: 'contain',
+  },
+  meditationCtaTextWrap: {
+    alignItems: 'center',
   },
   meditationCtaTitle: {
     color: '#FFFFFF',
-    fontWeight: '700',
-    fontSize: 16,
+    fontWeight: '800',
+    fontSize: 26,
+    marginBottom: 8,
+    textAlign: 'center',
   },
   meditationCtaSubtitle: {
-    color: 'rgba(255,255,255,0.7)',
-    fontSize: 12,
-    marginTop: 2,
+    color: 'rgba(255,255,255,0.9)',
+    fontSize: 15,
+    textAlign: 'center',
+    lineHeight: 22,
+    paddingHorizontal: 16,
   },
   meditationCtaPlayWrap: {
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    borderRadius: 20,
-    width: 40,
-    height: 40,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 32,
+    width: '100%',
+    height: 60,
     alignItems: 'center',
     justifyContent: 'center',
+    flexDirection: 'row',
   },
   meditationCtaPlayText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    marginLeft: 2,
-    includeFontPadding: false,
+    color: '#ED7624',
+    fontSize: 20,
+    fontWeight: '800',
+    marginLeft: 8,
   },
   perfCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: 'rgba(240, 127, 46, 0.12)',
     marginHorizontal: 24,
     marginBottom: 16,
     padding: 16,
@@ -709,12 +786,12 @@ const s = StyleSheet.create({
   perfCardTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A1A2E',
+    color: '#5C250E',
     marginBottom: 4,
   },
   perfCardSubtitle: {
     fontSize: 12,
-    color: '#6B7280',
+    color: '#87553E',
     marginBottom: 16,
   },
   perfChartRow: {
@@ -722,7 +799,7 @@ const s = StyleSheet.create({
     alignItems: 'flex-end',
     height: 112,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: 'rgba(240, 127, 46, 0.12)',
     paddingBottom: 8,
   },
   perfBarWrap: {
@@ -731,13 +808,13 @@ const s = StyleSheet.create({
   },
   perfBar: {
     width: 24,
-    backgroundColor: '#40916C',
+    backgroundColor: '#ED7624',
     borderTopLeftRadius: 2,
     borderTopRightRadius: 2,
   },
   perfBarLabel: {
     fontSize: 12,
-    color: '#6B7280',
+    color: '#87553E',
     marginTop: 4,
   },
   rateTodayButton: {
@@ -748,7 +825,7 @@ const s = StyleSheet.create({
     marginTop: 12,
   },
   rateTodayText: {
-    color: '#1B4332',
+    color: '#5C250E',
     fontWeight: '600',
     fontSize: 14,
   },
@@ -765,19 +842,19 @@ const s = StyleSheet.create({
     fontSize: 12,
     textTransform: 'uppercase',
     letterSpacing: 2,
-    color: '#40916C',
+    color: '#ED7624',
     marginBottom: 12,
     fontWeight: '600',
   },
   affirmationQuote: {
     fontSize: 16,
-    color: '#1A1A2E',
+    color: '#5C250E',
     lineHeight: 24,
     fontStyle: 'italic',
   },
   affirmationAuthor: {
     fontSize: 14,
-    color: '#6B7280',
+    color: '#87553E',
     marginTop: 12,
   },
   visionBoardSection: {
@@ -793,17 +870,17 @@ const s = StyleSheet.create({
   visionBoardTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A1A2E',
+    color: '#5C250E',
   },
   visionBoardAdd: {
-    color: '#40916C',
+    color: '#ED7624',
     fontSize: 14,
     fontWeight: '600',
   },
   visionCard: {
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: 'rgba(240, 127, 46, 0.12)',
     borderRadius: 12,
     width: 144,
     height: 176,
@@ -819,19 +896,24 @@ const s = StyleSheet.create({
   visionCardIcon: {
     fontSize: 30,
   },
+  visionCardIconImage: {
+    width: 60,
+    height: 60,
+    resizeMode: 'contain',
+  },
   visionCardCaption: {
     padding: 8,
   },
   visionCardCaptionText: {
     fontSize: 12,
-    color: '#6B7280',
+    color: '#87553E',
   },
   visionBoardEmpty: {
     marginHorizontal: 24,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderStyle: 'dashed',
-    borderColor: '#E5E7EB',
+    borderColor: 'rgba(240, 127, 46, 0.12)',
     borderRadius: 12,
     paddingVertical: 32,
     alignItems: 'center',
@@ -840,9 +922,15 @@ const s = StyleSheet.create({
     fontSize: 24,
     marginBottom: 8,
   },
+  visionBoardEmptyIconImage: {
+    width: 48,
+    height: 48,
+    marginBottom: 8,
+    resizeMode: 'contain',
+  },
   visionBoardEmptyText: {
     fontSize: 14,
-    color: '#6B7280',
+    color: '#87553E',
   },
   dayJourneySection: {
     marginBottom: 16,
@@ -850,7 +938,7 @@ const s = StyleSheet.create({
   dayJourneyTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A1A2E',
+    color: '#5C250E',
     paddingHorizontal: 24,
     marginBottom: 12,
   },
@@ -867,25 +955,31 @@ const s = StyleSheet.create({
   },
   dayJourneyCardPending: {
     backgroundColor: '#FFFFFF',
-    borderColor: '#E5E7EB',
+    borderColor: 'rgba(240, 127, 46, 0.12)',
   },
   dayJourneyCardIcon: {
     fontSize: 24,
     marginBottom: 8,
   },
+  dayJourneyCardIconImage: {
+    width: 32,
+    height: 32,
+    marginBottom: 8,
+    resizeMode: 'contain',
+  },
   dayJourneyCardLabel: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#1A1A2E',
+    color: '#5C250E',
     marginBottom: 2,
   },
   dayJourneyCardTime: {
     fontSize: 12,
-    color: '#6B7280',
+    color: '#87553E',
     marginBottom: 8,
   },
   dayJourneyBadgeDone: {
-    backgroundColor: '#40916C',
+    backgroundColor: '#ED7624',
     borderRadius: 999,
     paddingHorizontal: 8,
     paddingVertical: 2,
@@ -897,14 +991,14 @@ const s = StyleSheet.create({
     fontWeight: '600',
   },
   dayJourneyBadgePending: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'rgba(240, 127, 46, 0.05)',
     borderRadius: 999,
     paddingHorizontal: 8,
     paddingVertical: 2,
     alignSelf: 'flex-start',
   },
   dayJourneyBadgePendingText: {
-    color: '#6B7280',
+    color: '#87553E',
     fontSize: 12,
   },
   bottomSpacer: {
@@ -927,12 +1021,12 @@ const s = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A1A2E',
+    color: '#5C250E',
     marginBottom: 4,
   },
   modalSubtitle: {
     fontSize: 13,
-    color: '#6B7280',
+    color: '#87553E',
     marginBottom: 16,
     lineHeight: 18,
   },
@@ -956,7 +1050,7 @@ const s = StyleSheet.create({
   ratingChipText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1B4332',
+    color: '#5C250E',
   },
   visionPresetGrid: {
     flexDirection: 'row',
@@ -981,17 +1075,17 @@ const s = StyleSheet.create({
   },
   visionPresetCaption: {
     fontSize: 11,
-    color: '#1B4332',
+    color: '#5C250E',
     fontWeight: '600',
   },
   modalCancel: {
     paddingVertical: 10,
     alignItems: 'center',
     borderRadius: 8,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'rgba(240, 127, 46, 0.05)',
   },
   modalCancelText: {
-    color: '#6B7280',
+    color: '#87553E',
     fontWeight: '600',
     fontSize: 14,
   },

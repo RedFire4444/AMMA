@@ -117,7 +117,7 @@ const OnboardingWelcome = () => {
 const s = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: '#FFF5EE',
   },
   container: {
     flex: 1,
@@ -129,7 +129,7 @@ const s = StyleSheet.create({
     alignSelf: 'flex-end',
   },
   skipText: {
-    color: colors.textSecondary,
+    color: '#87553E',
     fontSize: 16,
   },
   skipTextDisabled: {
@@ -144,19 +144,19 @@ const s = StyleSheet.create({
     width: 96,
     height: 96,
     borderRadius: 48,
-    backgroundColor: colors.primary,
+    backgroundColor: '#ED7624',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 32,
   },
   iconText: {
     fontSize: 36,
-    color: colors.white,
+    color: '#FFFFFF',
   },
   brandLabel: {
     fontSize: 14,
     letterSpacing: 2,
-    color: colors.textSecondary,
+    color: '#87553E',
     marginBottom: 16,
     textTransform: 'uppercase',
   },
@@ -164,13 +164,13 @@ const s = StyleSheet.create({
     fontSize: 30,
     fontFamily: 'PlayfairDisplay',
     fontWeight: 'bold',
-    color: colors.primary,
+    color: '#5C250E',
     textAlign: 'center',
     marginBottom: 16,
   },
   description: {
     fontSize: 16,
-    color: colors.textSecondary,
+    color: '#87553E',
     textAlign: 'center',
     paddingHorizontal: 32,
     lineHeight: 24,
@@ -182,11 +182,11 @@ const s = StyleSheet.create({
     width: '100%',
     paddingVertical: 16,
     borderRadius: 8,
-    backgroundColor: colors.primary,
+    backgroundColor: '#ED7624',
     alignItems: 'center',
   },
   getStartedText: {
-    color: colors.white,
+    color: '#FFFFFF',
     fontWeight: 'bold',
     fontSize: 18,
   },
@@ -200,13 +200,13 @@ const s = StyleSheet.create({
     width: 32,
     height: 8,
     borderRadius: 4,
-    backgroundColor: colors.primary,
+    backgroundColor: '#ED7624',
   },
   dotInactive: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: colors.gray300,
+    backgroundColor: 'rgba(240, 127, 46, 0.2)',
   },
 });
 
