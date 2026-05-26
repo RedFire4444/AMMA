@@ -29,7 +29,6 @@ import {
   habitsService,
   HabitLog,
   PerformanceRating,
-  DayJourneyEntry,
 } from '../services/habits.service';
 import { homeService } from '../services/home.service';
 import { JourneyStackParamList } from '../navigation/types';
@@ -49,23 +48,11 @@ const HABITS: HabitConfig[] = [
   { type: 'early_wakeup', name: 'Early Wakeup', icon: require('../assets/icons/New folder/Clock.png') },
 ];
 
-const DAY_PERIODS: Array<{
-  period: 'morning' | 'afternoon' | 'night';
-  label: string;
-  timeRange: string;
-  icon: any;
-}> = [
-  { period: 'morning', label: 'Morning', timeRange: '5:00 - 12:00', icon: require('../assets/icons/New folder/Morning.png') },
-  { period: 'afternoon', label: 'Afternoon', timeRange: '12:00 - 18:00', icon: require('../assets/icons/New folder/Afternoon.png') },
-  { period: 'night', label: 'Night', timeRange: '18:00 - 22:00', icon: require('../assets/icons/New folder/Night.png') },
-];
-
 interface JourneyData {
   habitLogs: HabitLog[];
   streaks: Record<string, { current_streak: number; longest_streak: number }>;
   weeklyPerformance: PerformanceRating[];
   dailyQuote: { quote_text: string; author: string } | null;
-  dayJourney: DayJourneyEntry[];
 }
 
 const SkeletonBlock = ({ height }: { height: number }) => (
@@ -123,9 +110,8 @@ const JourneyMain = () => {
         habitsService.getAllHabits(),
         habitsService.getWeeklyPerformance(),
         homeService.getHomeFeed(),
-        habitsService.getDayJourney(),
       ]);
-      const [habitsData, perfData, feedData, journeyData] = results;
+      const [habitsData, perfData, feedData] = results;
 
       const habits =
         habitsData.status === 'fulfilled' ? habitsData.value : { streaks: {}, logs: [] };
@@ -133,15 +119,12 @@ const JourneyMain = () => {
         perfData.status === 'fulfilled' ? perfData.value : [];
       const feed =
         feedData.status === 'fulfilled' ? feedData.value : null;
-      const journey =
-        journeyData.status === 'fulfilled' ? journeyData.value : [];
 
       setData({
         habitLogs: habits.logs || [],
         streaks: habits.streaks || {},
         weeklyPerformance: perf || [],
         dailyQuote: feed?.dailyQuote ?? null,
-        dayJourney: journey || [],
       });
 
       // Track which sub-fetches failed so we can show one consolidated banner
@@ -157,7 +140,7 @@ const JourneyMain = () => {
         setLoadError(null);
       }
       if (__DEV__ && failed.length > 0) {
-        const sectionNames = ['habits', 'performance', 'feed', 'day-journey'];
+        const sectionNames = ['habits', 'performance', 'feed'];
         failed.forEach((i) =>
           console.warn(`[Journey] ${sectionNames[i]} fetch failed:`, (results[i] as PromiseRejectedResult).reason),
         );
@@ -445,61 +428,7 @@ const JourneyMain = () => {
         )}
 
 
-        {/* Day Journey */}
-        <View style={s.dayJourneySection}>
-          <Text style={s.dayJourneyTitle}>
-            Day Journey
-          </Text>
-          <FlatList
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={s.horizontalListPadding}
-            data={DAY_PERIODS}
-            keyExtractor={(item) => item.period}
-            renderItem={({ item }) => {
-              const journeyEntry = data?.dayJourney.find(
-                (j) => j.period === item.period,
-              );
-              const isCompleted = journeyEntry?.completed ?? false;
 
-              return (
-                <View
-                  style={[
-                    s.dayJourneyCard,
-                    isCompleted
-                      ? s.dayJourneyCardCompleted
-                      : s.dayJourneyCardPending,
-                  ]}
-                >
-                  {typeof item.icon === 'string' ? (
-                    <Text style={s.dayJourneyCardIcon}>{item.icon}</Text>
-                  ) : (
-                    <Image source={item.icon} style={s.dayJourneyCardIconImage} />
-                  )}
-                  <Text style={s.dayJourneyCardLabel}>
-                    {item.label}
-                  </Text>
-                  <Text style={s.dayJourneyCardTime}>
-                    {item.timeRange}
-                  </Text>
-                  {isCompleted ? (
-                    <View style={s.dayJourneyBadgeDone}>
-                      <Text style={s.dayJourneyBadgeDoneText}>
-                        Done
-                      </Text>
-                    </View>
-                  ) : (
-                    <View style={s.dayJourneyBadgePending}>
-                      <Text style={s.dayJourneyBadgePendingText}>
-                        Pending
-                      </Text>
-                    </View>
-                  )}
-                </View>
-              );
-            }}
-          />
-        </View>
 
         <View style={s.bottomSpacer} />
       </ScrollView>
@@ -766,75 +695,7 @@ const s = StyleSheet.create({
     marginTop: 12,
   },
 
-  dayJourneySection: {
-    marginBottom: 16,
-  },
-  dayJourneyTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#5C250E',
-    paddingHorizontal: 24,
-    marginBottom: 12,
-  },
-  dayJourneyCard: {
-    width: 160,
-    marginRight: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    padding: 16,
-  },
-  dayJourneyCardCompleted: {
-    backgroundColor: 'rgba(64,145,108,0.1)',
-    borderColor: 'rgba(64,145,108,0.3)',
-  },
-  dayJourneyCardPending: {
-    backgroundColor: '#FFFFFF',
-    borderColor: 'rgba(240, 127, 46, 0.12)',
-  },
-  dayJourneyCardIcon: {
-    fontSize: 24,
-    marginBottom: 8,
-  },
-  dayJourneyCardIconImage: {
-    width: 32,
-    height: 32,
-    marginBottom: 8,
-    resizeMode: 'contain',
-  },
-  dayJourneyCardLabel: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#5C250E',
-    marginBottom: 2,
-  },
-  dayJourneyCardTime: {
-    fontSize: 12,
-    color: '#87553E',
-    marginBottom: 8,
-  },
-  dayJourneyBadgeDone: {
-    backgroundColor: '#ED7624',
-    borderRadius: 999,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    alignSelf: 'flex-start',
-  },
-  dayJourneyBadgeDoneText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  dayJourneyBadgePending: {
-    backgroundColor: 'rgba(240, 127, 46, 0.05)',
-    borderRadius: 999,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    alignSelf: 'flex-start',
-  },
-  dayJourneyBadgePendingText: {
-    color: '#87553E',
-    fontSize: 12,
-  },
+
   bottomSpacer: {
     height: 32,
   },
