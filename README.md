@@ -438,7 +438,9 @@ Detailed documentation for each phase: [Phase 1](docs/phases/PHASE_1_FOUNDATION.
 | [User Flows](docs/USER_FLOWS.md) | 13 Mermaid diagrams |
 | [Team Assignments](docs/TEAM_ASSIGNMENTS.md) | Per-member task breakdown |
 | [Design Updates](docs/DESIGN_UPDATES.md) | Post-Figma design changes |
-| [Privacy Policy](docs/legal/PRIVACY_POLICY.md) | App privacy policy |
+| [Privacy Policy](docs/legal/PRIVACY_POLICY.md) | App privacy policy (data collection + handling) |
+| [Security Policy](docs/legal/SECURITY_POLICY.md) | How user data is protected (user-facing) |
+| [Vulnerability Disclosure](SECURITY.md) | How to report security vulnerabilities (researchers) |
 | [Terms of Service](docs/legal/TERMS_OF_SERVICE.md) | App terms of service |
 | [Production Checklist](docs/deployment/PRODUCTION_CHECKLIST.md) | Deployment guide |
 | [Environment Setup](docs/deployment/ENVIRONMENT_SETUP.md) | All environment variables |

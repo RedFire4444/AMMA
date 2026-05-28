@@ -1,13 +1,16 @@
 # Privacy Policy — MAA Meditation & Wellness
 
-**Effective Date**: April 5, 2026
-**Last Updated**: April 5, 2026
+**Effective Date**: May 28, 2026
+**Last Updated**: May 28, 2026
+**Status**: Beta / pre-launch
 
 ---
 
-MAA Wellness Pvt. Ltd. ("MAA," "we," "us," or "our") operates the MAA - Meditation & Wellness mobile application (the "App") and the website at https://maaapp.com (the "Website"). This Privacy Policy describes how we collect, use, store, and protect your personal information when you use our services.
+MAA Wellness Pvt. Ltd. ("MAA," "we," "us," or "our") operates the MAA - Meditation & Wellness mobile application (the "App"). This Privacy Policy describes how we collect, use, store, and protect your personal information when you use our services.
 
 By using the App, you agree to the collection and use of information as described in this Privacy Policy. If you do not agree with the terms of this policy, please do not use our services.
+
+> **Beta notice**: The App is currently in pre-launch beta. This policy describes the data we collect **today**. Some integrations (analytics, crash reporting, push notifications, live payment processing) are planned but **not yet active** — they are listed separately in Section 13 ("Planned Future Integrations"). We will update this policy and its "Last Updated" date before activating any of them.
 
 ---
 
@@ -21,7 +24,7 @@ By using the App, you agree to the collection and use of information as describe
 | **Email Address** | Optional during registration or profile setup | Account recovery, important service notifications |
 | **Full Name** | Profile setup | Display name within the app |
 | **Profile Picture** | Optional profile customization | Displayed on your profile screen |
-| **Payment Information** | Subscription purchase | Processed securely by Razorpay; we do not store card numbers |
+| **Payment Information** | Subscription purchase | When live, processed securely by Razorpay; we never store card numbers. **Currently in beta: no real payments are processed** (see Section 13) |
 | **Feedback and Support Requests** | When you contact us | To respond to your inquiry and improve our services |
 
 ### 1.2 Information Generated Through App Usage
@@ -39,11 +42,10 @@ By using the App, you agree to the collection and use of information as describe
 
 | Data Type | Collection Method | Purpose |
 |-----------|-------------------|---------|
-| **Device Information** | Automatic | App compatibility, crash diagnostics (device model, OS version) |
-| **App Usage Analytics** | Mixpanel SDK | Understand feature usage, improve the user experience |
-| **Crash Reports** | Sentry SDK | Identify and fix bugs, improve app stability |
-| **Push Notification Token** | Firebase Cloud Messaging (FCM) | Deliver push notifications for reminders and events |
-| **IP Address** | Server logs | Security, fraud prevention, approximate geographic region |
+| **IP Address** | Server access logs (Supabase + our hosting platform) | Security, abuse prevention, approximate geographic region |
+| **Authentication Session Token** | Issued by Supabase Auth on login; stored encrypted on your device | Keep you signed in securely between sessions |
+
+> We do **not** currently run any third-party analytics SDK (e.g. Mixpanel), crash-reporting SDK (e.g. Sentry), or push-notification service (e.g. Firebase). These are planned — see Section 13. Until then, the only automatic collection is server-side request logging and your auth session token.
 
 ### 1.4 Information We Do Not Collect
 
@@ -54,6 +56,7 @@ By using the App, you agree to the collection and use of information as describe
 - Health data from Apple HealthKit or Google Health Connect
 - Biometric data
 - Browsing history outside the App
+- Behavioral analytics or advertising identifiers (no analytics SDK is currently integrated)
 
 ---
 
@@ -80,11 +83,12 @@ We use the information we collect for the following purposes:
 - Send transactional emails (password reset, account verification, payment receipts)
 - Respond to support requests and feedback
 
-### 2.4 Analytics and Improvement
-- Analyze aggregated, anonymized usage patterns to improve features
-- Monitor app performance and identify technical issues
-- Understand which features are most valuable to users
+### 2.4 Service Improvement
+- Monitor server performance and identify technical issues through server logs
+- Understand which features are used based on the data you generate in the App (e.g. session counts), without any third-party behavioral tracking
 - Inform product development and content curation decisions
+
+(When third-party analytics is introduced, this section and Section 13 will be updated to describe it before it goes live.)
 
 ### 2.5 Security
 - Detect and prevent fraudulent or unauthorized access
@@ -99,23 +103,26 @@ We use the information we collect for the following purposes:
 
 | Service | Data Stored | Location |
 |---------|-------------|----------|
-| **Supabase** (PostgreSQL) | User accounts, meditation data, course progress, habits, subscriptions, events | Cloud-hosted (AWS infrastructure) |
-| **Cloudflare R2** | Media files (audio, video, images for courses and content) | Cloudflare global edge network |
-| **Firebase (FCM)** | Push notification tokens | Google Cloud Platform |
-| **Sentry** | Crash reports and error logs | Sentry cloud infrastructure |
-| **Mixpanel** | Anonymized usage analytics events | Mixpanel cloud infrastructure |
+| **Supabase** (PostgreSQL + Auth) | User accounts, authentication, meditation data, course progress, habits, subscriptions, events | Cloud-hosted (AWS infrastructure) |
+| **Device Keychain / Keystore** | Your encrypted authentication session token only | On your own device (iOS Keychain / Android Keystore) — never transmitted to us |
+| **Application hosting platform** | Transient server request logs (IP, timestamp, route) | Cloud-hosted backend (Fly.io) |
+
+Media files (audio/video for courses and content) are not yet hosted on dedicated storage during beta. When media hosting is added, this table and Section 13 will be updated.
 
 ### 3.2 Security Measures
 
 We implement industry-standard security measures to protect your data:
 
-- **Encryption in Transit**: All data transmitted between the App and our servers uses HTTPS with TLS 1.2 or higher
-- **Encryption at Rest**: Database records are encrypted using AES-256 encryption provided by our hosting infrastructure
-- **Authentication**: Secure token-based authentication with automatic session expiry
-- **Access Control**: Role-based access controls limit data access to authorized personnel only
-- **API Security**: Rate limiting, input validation, and parameterized queries to prevent injection attacks
-- **Payment Security**: Payment card details are processed by Razorpay (PCI DSS Level 1 compliant) and never touch our servers
-- **Regular Audits**: Periodic security reviews of our infrastructure and codebase
+- **Encryption in Transit**: All data transmitted between the App and our servers uses HTTPS with TLS 1.2 or higher (enforced — HTTP is redirected to HTTPS)
+- **Encryption at Rest**: Database records are encrypted at rest by our hosting infrastructure (Supabase / AWS)
+- **On-Device Token Storage**: Your auth session token is stored in the device's hardware-backed secure storage (iOS Keychain / Android Keystore), never in plaintext
+- **Authentication**: Token-based authentication via Supabase Auth, with automatic token refresh and session expiry
+- **Row-Level Security**: Database row-level security (RLS) policies ensure each user can only access their own records
+- **API Security**: Rate limiting, schema-based input validation (Zod), and parameterized queries to prevent injection attacks
+- **Payment Security**: When live, payment card details will be processed by Razorpay (PCI DSS Level 1 compliant) and will never touch our servers
+- **Regular Reviews**: Security reviews of our infrastructure and codebase
+
+For a fuller description of our security practices, see our [Security Policy](./SECURITY_POLICY.md).
 
 ### 3.3 Data Breach Notification
 
@@ -125,16 +132,14 @@ In the event of a data breach that affects your personal information, we will no
 
 ## 4. Third-Party Services
 
-We use the following third-party services that may receive or process your data:
+We currently use the following third-party services that receive or process your data:
 
 | Service | Purpose | Data Shared | Privacy Policy |
 |---------|---------|-------------|----------------|
 | **Supabase** | Backend infrastructure, authentication, database | Account data, app data | https://supabase.com/privacy |
-| **Razorpay** | Payment processing | Payment details (name, email, phone for transactions) | https://razorpay.com/privacy/ |
-| **Firebase (Google)** | Push notifications (FCM) | Device token, notification payload | https://firebase.google.com/support/privacy |
-| **Sentry** | Error monitoring and crash reporting | Device info, error stack traces (no personal data) | https://sentry.io/privacy/ |
-| **Mixpanel** | Product analytics | Anonymized usage events (no PII) | https://mixpanel.com/legal/privacy-policy/ |
-| **Cloudflare** | Content delivery (CDN) for media files | IP address (for CDN routing) | https://www.cloudflare.com/privacypolicy/ |
+| **Fly.io** | Application server hosting | Server request metadata (IP, route, timestamp) | https://fly.io/legal/privacy-policy/ |
+
+Additional services (Razorpay, Firebase, Sentry, analytics, media CDN) are **planned but not yet active** — see Section 13. We will update this table before any of them begin receiving your data.
 
 We do not sell your personal information to any third party. We do not share your personal information with third parties for their own marketing purposes.
 
@@ -208,12 +213,9 @@ Our primary services are hosted on cloud infrastructure that may process data in
 
 ## 9. Cookies and Tracking Technologies
 
-The MAA mobile app does not use browser cookies. However:
-- **Mixpanel SDK** uses device identifiers to track anonymized app usage events
-- **Firebase** uses instance IDs for push notification delivery
-- **Sentry** uses session identifiers for crash grouping
+The MAA mobile app does not use browser cookies and does not currently use any device-identifier-based tracking. We do not run advertising SDKs or behavioral analytics.
 
-The MAA website (https://maaapp.com) may use cookies for essential functionality (session management) and analytics. A separate cookie notice is provided on the website.
+The only persistent identifier stored is your Supabase authentication session token, held in your device's secure storage solely to keep you signed in. When push notifications or analytics are introduced, this section will be updated to describe any identifiers they use.
 
 ---
 
@@ -249,5 +251,23 @@ We aim to respond to all privacy-related inquiries within 7 business days.
 
 ---
 
+## 13. Planned Future Integrations
+
+The following services are **not yet active** in the App. We are listing them transparently so you know what to expect. Before any of these begin collecting or processing your data, we will update this Privacy Policy, change the "Last Updated" date, and (for material changes) notify you in-app or by email.
+
+| Planned Service | Intended Purpose | Data It Would Process |
+|-----------------|------------------|------------------------|
+| **Razorpay** | Live subscription payment processing | Name, email, phone for transactions. Card data handled entirely by Razorpay (PCI DSS Level 1); never stored by us. *(Currently the subscription flow runs in test mode and processes no real payments.)* |
+| **Firebase Cloud Messaging** | Push notifications for reminders and events | Device push token, notification payload |
+| **Crash reporting (e.g. Sentry)** | Diagnose crashes and stability issues | Device model, OS version, error stack traces (no message content or PII) |
+| **Product analytics (e.g. Mixpanel)** | Understand aggregated, anonymized feature usage | Anonymized event names and counts (no PII) |
+| **Media CDN (e.g. Cloudflare)** | Deliver course audio/video | IP address for routing only |
+
+You will always be able to review the active set of services in Sections 3 and 4 of the then-current policy.
+
+---
+
 **MAA Wellness Pvt. Ltd.**
 Pune, Maharashtra, India
+
+> *Note for the team: "MAA Wellness Pvt. Ltd.", the Pune address, and the `@maaapp.com` contact emails are placeholders carried over from the project template. Replace them with the real legal entity, registered address, and working contact addresses before publishing this policy to an app store.*
