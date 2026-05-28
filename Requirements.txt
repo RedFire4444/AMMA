@@ -1,0 +1,76 @@
+# ==========================================
+# MAA PROJECT - INSTALLATION REQUIREMENTS
+# ==========================================
+
+This file contains the installation commands for all Node.js and Python dependencies required to run the Project-MAA suite (Mobile App, Backend Service, and Admin Panel).
+
+--------------------------------------------
+1. NODE.JS DEPENDENCIES & LIBRARIES
+--------------------------------------------
+
+The project is structured as three Node.js environments (Mobile app, Express Backend, and React Vite Admin).
+
+A) Root & Automated Setup (Recommended)
+----------------------------------------
+To install all dependencies across all three sub-projects at once, run:
+  
+  $ bash scripts/setup.sh
+
+B) Manual Component-Wise Node Installation
+-------------------------------------------
+
+* Mobile App (React Native):
+  $ cd mobile
+  $ npm install
+  
+  # For iOS developers (Mac):
+  $ cd ios && bundle install && bundle exec pod install
+
+* Express Backend (Supabase/Node):
+  $ cd MAA-Meditation-App/MAA-Project/backend
+  $ npm install
+
+* Admin Panel (Vite/React):
+  $ cd MAA-Meditation-App/MAA-Project/admin
+  $ npm install
+
+--------------------------------------------
+2. PYTHON DEPENDENCIES & LIBRARIES (IF APPLICABLE)
+--------------------------------------------
+
+For standard utility scripting, data parsing, or optional workflow execution, ensure Python 3.x is installed:
+
+A) Standard Package Manager Installation (pip)
+----------------------------------------------
+If you are running optional Python scripts or data parsing tools:
+
+  $ pip install -r Requirements.txt
+
+B) Required/Recommended Python Packages:
+----------------------------------------
+  # HTTP Requests and API calls
+  requests>=2.31.0
+  
+  # Environment variable management
+  python-dotenv>=1.0.0
+  
+  # Command line parsing and styling
+  click>=8.1.7
+  
+  # Beautiful logging and consoles
+  rich>=13.7.0
+
+--------------------------------------------
+3. SYSTEM REQUIREMENTS & RUN COMMANDS
+--------------------------------------------
+* Node.js: v22.11.0 LTS (Pin via .nvmrc)
+* Java JDK: 17 (Required for Android builds)
+* Android SDK Platform: 34
+
+To run the development environment:
+1. Backend:
+   $ cd MAA-Meditation-App/MAA-Project/backend && npm run dev
+2. Metro Bundler:
+   $ cd mobile && npm start
+3. Run on Android:
+   $ bash scripts/launch-android.sh
