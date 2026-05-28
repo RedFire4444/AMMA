@@ -13,7 +13,6 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import { OnboardingStackParamList } from '../navigation/types';
 import { useAuthStore } from '../store/authStore';
-import { colors } from '../utils/styles';
 
 type NavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'OnboardingInterests'>;
 

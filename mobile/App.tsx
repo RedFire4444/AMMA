@@ -9,9 +9,15 @@
 
 import React from 'react';
 import { RootNavigator } from './src/navigation/RootNavigator';
+import { GlobalAlert } from './src/components/shared/GlobalAlert';
 
 function App(): React.JSX.Element {
-  return <RootNavigator />;
+  return (
+    <>
+      <RootNavigator />
+      <GlobalAlert />
+    </>
+  );
 }
 
 export default App;

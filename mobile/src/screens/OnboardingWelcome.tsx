@@ -13,7 +13,6 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import { OnboardingStackParamList } from '../navigation/types';
 import { useAuthStore } from '../store/authStore';
-import { colors } from '../utils/styles';
 import apiClient from '../services/api';
 
 type NavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'OnboardingWelcome'>;
@@ -27,7 +26,7 @@ const OnboardingWelcome = () => {
     let cancelled = false;
     const checkConnection = async () => {
       try {
-        await apiClient.get('/home/feed');
+        await apiClient.get('/health');
       } catch (err) {
         if (cancelled || !__DEV__) return;
         console.warn('[Onboarding] Backend unreachable on mount:', err);

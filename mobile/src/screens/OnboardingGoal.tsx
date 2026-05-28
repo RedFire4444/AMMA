@@ -20,7 +20,6 @@ import {
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { OnboardingStackParamList } from '../navigation/types';
 import { useAuthStore } from '../store/authStore';
-import { colors } from '../utils/styles';
 
 type Props = NativeStackScreenProps<OnboardingStackParamList, 'OnboardingGoal'>;
 

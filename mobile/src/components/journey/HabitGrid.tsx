@@ -135,6 +135,7 @@ export const HabitGrid = ({
                   style={[
                     s.cellText,
                     cell.completed ? s.cellTextCompleted : s.cellTextEmpty,
+                    cell.isToday && cell.completed ? s.cellTextTodayCompleted : null,
                     !isPastOrToday && !cell.completed ? s.cellTextFuture : null
                   ]}
                 >
@@ -148,7 +149,7 @@ export const HabitGrid = ({
                   style={[
                     s.calendarCell,
                     cell.completed ? s.cellCompleted : s.cellEmpty,
-                    cell.isToday ? s.cellToday : null
+                    cell.isToday ? (cell.completed ? s.cellTodayCompleted : s.cellToday) : null
                   ]}
                   onPress={() => {
                     if (onToggleDate) {
@@ -262,6 +263,15 @@ const s = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: '#ED7624',
     backgroundColor: 'rgba(240, 127, 46, 0.05)',
+  },
+  cellTodayCompleted: {
+    borderWidth: 1.5,
+    borderColor: '#5C250E',
+    backgroundColor: '#ED7624',
+  },
+  cellTextTodayCompleted: {
+    color: '#5C250E',
+    fontWeight: 'bold',
   },
   cellText: {
     fontSize: 14,

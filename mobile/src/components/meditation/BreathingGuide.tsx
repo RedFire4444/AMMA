@@ -9,7 +9,8 @@ interface BreathingPhase {
 interface BreathingPattern {
   id: string;
   title: string;
-  emoji: string;
+  emoji?: string;
+  icon?: any;
   description: string;
   sequence: BreathingPhase[];
 }
