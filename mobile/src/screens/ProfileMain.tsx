@@ -68,6 +68,7 @@ const ProfileMain = () => {
   const [editEmail, setEditEmail] = useState('');
   const [editPassword, setEditPassword] = useState('');
   const [editDOB, setEditDOB] = useState('');
+  const [showEditPassword, setShowEditPassword] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const openEditModal = () => {
@@ -75,6 +76,7 @@ const ProfileMain = () => {
     setEditPhone(profile?.phone || '');
     setEditEmail(profile?.email || user?.email || '');
     setEditPassword('');
+    setShowEditPassword(false);
     setEditDOB(profile?.date_of_birth || '');
     setEditModalOpen(true);
   };
@@ -394,15 +396,26 @@ const ProfileMain = () => {
 
             <View style={s.inputGroup}>
               <Text style={s.inputLabel}>New Password (Optional)</Text>
-              <TextInput
-                style={s.textInput}
-                placeholder="Enter new password"
-                placeholderTextColor="rgba(135, 85, 62, 0.4)"
-                value={editPassword}
-                onChangeText={setEditPassword}
-                secureTextEntry
-                autoCapitalize="none"
-              />
+              <View style={s.passwordContainer}>
+                <TextInput
+                  style={s.passwordInput}
+                  placeholder="Enter new password"
+                  placeholderTextColor="rgba(135, 85, 62, 0.4)"
+                  value={editPassword}
+                  onChangeText={setEditPassword}
+                  secureTextEntry={!showEditPassword}
+                  autoCapitalize="none"
+                />
+                <TouchableOpacity
+                  onPress={() => setShowEditPassword(!showEditPassword)}
+                  style={s.eyeButton}
+                  activeOpacity={0.7}
+                  accessibilityRole="button"
+                  accessibilityLabel={showEditPassword ? 'Hide password' : 'Show password'}
+                >
+                  <Text style={[s.eyeIcon, { opacity: showEditPassword ? 1.0 : 0.4 }]}>👁️</Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
             <View style={s.inputGroup}>
@@ -701,6 +714,32 @@ const s = StyleSheet.create({
     fontSize: 15,
     color: '#ED7624',
     fontWeight: '600',
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(240, 127, 46, 0.03)',
+    borderWidth: 1,
+    borderColor: 'rgba(240, 127, 46, 0.15)',
+    borderRadius: 8,
+    position: 'relative',
+  },
+  passwordInput: {
+    flex: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 15,
+    color: '#5C250E',
+  },
+  eyeButton: {
+    position: 'absolute',
+    right: 12,
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  eyeIcon: {
+    fontSize: 18,
   },
 });
 
