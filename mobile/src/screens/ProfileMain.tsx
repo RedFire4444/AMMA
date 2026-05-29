@@ -208,6 +208,23 @@ const ProfileMain = () => {
     : '--';
   const level = profile?.level || 'beginner';
 
+  const longestStreak = profile?.stats ? `${profile.stats.longest_streak} Days` : '0 Days';
+  const totalSessionsVal = profile?.stats ? profile.stats.total_sessions.toString() : '0';
+  const longestSessionVal = profile?.stats ? `${profile.stats.longest_session_minutes}m` : '0m';
+
+  const formatTotalDurationVal = (totalMinutes: number): string => {
+    if (!totalMinutes) return '0h';
+    if (totalMinutes < 60) return `${totalMinutes}m`;
+    const hrs = Math.floor(totalMinutes / 60);
+    const mins = totalMinutes % 60;
+    return mins > 0 ? `${hrs}h ${mins}m` : `${hrs}h`;
+  };
+  const totalDuration = profile?.stats ? formatTotalDurationVal(profile.stats.total_duration_minutes) : '0h';
+
+  const monthlyProgressVal = profile?.stats 
+    ? `${Math.min(100, Math.round((profile.stats.total_sessions / 10) * 100))}%` 
+    : '0%';
+
   return (
     <SafeAreaView style={s.safeArea} edges={['top']}>
       <ScrollView
@@ -245,11 +262,11 @@ const ProfileMain = () => {
         <View style={s.statsSection}>
           <View style={s.statsGrid}>
             <StatCard label="Member Since" value={memberSince} />
-            <StatCard label="Longest Streak" value="0 Days" />
-            <StatCard label="Total Duration" value="0h" />
-            <StatCard label="Sessions" value="0" />
-            <StatCard label="Longest Session" value="0m" />
-            <StatCard label="Monthly Progress" value="0%" />
+            <StatCard label="Longest Streak" value={longestStreak} />
+            <StatCard label="Total Duration" value={totalDuration} />
+            <StatCard label="Sessions" value={totalSessionsVal} />
+            <StatCard label="Longest Session" value={longestSessionVal} />
+            <StatCard label="Monthly Progress" value={monthlyProgressVal} />
           </View>
         </View>
 

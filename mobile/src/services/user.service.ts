@@ -16,8 +16,13 @@ export interface UserProfile {
   created_at?: string;
   level?: string;
   subscription_status?: string;
-  total_sessions?: number;
-  current_streak?: number;
+  stats?: {
+    total_duration_minutes: number;
+    total_sessions: number;
+    longest_session_minutes: number;
+    current_streak: number;
+    longest_streak: number;
+  };
 }
 
 const isAuthError = (err: unknown): boolean => {

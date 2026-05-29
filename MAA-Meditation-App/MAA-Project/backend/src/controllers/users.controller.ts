@@ -23,18 +23,52 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const { data, error: dbError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', userId)
-      .single();
+    const [userResult, sessionsResult, streakResult] = await Promise.all([
+      supabase
+        .from('users')
+        .select('*')
+        .eq('id', userId)
+        .single(),
 
-    if (dbError || !data) {
+      supabase
+        .from('meditation_sessions')
+        .select('duration_minutes')
+        .eq('user_id', userId)
+        .eq('status', 'completed'),
+
+      supabase.rpc('calculate_streak', {
+        p_user_id: userId,
+        p_habit_type: 'meditation',
+      }),
+    ]);
+
+    if (userResult.error || !userResult.data) {
       res.status(404).json(error('USER_NOT_FOUND', 'User profile not found', 404));
       return;
     }
 
-    res.status(200).json(success(data));
+    const sessions = sessionsResult.data || [];
+    const totalMinutes = sessions.reduce((sum, item) => sum + (item.duration_minutes || 0), 0);
+    const totalSessions = sessions.length;
+    const longestSession = sessions.reduce((max, item) => Math.max(max, item.duration_minutes || 0), 0);
+
+    const streakDataRaw = streakResult.data;
+    const streakData = Array.isArray(streakDataRaw) ? streakDataRaw[0] : streakDataRaw;
+    const currentStreak = streakData?.current_streak ?? 0;
+    const longestStreak = streakData?.longest_streak ?? 0;
+
+    const profileWithStats = {
+      ...userResult.data,
+      stats: {
+        total_duration_minutes: totalMinutes,
+        total_sessions: totalSessions,
+        longest_session_minutes: longestSession,
+        current_streak: currentStreak,
+        longest_streak: longestStreak,
+      }
+    };
+
+    res.status(200).json(success(profileWithStats));
   } catch (err) {
     console.error('getMe error:', err);
     res.status(500).json(error('INTERNAL_SERVER_ERROR', 'Failed to fetch profile', 500));
