@@ -79,6 +79,7 @@ jest.mock('@react-navigation/native', () => {
     useNavigation: () => ({
       navigate: jest.fn(),
       goBack: jest.fn(),
+      addListener: jest.fn(() => jest.fn()),
     }),
     useRoute: () => ({
       params: { phone: '+919876543210' },
@@ -153,3 +154,39 @@ jest.mock('@supabase/supabase-js', () => {
 
 // Mock react-native-url-polyfill
 jest.mock('react-native-url-polyfill/auto', () => {});
+
+// Mock react-native-sound (avoids native module failures in tests)
+jest.mock('react-native-sound', () => {
+  const SoundMock = function (filename, baseDirectory, callback) {
+    if (callback) {
+      setTimeout(() => callback(null), 0);
+    }
+  };
+  SoundMock.setCategory = jest.fn();
+  SoundMock.prototype.play = jest.fn((cb) => { if (cb) cb(true); });
+  SoundMock.prototype.pause = jest.fn();
+  SoundMock.prototype.stop = jest.fn();
+  SoundMock.prototype.release = jest.fn();
+  SoundMock.prototype.getDuration = jest.fn().mockReturnValue(100);
+  SoundMock.prototype.getCurrentTime = jest.fn().mockImplementation((cb) => cb(0));
+  SoundMock.prototype.setVolume = jest.fn();
+  SoundMock.prototype.setNumberOfLoops = jest.fn();
+  
+  return SoundMock;
+});
+
+// Mock react-native-webview (avoids native TurboModule registry WebView error)
+jest.mock('react-native-webview', () => {
+  const React = require('react');
+  const RN = require('react-native');
+  class WebViewMock extends React.Component {
+    render() {
+      return React.createElement(RN.View, null, this.props.children);
+    }
+  }
+  return {
+    default: WebViewMock,
+    WebView: WebViewMock,
+  };
+});
+

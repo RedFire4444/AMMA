@@ -8,6 +8,7 @@ export interface UserProfile {
   email?: string;
   phone?: string;
   avatar_url?: string;
+  date_of_birth?: string;
   onboarding_complete?: boolean;
   interests?: string[];
   meditation_goal_minutes?: number;

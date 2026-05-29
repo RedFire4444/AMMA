@@ -414,37 +414,38 @@ const MeditationTimerScreen = () => {
     }
   }, [sessionType, setDuration]);
 
-  // -- Audio: play sound immediately when selected, pause if preview paused --
+  // -- Audio: handle playback based on timer state and session type --
   useEffect(() => {
-    // We do NOT want to preview guided voice tracks beforehand
-    if (sessionType === 'guided') {
+    if (showCompletion) {
       audioService.stop();
       return;
     }
 
     const activeKey = getActiveSoundKey();
-    if (isPreviewPaused) {
-      audioService.pause();
-    } else if (showCompletion) {
+    if (!activeKey) {
       audioService.stop();
-    } else if (activeKey) {
-      audioService.play(activeKey);
+      return;
     }
-  }, [getActiveSoundKey, showCompletion, isPreviewPaused, sessionType]);
 
-  // -- Audio: handle guided mode pause/resume strictly tied to the timer state --
-  useEffect(() => {
-    if (sessionType === 'guided' || sessionType === 'breathing') {
+    const isMeditationActive = isRunning || isPaused;
+    if (isMeditationActive) {
       if (isPaused) {
         audioService.pause();
       } else if (isRunning) {
-        const activeKey = getActiveSoundKey();
-        if (activeKey) {
+        audioService.play(activeKey);
+      }
+    } else {
+      if (sessionType === 'guided') {
+        audioService.stop();
+      } else {
+        if (isPreviewPaused) {
+          audioService.pause();
+        } else {
           audioService.play(activeKey);
         }
       }
     }
-  }, [sessionType, isRunning, isPaused, getActiveSoundKey]);
+  }, [isRunning, isPaused, sessionType, getActiveSoundKey, isPreviewPaused, showCompletion]);
 
   // Countdown interval
   useEffect(() => {

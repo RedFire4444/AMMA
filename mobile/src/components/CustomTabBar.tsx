@@ -126,16 +126,15 @@ const s = StyleSheet.create({
   },
 
   centerIcon: {
-    width: 48,
-    height: 48,
+    width: 42,
+    height: 42,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: -20,
     marginBottom: 2,
   },
   centerIconImage: {
-    width: 44,
-    height: 44,
+    width: 42,
+    height: 42,
     resizeMode: 'contain',
   },
   iconImage: {

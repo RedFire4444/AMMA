@@ -28,7 +28,7 @@ export type SoundKey =
  * AMBIENT & GUIDED SOUND URLS
  */
 export const AMBIENT_SOUND_URLS: Record<SoundKey, string> = {
-  nature: 'https://sachpwffbahripgsscsn.supabase.co/storage/v1/object/public/ambient-sounds/Nature-sound-app.mp3',
+  nature: 'https://docs.google.com/uc?export=download&id=11cqLAQeeoAX6x-9L_4hF8xsMZboOSHtp',
   rain: 'https://sachpwffbahripgsscsn.supabase.co/storage/v1/object/public/ambient-sounds/Rain-sound-app.mp3',
   ocean: 'https://sachpwffbahripgsscsn.supabase.co/storage/v1/object/public/ambient-sounds/ocean-sound-app.mp3',
   birds: 'https://sachpwffbahripgsscsn.supabase.co/storage/v1/object/public/ambient-sounds/Birds-sound-app.mp3',
@@ -36,7 +36,7 @@ export const AMBIENT_SOUND_URLS: Record<SoundKey, string> = {
   morning_clarity: 'https://sachpwffbahripgsscsn.supabase.co/storage/v1/object/public/ambient-sounds/Guided_Morning_Clarity.wav',
   anxiety_relief: 'https://sachpwffbahripgsscsn.supabase.co/storage/v1/object/public/ambient-sounds/Guided_Anxiety_Relief.wav',
   deep_sleep: 'https://sachpwffbahripgsscsn.supabase.co/storage/v1/object/public/ambient-sounds/Guided_Deep_Sleep.wav',
-  mindful_focus: 'https://sachpwffbahripgsscsn.supabase.co/storage/v1/object/public/ambient-sounds/Guided_Morning_Clarity.wav',
+  mindful_focus: 'https://docs.google.com/uc?export=download&id=1hn69_Un5DwM7Cqxq7oxc75EdU70WAPKy',
 };
 
 export const CHIME_URL = 'https://sachpwffbahripgsscsn.supabase.co/storage/v1/object/public/ambient-sounds/Chime-sound-app.mp3';
