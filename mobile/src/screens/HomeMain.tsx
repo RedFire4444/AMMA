@@ -19,6 +19,8 @@ import {
   StyleSheet,
   Image,
   Linking,
+  Modal,
+  TextInput,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { homeService, HomeFeedData } from '../services/home.service';
@@ -57,6 +59,15 @@ const TRENDING_VIDEOS: TrendingVideo[] = [
   { id: '4', title: "7 Steps for a Joyful Life | Amma's Special Message", instructor: 'Amma (Mata Amritanandamayi)', duration: '18:24', views: '1.2M', youtubeId: 'tH_AbG1JMOE', thumbnailUrl: 'https://i.ytimg.com/vi/tH_AbG1JMOE/hqdefault.jpg' },
 ];
 
+const ALL_TRENDING_VIDEOS: TrendingVideo[] = [
+  { id: '1', title: 'Muralidhara Gopala | Soulful Krishna Bhajan', instructor: 'Amma (Mata Amritanandamayi)', duration: '9:15', views: '1.5M', youtubeId: 'US-ejM6b1wE', thumbnailUrl: 'https://i.ytimg.com/vi/US-ejM6b1wE/hqdefault.jpg' },
+  { id: '2', title: 'Integrated Amrita Meditation (IAM) Guided Practice', instructor: 'Amrita Live', duration: '20:00', views: '950K', youtubeId: '3DIWMA9OVs0', thumbnailUrl: 'https://i.ytimg.com/vi/3DIWMA9OVs0/hqdefault.jpg' },
+  { id: '3', title: 'Varalunna Hridayattil | Soulful Devotional Bhajan', instructor: 'Amma (Mata Amritanandamayi)', duration: '8:30', views: '2.8M', youtubeId: '6QjD_uJ2GIk', thumbnailUrl: 'https://i.ytimg.com/vi/6QjD_uJ2GIk/hqdefault.jpg' },
+  { id: '4', title: "7 Steps for a Joyful Life | Amma's Special Message", instructor: 'Amma (Mata Amritanandamayi)', duration: '18:24', views: '1.2M', youtubeId: 'tH_AbG1JMOE', thumbnailUrl: 'https://i.ytimg.com/vi/tH_AbG1JMOE/hqdefault.jpg' },
+  { id: '5', title: 'Lokah Samastah Sukhino Bhavantu | Chant for Peace', instructor: 'Amma (Mata Amritanandamayi)', duration: '12:45', views: '2.1M', youtubeId: 'B_iEiNyr88U', thumbnailUrl: 'https://i.ytimg.com/vi/B_iEiNyr88U/hqdefault.jpg' },
+  { id: '6', title: 'Conversations with Amma | Wisdom & Teachings', instructor: 'Amma (Mata Amritanandamayi)', duration: '22:15', views: '870K', youtubeId: 'AbpBM_qKZ5g', thumbnailUrl: 'https://i.ytimg.com/vi/AbpBM_qKZ5g/hqdefault.jpg' },
+];
+
 const FALLBACK_FEED: HomeFeedData = {
   greeting: 'Friend',
   dailyQuote: {
@@ -89,6 +100,8 @@ const HomeMain = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [feedError, setFeedError] = useState<string | null>(null);
+  const [showAllTrending, setShowAllTrending] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const loadFeed = useCallback(async () => {
     try {
@@ -271,7 +284,7 @@ const HomeMain = () => {
           <View style={s.sectionHeaderRow}>
             <Text style={s.sectionTitleInline}>Trending Videos</Text>
             <TouchableOpacity
-              onPress={() => Alert.alert('Trending', 'Full trending list coming soon.')}
+              onPress={() => setShowAllTrending(true)}
             >
               <Text style={s.seeAllText}>See All</Text>
             </TouchableOpacity>
@@ -327,6 +340,91 @@ const HomeMain = () => {
 
         <View style={s.bottomSpacer} />
       </ScrollView>
+
+      <Modal
+        visible={showAllTrending}
+        animationType="slide"
+        transparent={false}
+        onRequestClose={() => {
+          setShowAllTrending(false);
+          setSearchQuery('');
+        }}
+      >
+        <SafeAreaView style={s.modalContainer}>
+          <View style={s.modalHeader}>
+            <TouchableOpacity 
+              style={s.modalCloseButton} 
+              onPress={() => {
+                setShowAllTrending(false);
+                setSearchQuery('');
+              }}
+              activeOpacity={0.7}
+            >
+              <Text style={s.modalCloseText}>← Back</Text>
+            </TouchableOpacity>
+            <Text style={s.modalTitle}>Trending Videos</Text>
+            <View style={{ width: 50 }} />
+          </View>
+
+          <View style={s.searchBarContainer}>
+            <TextInput
+              style={s.searchInput}
+              placeholder="Search trending videos..."
+              placeholderTextColor="#87553E"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              clearButtonMode="while-editing"
+            />
+          </View>
+
+          <FlatList
+            data={ALL_TRENDING_VIDEOS.filter(video => 
+              video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              video.instructor.toLowerCase().includes(searchQuery.toLowerCase())
+            )}
+            keyExtractor={(item) => `all-${item.id}`}
+            contentContainerStyle={s.modalListContent}
+            showsVerticalScrollIndicator={false}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={s.modalVideoCard}
+                onPress={() => handleTrendingVideoPress(item)}
+                activeOpacity={0.85}
+              >
+                <View style={s.modalVideoThumb}>
+                  <Image
+                    source={{ uri: item.thumbnailUrl }}
+                    style={StyleSheet.absoluteFillObject}
+                    resizeMode="cover"
+                  />
+                  <View style={s.durationBadge}>
+                    <Text style={s.durationBadgeText}>{item.duration}</Text>
+                  </View>
+                  <View style={s.playOverlay}>
+                    <Text style={s.playIcon}>{'\u{25B6}'}</Text>
+                  </View>
+                </View>
+                <View style={s.modalVideoInfo}>
+                  <Text style={s.modalVideoTitle} numberOfLines={2}>
+                    {item.title}
+                  </Text>
+                  <Text style={s.modalVideoInstructor} numberOfLines={1}>
+                    {item.instructor}
+                  </Text>
+                  <Text style={s.modalVideoViews}>
+                    {item.views} views
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            )}
+            ListEmptyComponent={
+              <View style={s.modalEmptyContainer}>
+                <Text style={s.modalEmptyText}>No videos match your search.</Text>
+              </View>
+            }
+          />
+        </SafeAreaView>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -499,6 +597,102 @@ const s = StyleSheet.create({
   quoteText: { fontSize: 16, color: '#5C250E', lineHeight: 24, fontStyle: 'italic' },
   quoteAuthor: { fontSize: 14, color: '#87553E', marginTop: 12 },
   bottomSpacer: { height: 110 },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: '#FFF5EE',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(240, 127, 46, 0.1)',
+  },
+  modalCloseButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 16,
+    backgroundColor: 'rgba(240, 127, 46, 0.1)',
+  },
+  modalCloseText: {
+    color: '#ED7624',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#5C250E',
+    textAlign: 'center',
+    flex: 1,
+  },
+  searchBarContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+  },
+  searchInput: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    fontSize: 14,
+    color: '#5C250E',
+    borderWidth: 1,
+    borderColor: 'rgba(240, 127, 46, 0.15)',
+  },
+  modalListContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+  },
+  modalVideoCard: {
+    flexDirection: 'row',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(240, 127, 46, 0.1)',
+    overflow: 'hidden',
+    height: 100,
+  },
+  modalVideoThumb: {
+    width: 140,
+    height: '100%',
+    backgroundColor: 'rgba(240, 127, 46, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  modalVideoInfo: {
+    flex: 1,
+    padding: 12,
+    justifyContent: 'center',
+  },
+  modalVideoTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#5C250E',
+    lineHeight: 18,
+  },
+  modalVideoInstructor: {
+    fontSize: 12,
+    color: '#87553E',
+    marginTop: 4,
+  },
+  modalVideoViews: {
+    fontSize: 11,
+    color: '#A0705A',
+    marginTop: 2,
+  },
+  modalEmptyContainer: {
+    paddingVertical: 40,
+    alignItems: 'center',
+  },
+  modalEmptyText: {
+    fontSize: 14,
+    color: '#87553E',
+  },
 });
 
 export default HomeMain;

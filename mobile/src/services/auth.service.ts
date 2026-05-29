@@ -44,4 +44,13 @@ export const authService = {
     if (error) throw error;
     return data;
   },
+
+  async updateCredentials(email?: string, password?: string): Promise<any> {
+    const updates: any = {};
+    if (email) updates.email = email;
+    if (password) updates.password = password;
+    const { data, error } = await supabase.auth.updateUser(updates);
+    if (error) throw error;
+    return data;
+  },
 };

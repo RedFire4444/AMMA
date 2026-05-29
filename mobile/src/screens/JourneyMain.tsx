@@ -20,7 +20,7 @@ import {
   StyleSheet,
   Image,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { HabitGrid } from '../components/journey/HabitGrid';
@@ -81,6 +81,7 @@ const PerformanceBar = ({
 
 const JourneyMain = () => {
   const navigation = useNavigation<JourneyNav>();
+  const insets = useSafeAreaInsets();
   const [data, setData] = useState<JourneyData | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -322,7 +323,7 @@ const JourneyMain = () => {
     <SafeAreaView style={s.container} edges={['top']}>
       <ScrollView
         style={s.flex1}
-        contentContainerStyle={s.scrollContent}
+        contentContainerStyle={[s.scrollContent, { paddingBottom: Math.max(insets.bottom, 10) + 60 }]}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -426,11 +427,6 @@ const JourneyMain = () => {
             </Text>
           </View>
         )}
-
-
-
-
-        <View style={s.bottomSpacer} />
       </ScrollView>
 
       {/* Rating Modal */}
@@ -511,7 +507,7 @@ const s = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 110,
+    // paddingBottom is handled dynamically based on safe area bottom inset
   },
   skeletonBlock: {
     backgroundColor: 'rgba(240, 127, 46, 0.12)',
@@ -548,7 +544,7 @@ const s = StyleSheet.create({
   meditationCta: {
     marginHorizontal: 24,
     marginTop: 16,
-    marginBottom: 24,
+    marginBottom: 16,
     backgroundColor: '#ED7624',
     borderRadius: 24,
     padding: 24,
@@ -693,11 +689,6 @@ const s = StyleSheet.create({
     fontSize: 14,
     color: '#87553E',
     marginTop: 12,
-  },
-
-
-  bottomSpacer: {
-    height: 32,
   },
   modalOverlay: {
     flex: 1,

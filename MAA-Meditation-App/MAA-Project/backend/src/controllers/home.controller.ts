@@ -30,7 +30,7 @@ export const getHomeFeed = async (req: Request, res: Response): Promise<void> =>
     // mobile client actually renders, which cuts roundtrip payload ~30-50%.
     // Daily quote: fetch today-or-earlier, newest first, so a single query
     // covers the "today missing, use latest" fallback without a second trip.
-    const [quoteResult, coursesResult, eventsResult, userResult, streakResult] = await Promise.all([
+    const [quoteResult, coursesResult, eventsResult, userResult, streakResult, sessionsResult] = await Promise.all([
       supabase
         .from('daily_quotes')
         .select('quote_text, author, quote_date, category')
@@ -67,7 +67,15 @@ export const getHomeFeed = async (req: Request, res: Response): Promise<void> =>
         p_user_id: userId,
         p_habit_type: 'meditation',
       }),
+
+      supabase
+        .from('meditation_sessions')
+        .select('duration_minutes')
+        .eq('user_id', userId)
+        .eq('status', 'completed'),
     ]);
+
+    const totalMinutes = sessionsResult.data?.reduce((sum, item) => sum + (item.duration_minutes || 0), 0) ?? 0;
 
     const feed = {
       daily_quote: quoteResult.data ?? null,
@@ -75,6 +83,7 @@ export const getHomeFeed = async (req: Request, res: Response): Promise<void> =>
       upcoming_events: eventsResult.data ?? [],
       user_greeting: userResult.data?.full_name ?? null,
       streak: streakResult.data ?? 0,
+      total_minutes: totalMinutes,
     };
 
     res.status(200).json(success(feed));

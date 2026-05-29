@@ -36,7 +36,7 @@ describe('HabitGrid', () => {
 
   it('renders "Log Today" button', () => {
     const { getByText } = render(<HabitGrid {...defaultProps} />);
-    expect(getByText('+ Log Today')).toBeTruthy();
+    expect(getByText('+ Add')).toBeTruthy();
   });
 
   it('calls onLogToday when "Log Today" is pressed', () => {
@@ -44,7 +44,7 @@ describe('HabitGrid', () => {
     const { getByText } = render(
       <HabitGrid {...defaultProps} onLogToday={onLogToday} />,
     );
-    fireEvent.press(getByText('+ Log Today'));
+    fireEvent.press(getByText('+ Add'));
     expect(onLogToday).toHaveBeenCalledTimes(1);
   });
 

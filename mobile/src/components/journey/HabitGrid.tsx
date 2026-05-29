@@ -56,7 +56,7 @@ export const HabitGrid = ({
   // Create an array for calendar cells (including empty padding for start of month)
   const calendarCells = [];
   
-  // Padding cells
+  // Padding cells at start
   for (let i = 0; i < firstDayOfMonth; i++) {
     calendarCells.push(null);
   }
@@ -76,6 +76,19 @@ export const HabitGrid = ({
       isToday: dateStr === todayStr,
       completed: logMap.get(dateStr) ?? false,
     });
+  }
+
+  // Padding cells at end to complete the last week
+  const totalCells = calendarCells.length;
+  const remainingCells = (7 - (totalCells % 7)) % 7;
+  for (let i = 0; i < remainingCells; i++) {
+    calendarCells.push(null);
+  }
+
+  // Group cells into weeks (rows of 7)
+  const weeks = [];
+  for (let i = 0; i < calendarCells.length; i += 7) {
+    weeks.push(calendarCells.slice(i, i + 7));
   }
 
   return (
@@ -100,7 +113,7 @@ export const HabitGrid = ({
           <TouchableOpacity 
             style={s.addButton} 
             onPress={(e) => {
-              e.stopPropagation(); // Prevent expanding the card when clicking + Add
+              e?.stopPropagation?.(); // Prevent expanding the card when clicking + Add
               onLogToday();
             }}
             activeOpacity={0.7}
@@ -122,47 +135,51 @@ export const HabitGrid = ({
 
           {/* Calendar Grid */}
           <View style={s.calendarGrid}>
-            {calendarCells.map((cell, index) => {
-              if (!cell) {
-                // Empty padding cell
-                return <View key={`empty-${index}`} style={s.calendarCell} />;
-              }
+            {weeks.map((week, weekIdx) => (
+              <View key={`week-${weekIdx}`} style={s.weekRow}>
+                {week.map((cell, cellIdx) => {
+                  if (!cell) {
+                    // Empty padding cell
+                    return <View key={`empty-${weekIdx}-${cellIdx}`} style={s.calendarCell} />;
+                  }
 
-              const isPastOrToday = cell.dateStr <= todayStr;
+                  const isPastOrToday = cell.dateStr <= todayStr;
 
-              const cellContent = (
-                <Text
-                  style={[
-                    s.cellText,
-                    cell.completed ? s.cellTextCompleted : s.cellTextEmpty,
-                    cell.isToday && cell.completed ? s.cellTextTodayCompleted : null,
-                    !isPastOrToday && !cell.completed ? s.cellTextFuture : null
-                  ]}
-                >
-                  {cell.day}
-                </Text>
-              );
+                  const cellContent = (
+                    <Text
+                      style={[
+                        s.cellText,
+                        cell.completed ? s.cellTextCompleted : s.cellTextEmpty,
+                        cell.isToday && cell.completed ? s.cellTextTodayCompleted : null,
+                        !isPastOrToday && !cell.completed ? s.cellTextFuture : null
+                      ]}
+                    >
+                      {cell.day}
+                    </Text>
+                  );
 
-              return (
-                <TouchableOpacity
-                  key={cell.dateStr}
-                  style={[
-                    s.calendarCell,
-                    cell.completed ? s.cellCompleted : s.cellEmpty,
-                    cell.isToday ? (cell.completed ? s.cellTodayCompleted : s.cellToday) : null
-                  ]}
-                  onPress={() => {
-                    if (onToggleDate) {
-                      onToggleDate(cell.dateStr);
-                    }
-                  }}
-                  activeOpacity={onToggleDate ? 0.7 : 1}
-                  disabled={!onToggleDate}
-                >
-                  {cellContent}
-                </TouchableOpacity>
-              );
-            })}
+                  return (
+                    <TouchableOpacity
+                      key={cell.dateStr}
+                      style={[
+                        s.calendarCell,
+                        cell.completed ? s.cellCompleted : s.cellEmpty,
+                        cell.isToday ? (cell.completed ? s.cellTodayCompleted : s.cellToday) : null
+                      ]}
+                      onPress={() => {
+                        if (onToggleDate) {
+                          onToggleDate(cell.dateStr);
+                        }
+                      }}
+                      activeOpacity={onToggleDate ? 0.7 : 1}
+                      disabled={!onToggleDate}
+                    >
+                      {cellContent}
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            ))}
           </View>
         </View>
       )}
@@ -190,6 +207,7 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
+    marginRight: 12,
   },
   habitIcon: {
     fontSize: 18,
@@ -205,6 +223,7 @@ const s = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#5C250E',
+    flexShrink: 1,
   },
   headerRight: {
     flexDirection: 'row',
@@ -241,9 +260,13 @@ const s = StyleSheet.create({
     fontWeight: '600',
   },
   calendarGrid: {
+    flexDirection: 'column',
+    width: '100%',
+  },
+  weekRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
+    width: '100%',
   },
   calendarCell: {
     width: '14.28%', // 100% / 7 columns

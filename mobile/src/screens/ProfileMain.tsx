@@ -23,6 +23,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuthStore } from '../store/authStore';
 import { userService, UserProfile } from '../services/user.service';
+import { authService } from '../services/auth.service';
 import { ProfileStackParamList } from '../navigation/types';
 import { colors } from '../utils/styles';
 
@@ -64,12 +65,31 @@ const ProfileMain = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editName, setEditName] = useState('');
   const [editPhone, setEditPhone] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [editPassword, setEditPassword] = useState('');
+  const [editDOB, setEditDOB] = useState('');
   const [saving, setSaving] = useState(false);
 
   const openEditModal = () => {
     setEditName(profile?.full_name || '');
     setEditPhone(profile?.phone || '');
+    setEditEmail(profile?.email || user?.email || '');
+    setEditPassword('');
+    setEditDOB(profile?.date_of_birth || '');
     setEditModalOpen(true);
+  };
+
+  const calculateAge = (dobString: string): string => {
+    if (!dobString) return '';
+    const dob = new Date(dobString);
+    if (isNaN(dob.getTime())) return '';
+    const today = new Date();
+    let age = today.getFullYear() - dob.getFullYear();
+    const monthDiff = today.getMonth() - dob.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+      age--;
+    }
+    return age >= 0 ? `${age} years` : '';
   };
 
   const handleSaveProfile = async () => {
@@ -77,19 +97,68 @@ const ProfileMain = () => {
       Alert.alert('Validation Error', 'Name cannot be empty.');
       return;
     }
+    
+    // Validate DOB format (YYYY-MM-DD) if provided
+    const dobTrimmed = editDOB.trim();
+    if (dobTrimmed) {
+      const dobRegex = /^\d{4}-\d{2}-\d{2}$/;
+      if (!dobRegex.test(dobTrimmed)) {
+        Alert.alert('Validation Error', 'Date of Birth must be in YYYY-MM-DD format.');
+        return;
+      }
+      
+      const dobDate = new Date(dobTrimmed);
+      if (isNaN(dobDate.getTime()) || dobDate > new Date()) {
+        Alert.alert('Validation Error', 'Please enter a valid past Date of Birth.');
+        return;
+      }
+    }
+
     setSaving(true);
+    let authErrorOccurred = false;
+    let authMessage = '';
+
     try {
+      // 1. Update general database profile
       const updated = await userService.updateProfile({
         full_name: editName.trim(),
         phone: editPhone.trim(),
+        date_of_birth: dobTrimmed || null,
       });
+
+      // 2. Update email / password credentials if changed
+      const currentEmail = profile?.email || user?.email || '';
+      const emailChanged = editEmail.trim() && editEmail.trim().toLowerCase() !== currentEmail.toLowerCase();
+      const passwordChanged = editPassword.length > 0;
+
+      if (emailChanged || passwordChanged) {
+        try {
+          await authService.updateCredentials(
+            emailChanged ? editEmail.trim() : undefined,
+            passwordChanged ? editPassword : undefined
+          );
+          if (emailChanged) {
+            authMessage = '\nA verification link has been sent to your new email address.';
+          }
+        } catch (authErr: any) {
+          authErrorOccurred = true;
+          if (__DEV__) console.warn('[Profile] Auth credentials update failed:', authErr);
+          Alert.alert('Warning', `Profile was saved, but authentication update failed: ${authErr.message || authErr}`);
+        }
+      }
+
       setProfile((prev) => ({
         ...prev,
         full_name: editName.trim(),
         phone: editPhone.trim(),
+        date_of_birth: dobTrimmed || undefined,
+        email: emailChanged && !authErrorOccurred ? editEmail.trim() : prev?.email,
       }));
+
       setEditModalOpen(false);
-      Alert.alert('Success', 'Profile updated successfully!');
+      if (!authErrorOccurred) {
+        Alert.alert('Success', `Profile updated successfully!${authMessage}`);
+      }
     } catch (err) {
       if (__DEV__) console.warn('[Profile] Save failed:', err);
       // Local fallback so it works seamlessly offline/mock mode
@@ -97,6 +166,7 @@ const ProfileMain = () => {
         ...prev,
         full_name: editName.trim(),
         phone: editPhone.trim(),
+        date_of_birth: dobTrimmed || undefined,
       }));
       setEditModalOpen(false);
       Alert.alert('Success', 'Profile updated successfully!');
@@ -308,6 +378,52 @@ const ProfileMain = () => {
                 keyboardType="phone-pad"
               />
             </View>
+
+            <View style={s.inputGroup}>
+              <Text style={s.inputLabel}>Email ID</Text>
+              <TextInput
+                style={s.textInput}
+                placeholder="Enter email ID"
+                placeholderTextColor="rgba(135, 85, 62, 0.4)"
+                value={editEmail}
+                onChangeText={setEditEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            </View>
+
+            <View style={s.inputGroup}>
+              <Text style={s.inputLabel}>New Password (Optional)</Text>
+              <TextInput
+                style={s.textInput}
+                placeholder="Enter new password"
+                placeholderTextColor="rgba(135, 85, 62, 0.4)"
+                value={editPassword}
+                onChangeText={setEditPassword}
+                secureTextEntry
+                autoCapitalize="none"
+              />
+            </View>
+
+            <View style={s.inputGroup}>
+              <Text style={s.inputLabel}>Date of Birth (YYYY-MM-DD)</Text>
+              <TextInput
+                style={s.textInput}
+                placeholder="YYYY-MM-DD"
+                placeholderTextColor="rgba(135, 85, 62, 0.4)"
+                value={editDOB}
+                onChangeText={setEditDOB}
+              />
+            </View>
+
+            {editDOB.trim() && calculateAge(editDOB) ? (
+              <View style={s.inputGroup}>
+                <Text style={s.inputLabel}>Age</Text>
+                <View style={s.ageDisplayContainer}>
+                  <Text style={s.ageDisplayText}>{calculateAge(editDOB)}</Text>
+                </View>
+              </View>
+            ) : null}
 
             <View style={s.modalButtonRow}>
               <TouchableOpacity
@@ -572,6 +688,19 @@ const s = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: 'bold',
     fontSize: 14,
+  },
+  ageDisplayContainer: {
+    backgroundColor: 'rgba(240, 127, 46, 0.05)',
+    borderWidth: 1,
+    borderColor: 'rgba(240, 127, 46, 0.12)',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  ageDisplayText: {
+    fontSize: 15,
+    color: '#ED7624',
+    fontWeight: '600',
   },
 });
 
