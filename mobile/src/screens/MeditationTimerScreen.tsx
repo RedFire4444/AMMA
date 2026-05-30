@@ -544,8 +544,24 @@ const MeditationTimerScreen = () => {
     setShowStopModal(true);
   }, []);
 
-  const handleConfirmStop = useCallback(() => {
+  const handleConfirmStop = useCallback(async () => {
     setShowStopModal(false);
+
+    // Save/log the session dynamically if the user meditated for some time before stopping
+    if (elapsedTime > 0 && startedAt) {
+      try {
+        const elapsedMinutes = Math.max(1, Math.round(elapsedTime / 60));
+        await meditationService.logSession({
+          duration_minutes: elapsedMinutes,
+          session_type: sessionType,
+          started_at: startedAt,
+          completed_at: new Date().toISOString(),
+        });
+      } catch (err) {
+        if (__DEV__) console.warn('[MeditationTimer] Session log failed on stop:', err);
+      }
+    }
+
     stop();
     setIsPreviewPaused(false);
     const activeKey = getActiveSoundKey();
@@ -554,7 +570,7 @@ const MeditationTimerScreen = () => {
     } else {
       audioService.stop(); // Strictly stop for guided mode
     }
-  }, [stop, getActiveSoundKey, sessionType]);
+  }, [stop, getActiveSoundKey, sessionType, elapsedTime, startedAt]);
 
   useEffect(() => {
     const unsubscribeBeforeRemove = navigation.addListener('beforeRemove', (e) => {
