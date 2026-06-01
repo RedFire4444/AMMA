@@ -51,7 +51,7 @@ export const createSession = async (req: Request, res: Response): Promise<void> 
         user_id: userId,
         lesson_id: lesson_id ?? null,
         duration_minutes,
-        session_type,
+        session_type: session_type === 'free' ? 'unguided' : session_type,
         status: 'completed',
         progress_percentage: 100,
         mood_before: mood_before ?? null,

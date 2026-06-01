@@ -40,7 +40,8 @@ const migrations = [
   '018_create_course_reviews.sql',
   '019_create_phase2_tables.sql',
   '020_add_missing_columns.sql',
-  '021_fix_phase3_issues.sql'
+  '021_fix_phase3_issues.sql',
+  '022_create_directory_watch_sessions.sql'
 ];
 
 async function runMigrations() {

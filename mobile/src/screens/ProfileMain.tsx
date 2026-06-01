@@ -7,7 +7,7 @@
  * Author: Navnit(Ninjacode911)
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -19,7 +19,7 @@ import {
   TextInput,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuthStore } from '../store/authStore';
 import { userService, UserProfile } from '../services/user.service';
@@ -67,7 +67,6 @@ const ProfileMain = () => {
   const [editPhone, setEditPhone] = useState('');
   const [editEmail, setEditEmail] = useState('');
   const [editPassword, setEditPassword] = useState('');
-  const [editDOB, setEditDOB] = useState('');
   const [showEditPassword, setShowEditPassword] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -77,43 +76,13 @@ const ProfileMain = () => {
     setEditEmail(profile?.email || user?.email || '');
     setEditPassword('');
     setShowEditPassword(false);
-    setEditDOB(profile?.date_of_birth || '');
     setEditModalOpen(true);
-  };
-
-  const calculateAge = (dobString: string): string => {
-    if (!dobString) return '';
-    const dob = new Date(dobString);
-    if (isNaN(dob.getTime())) return '';
-    const today = new Date();
-    let age = today.getFullYear() - dob.getFullYear();
-    const monthDiff = today.getMonth() - dob.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
-      age--;
-    }
-    return age >= 0 ? `${age} years` : '';
   };
 
   const handleSaveProfile = async () => {
     if (!editName.trim()) {
       Alert.alert('Validation Error', 'Name cannot be empty.');
       return;
-    }
-    
-    // Validate DOB format (YYYY-MM-DD) if provided
-    const dobTrimmed = editDOB.trim();
-    if (dobTrimmed) {
-      const dobRegex = /^\d{4}-\d{2}-\d{2}$/;
-      if (!dobRegex.test(dobTrimmed)) {
-        Alert.alert('Validation Error', 'Date of Birth must be in YYYY-MM-DD format.');
-        return;
-      }
-      
-      const dobDate = new Date(dobTrimmed);
-      if (isNaN(dobDate.getTime()) || dobDate > new Date()) {
-        Alert.alert('Validation Error', 'Please enter a valid past Date of Birth.');
-        return;
-      }
     }
 
     setSaving(true);
@@ -125,7 +94,6 @@ const ProfileMain = () => {
       const updated = await userService.updateProfile({
         full_name: editName.trim(),
         phone: editPhone.trim(),
-        date_of_birth: dobTrimmed || null,
       });
 
       // 2. Update email / password credentials if changed
@@ -153,7 +121,6 @@ const ProfileMain = () => {
         ...prev,
         full_name: editName.trim(),
         phone: editPhone.trim(),
-        date_of_birth: dobTrimmed || undefined,
         email: emailChanged && !authErrorOccurred ? editEmail.trim() : prev?.email,
       }));
 
@@ -168,7 +135,6 @@ const ProfileMain = () => {
         ...prev,
         full_name: editName.trim(),
         phone: editPhone.trim(),
-        date_of_birth: dobTrimmed || undefined,
       }));
       setEditModalOpen(false);
       Alert.alert('Success', 'Profile updated successfully!');
@@ -177,22 +143,24 @@ const ProfileMain = () => {
     }
   };
 
-  useEffect(() => {
-    let cancelled = false;
-    const loadProfile = async () => {
-      try {
-        const data = await userService.getProfile();
-        if (!cancelled) setProfile(data);
-      } catch (err) {
-        // Auth errors bubble up; everything else returns a skeleton.
-        if (__DEV__) console.warn('[Profile] Load failed:', err);
-      }
-    };
-    loadProfile();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
+      const loadProfile = async () => {
+        try {
+          const data = await userService.getProfile();
+          if (!cancelled) setProfile(data);
+        } catch (err) {
+          // Auth errors bubble up; everything else returns a skeleton.
+          if (__DEV__) console.warn('[Profile] Load failed:', err);
+        }
+      };
+      loadProfile();
+      return () => {
+        cancelled = true;
+      };
+    }, [])
+  );
 
   const handleLogout = () => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [
@@ -435,25 +403,6 @@ const ProfileMain = () => {
               </View>
             </View>
 
-            <View style={s.inputGroup}>
-              <Text style={s.inputLabel}>Date of Birth (YYYY-MM-DD)</Text>
-              <TextInput
-                style={s.textInput}
-                placeholder="YYYY-MM-DD"
-                placeholderTextColor="rgba(135, 85, 62, 0.4)"
-                value={editDOB}
-                onChangeText={setEditDOB}
-              />
-            </View>
-
-            {editDOB.trim() && calculateAge(editDOB) ? (
-              <View style={s.inputGroup}>
-                <Text style={s.inputLabel}>Age</Text>
-                <View style={s.ageDisplayContainer}>
-                  <Text style={s.ageDisplayText}>{calculateAge(editDOB)}</Text>
-                </View>
-              </View>
-            ) : null}
 
             <View style={s.modalButtonRow}>
               <TouchableOpacity
@@ -719,19 +668,7 @@ const s = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 14,
   },
-  ageDisplayContainer: {
-    backgroundColor: 'rgba(240, 127, 46, 0.05)',
-    borderWidth: 1,
-    borderColor: 'rgba(240, 127, 46, 0.12)',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-  },
-  ageDisplayText: {
-    fontSize: 15,
-    color: '#ED7624',
-    fontWeight: '600',
-  },
+
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',

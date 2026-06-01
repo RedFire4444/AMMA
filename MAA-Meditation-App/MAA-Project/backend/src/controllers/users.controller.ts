@@ -23,7 +23,7 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const [userResult, sessionsResult, streakResult] = await Promise.all([
+    const [userResult, sessionsResult, directoryWatchResult, streakResult] = await Promise.all([
       supabase
         .from('users')
         .select('*')
@@ -36,6 +36,11 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
         .eq('user_id', userId)
         .eq('status', 'completed'),
 
+      supabase
+        .from('directory_watch_sessions')
+        .select('duration_minutes')
+        .eq('user_id', userId),
+
       supabase.rpc('calculate_streak', {
         p_user_id: userId,
         p_habit_type: 'meditation',
@@ -43,14 +48,48 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
     ]);
 
     if (userResult.error || !userResult.data) {
-      res.status(404).json(error('USER_NOT_FOUND', 'User profile not found', 404));
-      return;
+      console.log(`[User] Profile not found for ${userId}. Auto-creating profile...`);
+      const newUserProfile = {
+        id: userId,
+        email: req.user?.email || null,
+        phone: req.user?.phone || null,
+        auth_provider: req.user?.email ? 'email' : 'phone',
+        updated_at: new Date().toISOString(),
+      };
+
+      const { data: createdUser, error: createError } = await supabase
+        .from('users')
+        .insert(newUserProfile)
+        .select()
+        .single();
+
+      if (createError) {
+        console.error('[User] Failed to auto-create user profile:', createError);
+        res.status(404).json(error('USER_NOT_FOUND', 'User profile not found and could not be created', 404));
+        return;
+      }
+
+      userResult.data = createdUser;
     }
 
     const sessions = sessionsResult.data || [];
-    const totalMinutes = sessions.reduce((sum, item) => sum + (item.duration_minutes || 0), 0);
-    const totalSessions = sessions.length;
-    const longestSession = sessions.reduce((max, item) => Math.max(max, item.duration_minutes || 0), 0);
+    
+    let watchSessions: any[] = [];
+    if (directoryWatchResult && !directoryWatchResult.error) {
+      watchSessions = directoryWatchResult.data || [];
+    } else if (directoryWatchResult?.error) {
+      console.warn('[User] Failed to fetch directory watch sessions, table might not exist yet:', directoryWatchResult.error.message);
+    }
+
+    const meditationMinutes = sessions.reduce((sum, item) => sum + (item.duration_minutes || 0), 0);
+    const watchMinutes = watchSessions.reduce((sum, item) => sum + (item.duration_minutes || 0), 0);
+    const totalMinutes = meditationMinutes + watchMinutes;
+
+    const totalSessions = sessions.length + watchSessions.length;
+    const longestSession = Math.max(
+      sessions.reduce((max, item) => Math.max(max, item.duration_minutes || 0), 0),
+      watchSessions.reduce((max, item) => Math.max(max, item.duration_minutes || 0), 0)
+    );
 
     const streakDataRaw = streakResult.data;
     const streakData = Array.isArray(streakDataRaw) ? streakDataRaw[0] : streakDataRaw;

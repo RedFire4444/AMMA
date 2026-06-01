@@ -107,13 +107,25 @@ export const emailLogin = async (req: Request, res: Response): Promise<void> => 
       return;
     }
 
+    // Upsert user profile on first login
+    const { user, session } = data;
+    await supabase.from('users').upsert(
+      {
+        id: user!.id,
+        email: user!.email,
+        auth_provider: 'email',
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'id', ignoreDuplicates: false }
+    );
+
     res.status(200).json(
       success({
-        accessToken: data.session.access_token,
-        refreshToken: data.session.refresh_token,
+        accessToken: session.access_token,
+        refreshToken: session.refresh_token,
         user: {
-          id: data.user!.id,
-          email: data.user!.email,
+          id: user!.id,
+          email: user!.email,
         },
       })
     );

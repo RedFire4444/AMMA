@@ -337,7 +337,7 @@ const MeditationTimerScreen = () => {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const isMountedRef = useRef(true);
   const [showCompletion, setShowCompletion] = useState(false);
-  const [isPreviewPaused, setIsPreviewPaused] = useState(false);
+  const [isPreviewPaused, setIsPreviewPaused] = useState(true);
   const [selectedGuidedId, setSelectedGuidedId] = useState<string>('clarity');
   const [selectedBreathingPatternId, setSelectedBreathingPatternId] = useState<string>('box');
   const [showStopModal, setShowStopModal] = useState(false);
@@ -429,7 +429,7 @@ const MeditationTimerScreen = () => {
 
     const isMeditationActive = isRunning || isPaused;
     if (isMeditationActive) {
-      if (isPaused) {
+      if (isPaused || isPreviewPaused) {
         audioService.pause();
       } else if (isRunning) {
         audioService.play(activeKey);
@@ -495,7 +495,9 @@ const MeditationTimerScreen = () => {
     if (isMountedRef.current) setShowCompletion(true);
 
     try {
-      const durationMinutes = duration / 60;
+      // Round to the nearest whole minute (minimum 1) — the DB column is
+      // INTEGER and has a CHECK (duration_minutes > 0) constraint.
+      const durationMinutes = Math.max(1, Math.round(duration / 60));
       // Backend createSession also auto-logs the meditation habit, so
       // we don't separately POST to /habits/log here.
       await meditationService.logSession({
