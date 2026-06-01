@@ -7,7 +7,7 @@
  * Author: Navnit(Ninjacode911)
  */
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -91,7 +91,7 @@ const ProfileMain = () => {
 
     try {
       // 1. Update general database profile
-      const updated = await userService.updateProfile({
+      await userService.updateProfile({
         full_name: editName.trim(),
         phone: editPhone.trim(),
       });
