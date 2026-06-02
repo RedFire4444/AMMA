@@ -14,6 +14,7 @@ import {
   removeBookmark,
   getBookmarks,
   trackView,
+  watchContent,
 } from '../controllers/directory.controller';
 import { authenticateToken } from '../middleware/auth.middleware';
 import { validate } from '../middleware/validator.middleware';
@@ -36,5 +37,8 @@ router.delete('/:id/bookmark', authenticateToken, validate(contentIdParamSchema,
 
 // POST /api/directory/:id/view — track a content view
 router.post('/:id/view', authenticateToken, validate(contentIdParamSchema, 'params'), trackView);
+
+// POST /api/directory/:id/watch — log a completed watch session
+router.post('/:id/watch', authenticateToken, validate(contentIdParamSchema, 'params'), watchContent);
 
 export default router;

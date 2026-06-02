@@ -288,3 +288,57 @@ export const trackView = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json(error('INTERNAL_SERVER_ERROR', 'Failed to track view', 500));
   }
 };
+
+/**
+ * POST /api/directory/:id/watch
+ * Log a directory watch session and record watched duration
+ */
+export const watchContent = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      res.status(401).json(error('UNAUTHORIZED', 'Authentication required', 401));
+      return;
+    }
+
+    const { id: contentId } = req.params;
+    const { duration_minutes } = req.body;
+
+    // Verify content exists
+    const { data: content, error: contentError } = await supabase
+      .from('content_directory')
+      .select('id, duration_seconds')
+      .eq('id', contentId)
+      .single();
+
+    if (contentError || !content) {
+      res.status(404).json(error('NOT_FOUND', 'Content not found', 404));
+      return;
+    }
+
+    // Default to the content's total duration (converted to minutes) if not provided by client
+    const durationMin = duration_minutes || Math.max(1, Math.round((content.duration_seconds || 60) / 60));
+
+    // Insert watch log session
+    const { data: watchSession, error: insertError } = await supabase
+      .from('directory_watch_sessions')
+      .insert({
+        user_id: userId,
+        content_id: contentId,
+        duration_minutes: durationMin,
+      })
+      .select()
+      .single();
+
+    if (insertError) {
+      res.status(500).json(error('WATCH_LOG_FAILED', insertError.message, 500));
+      return;
+    }
+
+    res.status(201).json(success(watchSession));
+  } catch (err) {
+    console.error('watchContent error:', err);
+    res.status(500).json(error('INTERNAL_SERVER_ERROR', 'Failed to log watch session', 500));
+  }
+};

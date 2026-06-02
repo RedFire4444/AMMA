@@ -25,6 +25,7 @@ declare global {
       user?: {
         id: string;
         email?: string;
+        phone?: string;
         [key: string]: any;
       };
     }
@@ -78,6 +79,7 @@ export const authenticateUser = async (
     req.user = {
       id: user.id,
       email: user.email,
+      phone: user.phone,
       ...user.user_metadata
     };
 
@@ -118,6 +120,7 @@ export const optionalAuth = async (
       req.user = {
         id: user.id,
         email: user.email,
+        phone: user.phone,
         ...user.user_metadata
       };
     }

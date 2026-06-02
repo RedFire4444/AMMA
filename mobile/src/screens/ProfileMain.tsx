@@ -7,7 +7,7 @@
  * Author: Navnit(Ninjacode911)
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -19,7 +19,7 @@ import {
   TextInput,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuthStore } from '../store/authStore';
 import { userService, UserProfile } from '../services/user.service';
@@ -67,7 +67,7 @@ const ProfileMain = () => {
   const [editPhone, setEditPhone] = useState('');
   const [editEmail, setEditEmail] = useState('');
   const [editPassword, setEditPassword] = useState('');
-  const [editDOB, setEditDOB] = useState('');
+  const [showEditPassword, setShowEditPassword] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const openEditModal = () => {
@@ -75,43 +75,14 @@ const ProfileMain = () => {
     setEditPhone(profile?.phone || '');
     setEditEmail(profile?.email || user?.email || '');
     setEditPassword('');
-    setEditDOB(profile?.date_of_birth || '');
+    setShowEditPassword(false);
     setEditModalOpen(true);
-  };
-
-  const calculateAge = (dobString: string): string => {
-    if (!dobString) return '';
-    const dob = new Date(dobString);
-    if (isNaN(dob.getTime())) return '';
-    const today = new Date();
-    let age = today.getFullYear() - dob.getFullYear();
-    const monthDiff = today.getMonth() - dob.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
-      age--;
-    }
-    return age >= 0 ? `${age} years` : '';
   };
 
   const handleSaveProfile = async () => {
     if (!editName.trim()) {
       Alert.alert('Validation Error', 'Name cannot be empty.');
       return;
-    }
-    
-    // Validate DOB format (YYYY-MM-DD) if provided
-    const dobTrimmed = editDOB.trim();
-    if (dobTrimmed) {
-      const dobRegex = /^\d{4}-\d{2}-\d{2}$/;
-      if (!dobRegex.test(dobTrimmed)) {
-        Alert.alert('Validation Error', 'Date of Birth must be in YYYY-MM-DD format.');
-        return;
-      }
-      
-      const dobDate = new Date(dobTrimmed);
-      if (isNaN(dobDate.getTime()) || dobDate > new Date()) {
-        Alert.alert('Validation Error', 'Please enter a valid past Date of Birth.');
-        return;
-      }
     }
 
     setSaving(true);
@@ -120,10 +91,9 @@ const ProfileMain = () => {
 
     try {
       // 1. Update general database profile
-      const updated = await userService.updateProfile({
+      await userService.updateProfile({
         full_name: editName.trim(),
         phone: editPhone.trim(),
-        date_of_birth: dobTrimmed || null,
       });
 
       // 2. Update email / password credentials if changed
@@ -151,7 +121,6 @@ const ProfileMain = () => {
         ...prev,
         full_name: editName.trim(),
         phone: editPhone.trim(),
-        date_of_birth: dobTrimmed || undefined,
         email: emailChanged && !authErrorOccurred ? editEmail.trim() : prev?.email,
       }));
 
@@ -166,7 +135,6 @@ const ProfileMain = () => {
         ...prev,
         full_name: editName.trim(),
         phone: editPhone.trim(),
-        date_of_birth: dobTrimmed || undefined,
       }));
       setEditModalOpen(false);
       Alert.alert('Success', 'Profile updated successfully!');
@@ -175,22 +143,24 @@ const ProfileMain = () => {
     }
   };
 
-  useEffect(() => {
-    let cancelled = false;
-    const loadProfile = async () => {
-      try {
-        const data = await userService.getProfile();
-        if (!cancelled) setProfile(data);
-      } catch (err) {
-        // Auth errors bubble up; everything else returns a skeleton.
-        if (__DEV__) console.warn('[Profile] Load failed:', err);
-      }
-    };
-    loadProfile();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
+      const loadProfile = async () => {
+        try {
+          const data = await userService.getProfile();
+          if (!cancelled) setProfile(data);
+        } catch (err) {
+          // Auth errors bubble up; everything else returns a skeleton.
+          if (__DEV__) console.warn('[Profile] Load failed:', err);
+        }
+      };
+      loadProfile();
+      return () => {
+        cancelled = true;
+      };
+    }, [])
+  );
 
   const handleLogout = () => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [
@@ -205,6 +175,23 @@ const ProfileMain = () => {
     ? new Date(profile.created_at).getFullYear().toString()
     : '--';
   const level = profile?.level || 'beginner';
+
+  const longestStreak = profile?.stats ? `${profile.stats.longest_streak} Days` : '0 Days';
+  const totalSessionsVal = profile?.stats ? profile.stats.total_sessions.toString() : '0';
+  const longestSessionVal = profile?.stats ? `${profile.stats.longest_session_minutes}m` : '0m';
+
+  const formatTotalDurationVal = (totalMinutes: number): string => {
+    if (!totalMinutes) return '0h';
+    if (totalMinutes < 60) return `${totalMinutes}m`;
+    const hrs = Math.floor(totalMinutes / 60);
+    const mins = totalMinutes % 60;
+    return mins > 0 ? `${hrs}h ${mins}m` : `${hrs}h`;
+  };
+  const totalDuration = profile?.stats ? formatTotalDurationVal(profile.stats.total_duration_minutes) : '0h';
+
+  const monthlyProgressVal = profile?.stats 
+    ? `${Math.min(100, Math.round((profile.stats.total_sessions / 10) * 100))}%` 
+    : '0%';
 
   return (
     <SafeAreaView style={s.safeArea} edges={['top']}>
@@ -243,11 +230,11 @@ const ProfileMain = () => {
         <View style={s.statsSection}>
           <View style={s.statsGrid}>
             <StatCard label="Member Since" value={memberSince} />
-            <StatCard label="Longest Streak" value="0 Days" />
-            <StatCard label="Total Duration" value="0h" />
-            <StatCard label="Sessions" value="0" />
-            <StatCard label="Longest Session" value="0m" />
-            <StatCard label="Monthly Progress" value="0%" />
+            <StatCard label="Longest Streak" value={longestStreak} />
+            <StatCard label="Total Duration" value={totalDuration} />
+            <StatCard label="Sessions" value={totalSessionsVal} />
+            <StatCard label="Longest Session" value={longestSessionVal} />
+            <StatCard label="Monthly Progress" value={monthlyProgressVal} />
           </View>
         </View>
 
@@ -394,36 +381,28 @@ const ProfileMain = () => {
 
             <View style={s.inputGroup}>
               <Text style={s.inputLabel}>New Password (Optional)</Text>
-              <TextInput
-                style={s.textInput}
-                placeholder="Enter new password"
-                placeholderTextColor="rgba(135, 85, 62, 0.4)"
-                value={editPassword}
-                onChangeText={setEditPassword}
-                secureTextEntry
-                autoCapitalize="none"
-              />
-            </View>
-
-            <View style={s.inputGroup}>
-              <Text style={s.inputLabel}>Date of Birth (YYYY-MM-DD)</Text>
-              <TextInput
-                style={s.textInput}
-                placeholder="YYYY-MM-DD"
-                placeholderTextColor="rgba(135, 85, 62, 0.4)"
-                value={editDOB}
-                onChangeText={setEditDOB}
-              />
-            </View>
-
-            {editDOB.trim() && calculateAge(editDOB) ? (
-              <View style={s.inputGroup}>
-                <Text style={s.inputLabel}>Age</Text>
-                <View style={s.ageDisplayContainer}>
-                  <Text style={s.ageDisplayText}>{calculateAge(editDOB)}</Text>
-                </View>
+              <View style={s.passwordContainer}>
+                <TextInput
+                  style={s.passwordInput}
+                  placeholder="Enter new password"
+                  placeholderTextColor="rgba(135, 85, 62, 0.4)"
+                  value={editPassword}
+                  onChangeText={setEditPassword}
+                  secureTextEntry={!showEditPassword}
+                  autoCapitalize="none"
+                />
+                <TouchableOpacity
+                  onPress={() => setShowEditPassword(!showEditPassword)}
+                  style={s.eyeButton}
+                  activeOpacity={0.7}
+                  accessibilityRole="button"
+                  accessibilityLabel={showEditPassword ? 'Hide password' : 'Show password'}
+                >
+                  <Text style={[s.eyeIcon, { opacity: showEditPassword ? 1.0 : 0.4 }]}>👁️</Text>
+                </TouchableOpacity>
               </View>
-            ) : null}
+            </View>
+
 
             <View style={s.modalButtonRow}>
               <TouchableOpacity
@@ -689,18 +668,32 @@ const s = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 14,
   },
-  ageDisplayContainer: {
-    backgroundColor: 'rgba(240, 127, 46, 0.05)',
+
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(240, 127, 46, 0.03)',
     borderWidth: 1,
-    borderColor: 'rgba(240, 127, 46, 0.12)',
+    borderColor: 'rgba(240, 127, 46, 0.15)',
     borderRadius: 8,
+    position: 'relative',
+  },
+  passwordInput: {
+    flex: 1,
     paddingHorizontal: 12,
     paddingVertical: 10,
-  },
-  ageDisplayText: {
     fontSize: 15,
-    color: '#ED7624',
-    fontWeight: '600',
+    color: '#5C250E',
+  },
+  eyeButton: {
+    position: 'absolute',
+    right: 12,
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  eyeIcon: {
+    fontSize: 18,
   },
 });
 

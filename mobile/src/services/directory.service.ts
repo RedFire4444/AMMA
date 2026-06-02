@@ -45,4 +45,8 @@ export const directoryService = {
   async trackView(contentId: string): Promise<void> {
     await post(`/directory/${contentId}/view`);
   },
+
+  async logWatchSession(contentId: string, durationMinutes?: number): Promise<void> {
+    await post(`/directory/${contentId}/watch`, { duration_minutes: durationMinutes });
+  },
 };
