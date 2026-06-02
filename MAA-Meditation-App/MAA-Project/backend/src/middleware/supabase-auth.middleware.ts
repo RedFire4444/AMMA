@@ -25,7 +25,6 @@ declare global {
       user?: {
         id: string;
         email?: string;
-        phone?: string;
         [key: string]: any;
       };
     }

@@ -1,0 +1,10 @@
+diff --git a/node_modules/react-native-reanimated/android/CMakeLists.txt b/node_modules/react-native-reanimated/android/CMakeLists.txt
+index a5b1386..b4d7c9a 100644
+--- a/node_modules/react-native-reanimated/android/CMakeLists.txt
++++ b/node_modules/react-native-reanimated/android/CMakeLists.txt
+@@ -99,5 +99,6 @@ target_link_libraries(
+   ReactAndroid::jsi
+   fbjni::fbjni
+   android
++  c++_shared
+   react-native-worklets::worklets)

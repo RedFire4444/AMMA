@@ -24,6 +24,7 @@ export interface HomeFeedData {
     thumbnail_url: string | null;
     is_live: boolean;
     category: string;
+    booking_url?: string;
   }>;
   stats: {
     totalMinutes: number;
@@ -59,6 +60,7 @@ export const homeService = {
           thumbnail_url: e.thumbnail_url,
           is_live: e.is_live,
           category: e.category,
+          booking_url: e.booking_url,
         })),
         stats: {
           totalMinutes: data?.total_minutes ?? 0,

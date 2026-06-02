@@ -8,6 +8,7 @@
 
 import { Request, Response } from 'express';
 import { supabase } from '../services/supabase.service';
+import { scraperService } from '../services/scraper.service';
 import { success, error } from '../utils/apiResponse';
 
 /**
@@ -227,5 +228,233 @@ export const getStreamUrl = async (req: Request, res: Response): Promise<void> =
   } catch (err) {
     console.error('getStreamUrl error:', err);
     res.status(500).json(error('INTERNAL_SERVER_ERROR', 'Failed to get stream URL', 500));
+  }
+};
+
+/**
+ * GET /api/events/live
+ * List currently live events
+ */
+export const getLiveEvents = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { data: events, error: queryError } = await supabase
+      .from('events')
+      .select('*')
+      .eq('status', 'live')
+      .order('actual_start_time', { ascending: false });
+
+    if (queryError) {
+      res.status(500).json(error('QUERY_FAILED', queryError.message, 500));
+      return;
+    }
+
+    res.status(200).json(success(events ?? []));
+  } catch (err) {
+    console.error('getLiveEvents error:', err);
+    res.status(500).json(error('INTERNAL_SERVER_ERROR', 'Failed to fetch live events', 500));
+  }
+};
+
+/**
+ * GET /api/events/upcoming
+ * List upcoming events
+ */
+export const getUpcomingEvents = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const [dbEventsResult, scrapedEvents] = await Promise.all([
+      supabase
+        .from('events')
+        .select('*')
+        .eq('status', 'upcoming')
+        .order('event_date', { ascending: true }),
+      scraperService.getRecentEvents().catch((err) => {
+        console.error('[events.controller] Failed to scrape events:', err);
+        return [];
+      })
+    ]);
+
+    const { data: dbEvents, error: queryError } = dbEventsResult;
+
+    if (queryError) {
+      res.status(500).json(error('QUERY_FAILED', queryError.message, 500));
+      return;
+    }
+
+    const allEvents = [...(dbEvents ?? []), ...scrapedEvents];
+
+    res.status(200).json(success(allEvents));
+  } catch (err) {
+    console.error('getUpcomingEvents error:', err);
+    res.status(500).json(error('INTERNAL_SERVER_ERROR', 'Failed to fetch upcoming events', 500));
+  }
+};
+
+/**
+ * GET /api/events/:id
+ * Get full event details
+ */
+export const getEventById = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { data: event, error: queryError } = await supabase
+      .from('events')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (queryError || !event) {
+      res.status(404).json(error('NOT_FOUND', 'Event not found', 404));
+      return;
+    }
+
+    res.status(200).json(success(event));
+  } catch (err) {
+    console.error('getEventById error:', err);
+    res.status(500).json(error('INTERNAL_SERVER_ERROR', 'Failed to fetch event', 500));
+  }
+};
+
+/**
+ * POST /api/events/:id/reminder
+ * Add a reminder
+ */
+export const setReminder = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    const { id: eventId } = req.params;
+
+    if (!userId) {
+      res.status(401).json(error('UNAUTHORIZED', 'Authentication required', 401));
+      return;
+    }
+
+    const { data, error: insertError } = await supabase
+      .from('event_reminders')
+      .insert({ event_id: eventId, user_id: userId })
+      .select()
+      .single();
+
+    if (insertError && insertError.code !== '23505') { // Ignore unique violation
+      res.status(500).json(error('INSERT_FAILED', insertError.message, 500));
+      return;
+    }
+
+    res.status(201).json(success(data || { message: 'Reminder already exists' }));
+  } catch (err) {
+    console.error('setReminder error:', err);
+    res.status(500).json(error('INTERNAL_SERVER_ERROR', 'Failed to set reminder', 500));
+  }
+};
+
+/**
+ * DELETE /api/events/:id/reminder
+ * Remove a reminder
+ */
+export const deleteReminder = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    const { id: eventId } = req.params;
+
+    if (!userId) {
+      res.status(401).json(error('UNAUTHORIZED', 'Authentication required', 401));
+      return;
+    }
+
+    const { error: deleteError } = await supabase
+      .from('event_reminders')
+      .delete()
+      .eq('event_id', eventId)
+      .eq('user_id', userId);
+
+    if (deleteError) {
+      res.status(500).json(error('DELETE_FAILED', deleteError.message, 500));
+      return;
+    }
+
+    res.status(200).json(success({ message: 'Reminder removed' }));
+  } catch (err) {
+    console.error('deleteReminder error:', err);
+    res.status(500).json(error('INTERNAL_SERVER_ERROR', 'Failed to remove reminder', 500));
+  }
+};
+
+/**
+ * GET /api/events/:id/viewers
+ * Get viewer count
+ */
+export const getEventViewers = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id: eventId } = req.params;
+
+    const { data: event, error: queryError } = await supabase
+      .from('events')
+      .select('viewer_count')
+      .eq('id', eventId)
+      .single();
+
+    if (queryError || !event) {
+      res.status(404).json(error('NOT_FOUND', 'Event not found', 404));
+      return;
+    }
+
+    res.status(200).json(success({ viewers: event.viewer_count }));
+  } catch (err) {
+    console.error('getEventViewers error:', err);
+    res.status(500).json(error('INTERNAL_SERVER_ERROR', 'Failed to get viewer count', 500));
+  }
+};
+
+/**
+ * POST /api/events/:id/ping
+ * Ping watch duration and viewer presence
+ */
+export const pingWatchDuration = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    const { id: eventId } = req.params;
+
+    if (!userId) {
+      res.status(401).json(error('UNAUTHORIZED', 'Authentication required', 401));
+      return;
+    }
+
+    // Upsert view record
+    const { data: existingView } = await supabase
+      .from('event_views')
+      .select('*')
+      .eq('event_id', eventId)
+      .eq('user_id', userId)
+      .single();
+
+    if (existingView) {
+      await supabase
+        .from('event_views')
+        .update({ 
+          watch_duration_seconds: existingView.watch_duration_seconds + 30,
+          last_pinged_at: new Date().toISOString()
+        })
+        .eq('id', existingView.id);
+    } else {
+      await supabase
+        .from('event_views')
+        .insert({
+          event_id: eventId,
+          user_id: userId,
+          watch_duration_seconds: 30
+        });
+        
+      // Increment viewer count roughly
+      await supabase.rpc('increment_counter', {
+        p_table: 'events',
+        p_column: 'viewer_count',
+        p_id: eventId,
+        p_delta: 1
+      });
+    }
+
+    res.status(200).json(success({ message: 'Ping recorded' }));
+  } catch (err) {
+    console.error('pingWatchDuration error:', err);
+    res.status(500).json(error('INTERNAL_SERVER_ERROR', 'Failed to record ping', 500));
   }
 };

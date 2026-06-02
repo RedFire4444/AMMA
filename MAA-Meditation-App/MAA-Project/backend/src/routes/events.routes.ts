@@ -12,6 +12,13 @@ import {
   listEvents,
   registerForEvent,
   getStreamUrl,
+  getLiveEvents,
+  getUpcomingEvents,
+  getEventById,
+  setReminder,
+  deleteReminder,
+  getEventViewers,
+  pingWatchDuration,
 } from '../controllers/events.controller';
 import { authenticateToken } from '../middleware/auth.middleware';
 import { validate } from '../middleware/validator.middleware';
@@ -27,5 +34,14 @@ router.post('/:id/register', authenticateToken, validate(uuidParamSchema, 'param
 
 // GET /api/events/:id/stream — get stream URL (must be registered)
 router.get('/:id/stream', authenticateToken, validate(uuidParamSchema, 'params'), getStreamUrl);
+
+// Live Events Endpoints
+router.get('/live', authenticateToken, getLiveEvents);
+router.get('/upcoming', authenticateToken, getUpcomingEvents);
+router.get('/:id', authenticateToken, validate(uuidParamSchema, 'params'), getEventById);
+router.post('/:id/reminder', authenticateToken, validate(uuidParamSchema, 'params'), setReminder);
+router.delete('/:id/reminder', authenticateToken, validate(uuidParamSchema, 'params'), deleteReminder);
+router.get('/:id/viewers', authenticateToken, validate(uuidParamSchema, 'params'), getEventViewers);
+router.post('/:id/ping', authenticateToken, validate(uuidParamSchema, 'params'), pingWatchDuration);
 
 export default router;
