@@ -18,6 +18,7 @@ import morgan from 'morgan';
 import { errorHandler } from './middleware/errorHandler.middleware';
 import { rateLimiter } from './middleware/rateLimiter.middleware';
 import routes from './routes';
+import { startYoutubeSync } from './services/youtubeSync.service';
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const IS_PRODUCTION = NODE_ENV === 'production';
@@ -80,6 +81,9 @@ app.use(errorHandler);
 const server = app.listen(PORT, () => {
   // eslint-disable-next-line no-console
   console.log(`[Server] Listening on :${PORT} (env=${NODE_ENV})`);
+  
+  // Start background jobs
+  startYoutubeSync();
 });
 
 // Graceful shutdown — Fly.io sends SIGTERM, then waits for the process to

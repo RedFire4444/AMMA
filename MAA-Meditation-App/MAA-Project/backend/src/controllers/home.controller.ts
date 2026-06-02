@@ -8,6 +8,7 @@
 
 import { Request, Response } from 'express';
 import { supabase } from '../services/supabase.service';
+import { scraperService } from '../services/scraper.service';
 import { success, error } from '../utils/apiResponse';
 
 /**
@@ -24,7 +25,6 @@ export const getHomeFeed = async (req: Request, res: Response): Promise<void> =>
     }
 
     const today = new Date().toISOString().split('T')[0];
-    const nowIso = new Date().toISOString();
 
     // All 5 queries run in parallel. Selects are trimmed to the columns the
     // mobile client actually renders, which cuts roundtrip payload ~30-50%.
@@ -48,14 +48,7 @@ export const getHomeFeed = async (req: Request, res: Response): Promise<void> =>
         .order('enrollment_count', { ascending: false })
         .limit(5),
 
-      supabase
-        .from('events')
-        .select(
-          'id, title, event_date, instructor_name, thumbnail_url, is_live, category',
-        )
-        .gt('event_date', nowIso)
-        .order('event_date', { ascending: true })
-        .limit(3),
+      scraperService.getRecentEvents().then(data => ({ data })),
 
       supabase
         .from('users')

@@ -1,0 +1,12 @@
+diff --git a/node_modules/react-native-worklets-core/android/CMakeLists.txt b/node_modules/react-native-worklets-core/android/CMakeLists.txt
+index d2b5286..c1d4ba2 100644
+--- a/node_modules/react-native-worklets-core/android/CMakeLists.txt
++++ b/node_modules/react-native-worklets-core/android/CMakeLists.txt
+@@ -51,6 +51,7 @@
+   ${PACKAGE_NAME}
+   log
+   android
++  c++_shared
+ )
+ 
+ target_link_libraries(

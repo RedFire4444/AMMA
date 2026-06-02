@@ -23,9 +23,13 @@ import {
   TextInput,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { HomeStackParamList } from '../navigation/types';
 import { homeService, HomeFeedData } from '../services/home.service';
 import { ErrorBanner } from '../components/shared/ErrorBanner';
 import { getDailyQuote, getRandomQuote } from '../data/ammaQuotes';
+import { useLiveEventsStore } from '../store/liveEventsStore';
 
 const getGreetingTime = (): string => {
   const hour = new Date().getHours();
@@ -96,15 +100,21 @@ const FALLBACK_FEED: HomeFeedData = {
 const SkeletonCard = () => <View style={s.skeletonCard} />;
 
 const HomeMain = () => {
+  const navigation = useNavigation<NativeStackNavigationProp<HomeStackParamList, 'HomeMain'>>();
   const [feed, setFeed] = useState<HomeFeedData | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [feedError, setFeedError] = useState<string | null>(null);
   const [showAllTrending, setShowAllTrending] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  
+  const { liveEvents, fetchEvents: fetchLiveEvents } = useLiveEventsStore();
 
   const loadFeed = useCallback(async () => {
     try {
+      // Load backend live events in parallel
+      fetchLiveEvents();
+      
       const data = await homeService.getHomeFeed();
       // If backend returns empty content, fall back to curated content
       const hasContent =
@@ -124,7 +134,7 @@ const HomeMain = () => {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [fetchLiveEvents]);
 
   useEffect(() => {
     loadFeed();
@@ -232,10 +242,64 @@ const HomeMain = () => {
           </View>
         </View>
 
-        {/* Live Events Banner */}
+        {/* Live Events Section */}
+        <View style={s.sectionWrap}>
+          <View style={s.sectionHeaderRow}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={s.sectionTitleInline}>Live Events</Text>
+              <View style={s.liveBadgeHome}>
+                <View style={s.liveBadgeIndicator} />
+                <Text style={s.liveBadgeHomeText}>LIVE</Text>
+              </View>
+            </View>
+            <TouchableOpacity onPress={() => navigation.navigate('UpcomingEvents')}>
+              <Text style={s.seeAllText}>Upcoming ➔</Text>
+            </TouchableOpacity>
+          </View>
+          {liveEvents && liveEvents.length > 0 ? (
+            <FlatList
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={s.horizontalListPadding}
+              data={liveEvents}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={s.liveEventCard}
+                  onPress={() => navigation.navigate('LiveEventDetails', { eventId: item.id })}
+                  activeOpacity={0.85}
+                >
+                  <Image
+                    source={{ uri: item.thumbnail_url || 'https://via.placeholder.com/400x200' }}
+                    style={StyleSheet.absoluteFillObject}
+                    resizeMode="cover"
+                  />
+                  <View style={s.cardOverlay} />
+                  <View style={s.liveBadgeCard}>
+                    <Text style={s.liveBadgeCardText}>LIVE</Text>
+                  </View>
+                  <View style={s.liveEventInfo}>
+                    <Text style={s.liveEventTitle} numberOfLines={2}>
+                      {item.title}
+                    </Text>
+                    <Text style={s.liveEventDetails}>
+                      👁️ {item.viewer_count || 0} watching
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+            />
+          ) : (
+            <View style={s.emptyLiveContainer}>
+              <Text style={s.emptyLiveText}>No active live streams right now</Text>
+            </View>
+          )}
+        </View>
+
+        {/* Recent Events Banner */}
         {feed?.upcomingEvents && feed.upcomingEvents.length > 0 && (
           <View style={s.sectionWrap}>
-            <Text style={s.sectionTitle}>Upcoming Events</Text>
+            <Text style={s.sectionTitle}>Recent Events</Text>
             <FlatList
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -250,6 +314,16 @@ const HomeMain = () => {
                     onPress={() => isNoLive ? null : handleEventPress(item)}
                     activeOpacity={isNoLive ? 1 : 0.8}
                   >
+                    {!isNoLive && item.thumbnail_url && (
+                      <>
+                        <Image
+                          source={{ uri: item.thumbnail_url }}
+                          style={StyleSheet.absoluteFillObject}
+                          resizeMode="cover"
+                        />
+                        <View style={s.cardOverlay} />
+                      </>
+                    )}
                     {item.is_live ? (
                       <View style={s.liveBadge}>
                         <Text style={s.liveBadgeText}>LIVE</Text>
@@ -267,8 +341,7 @@ const HomeMain = () => {
                         {new Date(item.event_date).toLocaleDateString('en-IN', {
                           day: 'numeric',
                           month: 'short',
-                          hour: '2-digit',
-                          minute: '2-digit',
+                          year: 'numeric',
                         })}
                       </Text>
                     )}
@@ -430,6 +503,87 @@ const HomeMain = () => {
 };
 
 const s = StyleSheet.create({
+  liveBadgeHome: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(220, 38, 38, 0.1)',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    marginLeft: 8,
+  },
+  liveBadgeIndicator: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#DC2626',
+    marginRight: 4,
+  },
+  liveBadgeHomeText: {
+    color: '#DC2626',
+    fontSize: 10,
+    fontWeight: 'bold',
+    letterSpacing: 0.5,
+  },
+  liveEventCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    width: 256,
+    height: 144,
+    marginRight: 12,
+    padding: 16,
+    justifyContent: 'flex-end',
+    borderWidth: 1,
+    borderColor: 'rgba(240, 127, 46, 0.12)',
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  cardOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.35)',
+  },
+  liveBadgeCard: {
+    position: 'absolute',
+    top: 12,
+    left: 12,
+    backgroundColor: '#DC2626',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  liveBadgeCardText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  liveEventInfo: {
+    zIndex: 1,
+  },
+  liveEventTitle: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    fontSize: 15,
+    lineHeight: 20,
+  },
+  liveEventDetails: {
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: 12,
+    marginTop: 2,
+  },
+  emptyLiveContainer: {
+    marginHorizontal: 24,
+    paddingVertical: 24,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(240, 127, 46, 0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyLiveText: {
+    color: '#87553E',
+    fontSize: 14,
+  },
   safeArea: { flex: 1, backgroundColor: '#FFF5EE' },
   flex1: { flex: 1 },
   statPillSpaced: { marginLeft: 12 },
@@ -503,6 +657,8 @@ const s = StyleSheet.create({
     marginRight: 12,
     padding: 16,
     justifyContent: 'flex-end',
+    overflow: 'hidden',
+    position: 'relative',
   },
   eventCardMuted: {
     backgroundColor: '#C4B5A8',
