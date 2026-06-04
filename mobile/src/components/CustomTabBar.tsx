@@ -74,11 +74,16 @@ export const CustomTabBar = ({
               </View>
             ) : (
               <Image
-                source={icon}
+               source={icon}
                 style={[
                   (route.name === 'Journey' || route.name === 'Directory' || route.name === 'Profile')
                     ? s.iconImageBigger
                     : s.iconImage,
+                                                      route.name === 'Courses' ? { transform: [{ translateY: 10 }] } : null,
+                  route.name === 'Journey' ? { transform: [{ translateY: 10 }] } : null,
+                  route.name === 'Profile' ? { transform: [{ translateY: 10 }] } : null,
+                                    route.name === 'Directory' ? { transform: [{ translateY: 10 }, { scale: 0.9 }] } : null,
+
                   isFocused ? s.iconFocused : s.iconUnfocused,
                 ]}
               />
@@ -86,6 +91,7 @@ export const CustomTabBar = ({
             <Text
               style={[
                 s.label,
+                route.name === 'Courses' ? { marginTop: 15 } : null,
                 isFocused ? s.labelFocused : s.labelUnfocused,
               ]}
             >
@@ -111,7 +117,7 @@ const s = StyleSheet.create({
     paddingHorizontal: 10,
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: 'rgba(240, 127, 46, 0.12)',
+    borderColor: 'rgba(214, 116, 45, 0.12)',
     shadowColor: '#7A3E1E',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.12,
@@ -144,8 +150,8 @@ const s = StyleSheet.create({
     resizeMode: 'contain',
   },
   iconImageBigger: {
-    width: 42,
-    height: 42,
+    width: 50,
+    height: 50,
     borderRadius: 8,
     resizeMode: 'contain',
   },

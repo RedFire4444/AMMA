@@ -69,7 +69,7 @@ const ALL_TRENDING_VIDEOS: TrendingVideo[] = [
 ];
 
 const FALLBACK_FEED: HomeFeedData = {
-  greeting: 'Friend',
+  greeting: '',
   dailyQuote: {
     quote_text: getDailyQuote(),
     author: 'Amma',

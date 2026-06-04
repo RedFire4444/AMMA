@@ -22,6 +22,22 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MiniPlayer } from '../components/directory/MiniPlayer';
 import YoutubePlayer from 'react-native-youtube-iframe';
 
+const FONT_FAMILY = 'Manrope';
+const palette = {
+  primary: '#855400',
+  primaryContainer: '#EE9F27',
+  accentOrange: '#FF7A00',
+  secondary: '#815500',
+  background: '#FBF9F8',
+  surface: '#FFFFFF',
+  surfaceContainer: '#F0EDED',
+  mainText: '#2F2F2F',
+  secondaryText: '#8A7360',
+  white: '#FFFFFF',
+  searchBorder: '#F1D8AA',
+  cardBorder: '#F7E7C9',
+};
+
 interface ContentItem {
   id: string;
   title: string;
@@ -541,7 +557,7 @@ const DirectoryMain = () => {
           <TextInput
             style={s.searchInput}
             placeholder="Search teachings, bhajans..."
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={palette.secondaryText}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
@@ -595,7 +611,7 @@ const DirectoryMain = () => {
           s.contentListPadding,
           currentPlaying ? s.contentListPaddingPlaying : s.contentListPaddingIdle,
         ]}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#ED7624" />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={palette.accentOrange} />}
         renderItem={({ item }) => (
           <View>
             <TouchableOpacity
@@ -667,40 +683,40 @@ const DirectoryMain = () => {
 export default DirectoryMain;
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FFF5EE' },
+  container: { flex: 1, backgroundColor: palette.background },
   header: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 4 },
-  headerTitle: { fontSize: 26, fontWeight: 'bold', color: '#5C250E' },
-  headerSubtitle: { fontSize: 14, color: '#87553E', marginTop: 4 },
+  headerTitle: { fontFamily: FONT_FAMILY, fontSize: 30, fontWeight: '700', color: palette.mainText },
+  headerSubtitle: { fontFamily: FONT_FAMILY, fontSize: 14, fontWeight: '500', color: palette.secondaryText, marginTop: 4 },
   searchWrap: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 4 },
-  searchBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(240, 127, 46, 0.12)', paddingHorizontal: 14 },
+  searchBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: palette.surface, borderRadius: 12, borderWidth: 1, borderColor: palette.searchBorder, paddingHorizontal: 14 },
   searchIcon: { width: 18, height: 18, resizeMode: 'contain', marginRight: 8 },
-  searchInput: { flex: 1, paddingVertical: 12, fontSize: 15, color: '#5C250E' },
-  clearIcon: { color: '#87553E', fontSize: 16 },
+  searchInput: { flex: 1, paddingVertical: 12, fontFamily: FONT_FAMILY, fontSize: 14, fontWeight: '500', color: palette.mainText },
+  clearIcon: { fontFamily: FONT_FAMILY, color: palette.secondaryText, fontSize: 16 },
   tabRow: { paddingVertical: 12 },
-  tab: { marginRight: 10, paddingHorizontal: 20, paddingVertical: 12, borderRadius: 25, height: 44, justifyContent: 'center' as const, alignItems: 'center' as const },
-  tabActive: { backgroundColor: '#ED7624' },
-  tabInactive: { backgroundColor: '#FFFFFF', borderWidth: 1.5, borderColor: 'rgba(240, 127, 46, 0.2)' },
-  tabText: { fontSize: 14, fontWeight: '700' },
-  tabTextActive: { color: '#FFFFFF' },
-  tabTextInactive: { color: '#87553E' },
-  card: { flexDirection: 'row', backgroundColor: '#FFFFFF', borderRadius: 12, marginBottom: 12, borderWidth: 1, borderColor: 'rgba(240, 127, 46, 0.12)', overflow: 'hidden', elevation: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3 },
+  tab: { marginRight: 10, paddingHorizontal: 20, paddingVertical: 12, borderRadius: 9999, height: 44, justifyContent: 'center' as const, alignItems: 'center' as const },
+  tabActive: { backgroundColor: palette.accentOrange },
+  tabInactive: { backgroundColor: palette.surface, borderWidth: 1.5, borderColor: palette.cardBorder },
+  tabText: { fontFamily: FONT_FAMILY, fontSize: 14 },
+  tabTextActive: { color: palette.white, fontWeight: '600' },
+  tabTextInactive: { color: palette.secondaryText, fontWeight: '500' },
+  card: { flexDirection: 'row', backgroundColor: palette.surface, borderRadius: 12, marginBottom: 12, borderWidth: 1, borderColor: palette.cardBorder, overflow: 'hidden', elevation: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3 },
   thumb: { width: 120, backgroundColor: '#87553E', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', alignSelf: 'stretch' },
-  thumbIcon: { fontSize: 32, color: '#FFFFFF' },
+  thumbIcon: { fontSize: 32, color: palette.white },
   thumbDecorLarge: { position: 'absolute', width: 60, height: 60, borderRadius: 30, opacity: 0.18, top: -30, right: -30 },
   thumbDecorSmall: { position: 'absolute', width: 30, height: 30, borderRadius: 15, opacity: 0.22, bottom: -15, left: -15 },
   durationBadge: { position: 'absolute', bottom: 6, right: 6, backgroundColor: 'rgba(0,0,0,0.7)', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 },
-  durationText: { color: '#FFFFFF', fontSize: 11, fontWeight: '600' },
+  durationText: { fontFamily: FONT_FAMILY, color: palette.white, fontSize: 10, fontWeight: '700' },
   playOverlay: { position: 'absolute', width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(0,0,0,0.4)', alignItems: 'center', justifyContent: 'center' },
-  playIcon: { color: '#FFFFFF', fontSize: 14, marginLeft: 2 },
-  premiumBadge: { position: 'absolute', top: 6, left: 6, backgroundColor: '#ED7624', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 },
-  premiumText: { color: '#FFFFFF', fontSize: 9, fontWeight: 'bold' },
+  playIcon: { color: palette.white, fontSize: 14, marginLeft: 2 },
+  premiumBadge: { position: 'absolute', top: 6, left: 6, backgroundColor: palette.accentOrange, borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 },
+  premiumText: { fontFamily: FONT_FAMILY, color: palette.white, fontSize: 9, fontWeight: '700' },
   info: { flex: 1, padding: 12, justifyContent: 'space-between' },
-  cardTitle: { fontSize: 14, fontWeight: '600', color: '#5C250E', lineHeight: 20 },
-  cardInstructor: { fontSize: 12, color: '#87553E', marginTop: 4 },
+  cardTitle: { fontFamily: FONT_FAMILY, fontSize: 14, fontWeight: '600', color: palette.mainText, lineHeight: 20 },
+  cardInstructor: { fontFamily: FONT_FAMILY, fontSize: 12, fontWeight: '400', color: palette.secondaryText, marginTop: 4 },
   cardMeta: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 },
-  viewCount: { fontSize: 12, color: 'rgba(135, 85, 62, 0.7)' },
-  bookmark: { fontSize: 20, color: 'rgba(240, 127, 46, 0.3)' },
-  bookmarkActive: { color: '#ED7624' },
+  viewCount: { fontFamily: FONT_FAMILY, fontSize: 12, fontWeight: '500', color: palette.secondaryText },
+  bookmark: { fontSize: 18, color: palette.secondaryText },
+  bookmarkActive: { color: palette.accentOrange },
   suggestionBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -708,18 +724,18 @@ const s = StyleSheet.create({
     marginTop: 4,
     paddingHorizontal: 14,
     paddingVertical: 8,
-    backgroundColor: 'rgba(64, 145, 108, 0.1)',
+    backgroundColor: palette.surfaceContainer,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: 'rgba(64, 145, 108, 0.3)',
+    borderColor: palette.cardBorder,
   },
-  suggestionLabel: { fontSize: 13, color: '#87553E' },
-  suggestionWord: { fontSize: 13, color: '#5C250E', fontWeight: '700' },
-  suggestionTap: { fontSize: 13, color: '#ED7624', fontWeight: '700' },
+  suggestionLabel: { fontFamily: FONT_FAMILY, fontSize: 13, color: palette.secondaryText },
+  suggestionWord: { fontFamily: FONT_FAMILY, fontSize: 13, color: palette.mainText, fontWeight: '700' },
+  suggestionTap: { fontFamily: FONT_FAMILY, fontSize: 13, color: palette.accentOrange, fontWeight: '700' },
   emptyWrap: { alignItems: 'center', paddingVertical: 60 },
   emptyIcon: { fontSize: 40, marginBottom: 12 },
-  emptyTitle: { fontSize: 18, fontWeight: 'bold', color: '#5C250E', marginBottom: 4 },
-  emptyText: { fontSize: 14, color: '#87553E' },
+  emptyTitle: { fontFamily: FONT_FAMILY, fontSize: 18, fontWeight: '700', color: palette.mainText, marginBottom: 4 },
+  emptyText: { fontFamily: FONT_FAMILY, fontSize: 14, color: palette.secondaryText },
   tabListPadding: { paddingHorizontal: 16 },
   contentListPadding: { paddingHorizontal: 16 },
   contentListPaddingPlaying: { paddingBottom: 160 },
@@ -740,7 +756,7 @@ const s = StyleSheet.create({
     backgroundColor: '#000',
     borderWidth: 1,
     borderTopWidth: 0,
-    borderColor: 'rgba(240, 127, 46, 0.12)',
+    borderColor: palette.cardBorder,
   },
   webview: {
     flex: 1,

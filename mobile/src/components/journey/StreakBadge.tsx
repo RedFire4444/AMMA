@@ -19,13 +19,21 @@ export const StreakBadge = ({ count, label }: StreakBadgeProps) => {
   );
 };
 
+const FONT_FAMILY = 'Manrope';
+const palette = {
+  background: '#FFFDF9',
+  border: '#F7E7C9',
+  streak: '#FF7A00',
+  secondaryText: '#524435',
+};
+
 const s = StyleSheet.create({
   badge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(240, 127, 46, 0.1)',
+    backgroundColor: palette.background,
     borderWidth: 1,
-    borderColor: 'rgba(240, 127, 46, 0.3)',
+    borderColor: palette.border,
     borderRadius: 999,
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -37,13 +45,15 @@ const s = StyleSheet.create({
     marginRight: 4,
   },
   count: {
+    fontFamily: FONT_FAMILY,
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#ED7624',
+    color: palette.streak,
   },
   label: {
+    fontFamily: FONT_FAMILY,
     fontSize: 12,
-    color: '#87553E',
+    color: palette.secondaryText,
     marginLeft: 4,
   },
 });

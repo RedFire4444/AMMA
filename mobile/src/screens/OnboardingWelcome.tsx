@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView, StyleSheet, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, SafeAreaView, StyleSheet, Alert, Image } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import { OnboardingStackParamList } from '../navigation/types';
@@ -76,7 +76,10 @@ const OnboardingWelcome = () => {
 
         <View style={s.centerContent}>
           <View style={s.iconCircle}>
-            <Text style={s.iconText}>{'\u{1F33A}'}</Text>
+            <Image
+              source={require('../assets/icons/New folder/AmmaNamaste.png')}
+              style={s.iconImage}
+            />
           </View>
 
           <Text style={s.brandLabel}>
@@ -140,17 +143,20 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   iconCircle: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
+    width: 112,
+    height: 112,
+    borderRadius: 56,
     backgroundColor: '#ED7624',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 32,
+    overflow: 'hidden',
   },
-  iconText: {
-    fontSize: 36,
-    color: '#FFFFFF',
+  iconImage: {
+    width: 112,
+    height: 112,
+    borderRadius: 56,
+    resizeMode: 'cover',
   },
   brandLabel: {
     fontSize: 14,

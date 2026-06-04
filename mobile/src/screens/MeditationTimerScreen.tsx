@@ -769,11 +769,19 @@ const MeditationTimerScreen = () => {
                 >
                   <Image
                     source={SOUND_ICONS[opt.key]}
-                    style={s.soundOptionIcon}
+                    style={[
+                      s.soundOptionIcon,
+                      (opt.key === 'ocean' || opt.key === 'birds' || opt.key === 'bowl')
+                        ? { width: 85, height: 85} 
+                        : null
+                    ]}
                   />
-                  <Text
+                                    <Text
                     style={[
                       s.soundOptionLabel,
+                      (opt.key === 'ocean' || opt.key === 'birds' || opt.key === 'bowl')
+                        ? { fontSize: 13, transform: [{ translateY: -10 }] } 
+                        : null,
                       selectedSound === opt.key
                         ? s.soundOptionLabelActive
                         : s.soundOptionLabelInactive,
@@ -1141,10 +1149,10 @@ const s = StyleSheet.create({
     opacity: 0.8,
   },
   soundOptionIcon: {
-    width: 64,
+    width: 85,
     height: 64,
     borderRadius: 16,
-    marginBottom: 6,
+    marginBottom: -5,
     resizeMode: 'contain',
   },
   soundOptionLabel: {

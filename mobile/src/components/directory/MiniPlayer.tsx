@@ -35,6 +35,17 @@ const formatTime = (seconds: number): string => {
   return `${m}:${s.toString().padStart(2, '0')}`;
 };
 
+const FONT_FAMILY = 'Manrope';
+const palette = {
+  accentOrange: '#FF7A00',
+  background: '#FBF9F8',
+  surfaceContainer: '#F0EDED',
+  mainText: '#2F2F2F',
+  secondaryText: '#8A7360',
+  white: '#FFFFFF',
+  cardBorder: '#F7E7C9',
+};
+
 export const MiniPlayer = ({
   title,
   artist,
@@ -174,12 +185,12 @@ export const MiniPlayer = ({
 
 const s = StyleSheet.create({
   container: {
-    backgroundColor: '#FFF5EE',
+    backgroundColor: palette.background,
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 10,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(240, 127, 46, 0.12)',
+    borderTopColor: palette.cardBorder,
     elevation: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
@@ -194,26 +205,28 @@ const s = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 10,
-    backgroundColor: 'rgba(240, 127, 46, 0.15)',
+    backgroundColor: palette.surfaceContainer,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
   },
   thumbnailIcon: {
     fontSize: 20,
-    color: '#ED7624',
+    color: palette.accentOrange,
   },
   info: {
     flex: 1,
     marginRight: 12,
   },
   title: {
-    color: '#5C250E',
+    fontFamily: FONT_FAMILY,
+    color: palette.mainText,
     fontSize: 14,
     fontWeight: '700',
   },
   artist: {
-    color: '#87553E',
+    fontFamily: FONT_FAMILY,
+    color: palette.secondaryText,
     fontSize: 12,
     marginTop: 2,
   },
@@ -221,18 +234,18 @@ const s = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#ED7624',
+    backgroundColor: palette.accentOrange,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 8,
     elevation: 4,
-    shadowColor: '#ED7624',
+    shadowColor: palette.accentOrange,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },
   playIcon: {
-    color: '#FFFFFF',
+    color: palette.white,
     fontSize: 22,
     fontWeight: 'bold',
   },
@@ -243,7 +256,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   closeIcon: {
-    color: '#87553E',
+    color: palette.secondaryText,
     fontSize: 18,
   },
   seekRow: {
@@ -252,7 +265,8 @@ const s = StyleSheet.create({
     marginTop: 10,
   },
   timeText: {
-    color: '#87553E',
+    fontFamily: FONT_FAMILY,
+    color: palette.secondaryText,
     fontSize: 11,
     fontWeight: '600',
     width: 38,
@@ -266,13 +280,13 @@ const s = StyleSheet.create({
   },
   track: {
     height: 4,
-    backgroundColor: 'rgba(240, 127, 46, 0.2)',
+    backgroundColor: palette.surfaceContainer,
     borderRadius: 2,
     position: 'relative',
   },
   trackFill: {
     height: '100%',
-    backgroundColor: '#ED7624',
+    backgroundColor: palette.accentOrange,
     borderRadius: 2,
   },
   thumb: {
@@ -281,9 +295,9 @@ const s = StyleSheet.create({
     width: 16,
     height: 16,
     borderRadius: 8,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: palette.white,
     borderWidth: 2,
-    borderColor: '#ED7624',
+    borderColor: palette.accentOrange,
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },

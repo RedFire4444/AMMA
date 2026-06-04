@@ -18,6 +18,18 @@ interface HabitGridProps {
 }
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const FONT_FAMILY = 'Manrope';
+const palette = {
+  primary: '#EE9F27',
+  primaryDark: '#855400',
+  background: '#FFFDF9',
+  surface: '#FFFFFF',
+  mainText: '#1B1C1C',
+  secondaryText: '#524435',
+  border: '#F7E7C9',
+  outline: '#857462',
+  white: '#FFFFFF',
+};
 
 export const HabitGrid = ({
   habitIcon,
@@ -189,10 +201,10 @@ export const HabitGrid = ({
 
 const s = StyleSheet.create({
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: palette.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(240, 127, 46, 0.12)',
+    borderColor: palette.border,
     marginHorizontal: 24,
     marginBottom: 16,
     padding: 16,
@@ -210,19 +222,20 @@ const s = StyleSheet.create({
     marginRight: 12,
   },
   habitIcon: {
-    fontSize: 18,
+    fontSize: 21,
     marginRight: 8,
   },
   habitIconImage: {
-    width: 24,
-    height: 24,
+    width: 28,
+    height: 28,
     marginRight: 8,
     resizeMode: 'contain',
   },
   habitName: {
+    fontFamily: FONT_FAMILY,
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#5C250E',
+    fontWeight: '600',
+    color: palette.mainText,
     flexShrink: 1,
   },
   headerRight: {
@@ -230,14 +243,17 @@ const s = StyleSheet.create({
     alignItems: 'center',
   },
   addButton: {
-    backgroundColor: 'rgba(240, 127, 46, 0.1)',
+    backgroundColor: palette.background,
+    borderWidth: 1,
+    borderColor: palette.border,
     borderRadius: 8,
     paddingVertical: 6,
     paddingHorizontal: 10,
     marginLeft: 8,
   },
   addButtonText: {
-    color: '#ED7624',
+    fontFamily: FONT_FAMILY,
+    color: palette.primary,
     fontWeight: '600',
     fontSize: 12,
   },
@@ -245,7 +261,7 @@ const s = StyleSheet.create({
     marginTop: 16,
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(240, 127, 46, 0.12)',
+    borderTopColor: palette.border,
   },
   weekdayRow: {
     flexDirection: 'row',
@@ -253,10 +269,11 @@ const s = StyleSheet.create({
     marginBottom: 8,
   },
   weekdayText: {
+    fontFamily: FONT_FAMILY,
     flex: 1,
     textAlign: 'center',
     fontSize: 12,
-    color: '#87553E',
+    color: palette.secondaryText,
     fontWeight: '600',
   },
   calendarGrid: {
@@ -280,33 +297,34 @@ const s = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   cellCompleted: {
-    backgroundColor: '#ED7624',
+    backgroundColor: palette.primary,
   },
   cellToday: {
     borderWidth: 1.5,
-    borderColor: '#ED7624',
-    backgroundColor: 'rgba(240, 127, 46, 0.05)',
+    borderColor: palette.primary,
+    backgroundColor: palette.background,
   },
   cellTodayCompleted: {
     borderWidth: 1.5,
-    borderColor: '#5C250E',
-    backgroundColor: '#ED7624',
+    borderColor: palette.primaryDark,
+    backgroundColor: palette.primary,
   },
   cellTextTodayCompleted: {
-    color: '#5C250E',
+    color: palette.primaryDark,
     fontWeight: 'bold',
   },
   cellText: {
+    fontFamily: FONT_FAMILY,
     fontSize: 14,
   },
   cellTextCompleted: {
-    color: '#FFFFFF',
+    color: palette.white,
     fontWeight: 'bold',
   },
   cellTextEmpty: {
-    color: '#5C250E',
+    color: palette.mainText,
   },
   cellTextFuture: {
-    color: 'rgba(92, 37, 14, 0.3)', // Faded out for future days
+    color: palette.outline,
   }
 });
