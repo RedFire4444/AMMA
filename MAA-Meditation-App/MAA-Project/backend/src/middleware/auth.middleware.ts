@@ -17,19 +17,6 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABAS
 // Create Supabase client for token verification
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Extend Express Request to include user
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        id: string;
-        email?: string;
-        [key: string]: any;
-      };
-    }
-  }
-}
-
 /**
  * Supabase Authentication Middleware
  * 

@@ -18,18 +18,6 @@ const supabaseAnonKey = process.env.SUPABASE_ANON_KEY!;
 // This respects RLS policies and validates user tokens
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// Extend Express Request to include user
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        id: string;
-        email?: string;
-        [key: string]: any;
-      };
-    }
-  }
-}
 
 /**
  * Supabase Auth Middleware

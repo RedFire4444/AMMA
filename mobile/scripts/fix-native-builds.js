@@ -24,7 +24,7 @@ const path = require('path');
 const NM = path.join(__dirname, '../node_modules');
 
 // List of patches: each entry targets a specific CMakeLists.txt and
-// specifies the exact string to search for and the replacement to use.
+// specifies the exact string or regex to search for and the replacement to use.
 const PATCHES = [
   // ── react-native-screens ─────────────────────────────────────────────────
   {
@@ -38,16 +38,16 @@ const PATCHES = [
   {
     label: 'react-native-worklets',
     file: path.join(NM, 'react-native-worklets/android/CMakeLists.txt'),
-    search: `target_link_libraries(\n  \${PACKAGE_NAME}\n  log\n  android\n)`,
-    replace: `target_link_libraries(\n  \${PACKAGE_NAME}\n  log\n  android\n  c++_shared\n)`,
+    search: /target_link_libraries\(\s*worklets[\s\S]*?\)/,
+    replace: (match) => match.replace(/\s*\)$/, '\n  c++_shared\n)'),
   },
 
   // ── react-native-worklets-core ───────────────────────────────────────────
   {
     label: 'react-native-worklets-core',
     file: path.join(NM, 'react-native-worklets-core/android/CMakeLists.txt'),
-    search: `target_link_libraries(\n  \${PACKAGE_NAME}\n  log\n  android\n)`,
-    replace: `target_link_libraries(\n  \${PACKAGE_NAME}\n  log\n  android\n  c++_shared\n)`,
+    search: /target_link_libraries\(\s*\$\{PACKAGE_NAME\}\s+log\s+android\s*\)/,
+    replace: (match) => match.replace(/\s*\)$/, '\n  c++_shared\n)'),
   },
 
   // ── react-native-reanimated ──────────────────────────────────────────────
@@ -72,12 +72,27 @@ for (const patch of PATCHES) {
     continue;
   }
 
-  if (!content.includes(patch.search)) {
+  let matched = false;
+  let newContent;
+
+  if (patch.search instanceof RegExp) {
+    matched = patch.search.test(content);
+    if (matched) {
+      newContent = content.replace(patch.search, patch.replace);
+    }
+  } else {
+    matched = content.includes(patch.search);
+    if (matched) {
+      newContent = content.replace(patch.search, patch.replace);
+    }
+  }
+
+  if (!matched) {
     console.warn(`[fix-native-builds] WARNING: ${patch.label} – expected content not found. Patch may be outdated or already applied by the package. Skipping.`);
     continue;
   }
 
-  fs.writeFileSync(patch.file, content.replace(patch.search, patch.replace), 'utf8');
+  fs.writeFileSync(patch.file, newContent, 'utf8');
   console.log(`[fix-native-builds] ✓ Patched ${patch.label} with c++_shared linkage (NDK 27 fix).`);
 }
 

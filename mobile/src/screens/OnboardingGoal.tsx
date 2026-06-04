@@ -12,11 +12,11 @@ import {
   View,
   Text,
   TouchableOpacity,
-  SafeAreaView,
   Switch,
   ActivityIndicator,
   StyleSheet,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { OnboardingStackParamList } from '../navigation/types';
 import { useAuthStore } from '../store/authStore';
@@ -131,11 +131,11 @@ const s = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 24,
-    paddingVertical: 32,
+    paddingVertical: 24,
     justifyContent: 'space-between',
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontFamily: 'PlayfairDisplay',
     fontWeight: 'bold',
     color: '#5C250E',
@@ -158,6 +158,7 @@ const s = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 24,
     alignItems: 'center',
+    justifyContent: 'center',
     borderWidth: 2,
   },
   durationPillSelected: {
