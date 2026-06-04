@@ -19,11 +19,16 @@ import {
   ProfileStackParamList,
 } from './types';
 
+import UpcomingEventsScreen from '../screens/live-events/UpcomingEventsScreen';
+import LiveEventDetails from '../screens/live-events/LiveEventDetails';
+
 const Home = createNativeStackNavigator<HomeStackParamList>();
 export const HomeStack = () => (
   <Home.Navigator screenOptions={{ headerShown: false }}>
     <Home.Screen name="HomeMain" component={HomeMain} />
     <Home.Screen name="EventDetail" component={EventDetailScreen as React.ComponentType<any>} />
+    <Home.Screen name="UpcomingEvents" component={UpcomingEventsScreen} />
+    <Home.Screen name="LiveEventDetails" component={LiveEventDetails as React.ComponentType<any>} />
   </Home.Navigator>
 );
 

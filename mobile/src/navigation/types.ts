@@ -14,6 +14,8 @@ export type OnboardingStackParamList = {
 export type HomeStackParamList = {
   HomeMain: undefined;
   EventDetail: { eventId: string };
+  UpcomingEvents: undefined;
+  LiveEventDetails: { eventId: string };
 };
 
 export type CoursesStackParamList = {

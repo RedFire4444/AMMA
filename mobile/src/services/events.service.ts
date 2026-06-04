@@ -18,6 +18,7 @@ export interface Event {
   max_participants: number | null;
   registration_count: number;
   status: string;
+  viewer_count?: number;
 }
 
 export interface EventRegistration {
