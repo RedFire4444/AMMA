@@ -342,3 +342,4 @@ export const watchContent = async (req: Request, res: Response): Promise<void> =
     res.status(500).json(error('INTERNAL_SERVER_ERROR', 'Failed to log watch session', 500));
   }
 };
+

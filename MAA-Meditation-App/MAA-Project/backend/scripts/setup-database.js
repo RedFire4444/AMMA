@@ -41,7 +41,9 @@ const migrations = [
   '019_create_phase2_tables.sql',
   '020_add_missing_columns.sql',
   '021_fix_phase3_issues.sql',
-  '022_create_directory_watch_sessions.sql'
+  '022_fix_habit_logs_and_streaks.sql',
+  '023_create_directory_watch_sessions.sql',
+  '024_live_events_tables.sql'
 ];
 
 async function runMigrations() {

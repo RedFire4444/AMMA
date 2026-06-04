@@ -110,8 +110,8 @@ describe('Auth Integration Tests', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(res.body.data.accessToken).toBe('acc-tkn');
-      expect(res.body.data.refreshToken).toBe('ref-tkn');
+      expect(res.body.data.access_token).toBe('acc-tkn');
+      expect(res.body.data.refresh_token).toBe('ref-tkn');
       expect(supabase.auth.verifyOtp).toHaveBeenCalledWith({
         phone: '+1234567890',
         token: '123456',

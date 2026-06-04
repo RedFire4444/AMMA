@@ -8,6 +8,7 @@
  */
 
 import { Request, Response } from 'express';
+import { describe, expect, it, jest, beforeEach } from '@jest/globals';
 import {
   getAllHabits,
   logHabit,
@@ -17,14 +18,15 @@ import { supabase } from '../src/services/supabase.service';
 import { streakService } from '../src/services/streak.service';
 
 jest.mock('../src/services/supabase.service', () => {
-  const chainable: Record<string, jest.Mock> = {
+  const chainable: Record<string, any> = {
     from: jest.fn(),
     select: jest.fn(),
     eq: jest.fn(),
     gte: jest.fn(),
+    lte: jest.fn(),
     single: jest.fn(),
+    maybeSingle: jest.fn(),
     insert: jest.fn(),
-    upsert: jest.fn(),
     update: jest.fn(),
     order: jest.fn(),
     range: jest.fn(),
@@ -47,9 +49,9 @@ jest.mock('../src/services/streak.service', () => ({
   },
 }));
 
-const db = supabase as unknown as Record<string, jest.Mock>;
+const db = supabase as unknown as Record<string, any>;
 
-const mockReq = (overrides: Partial<Request> = {}): Request =>
+const mockReq = (overrides: any = {}): Request =>
   ({
     user: { id: 'user-456' },
     params: {},
@@ -60,8 +62,8 @@ const mockReq = (overrides: Partial<Request> = {}): Request =>
 
 const mockRes = (): Response => {
   const res: Partial<Response> = {};
-  res.status = jest.fn().mockReturnValue(res);
-  res.json = jest.fn().mockReturnValue(res);
+  res.status = (jest.fn() as any).mockReturnValue(res);
+  res.json = (jest.fn() as any).mockReturnValue(res);
   return res as Response;
 };
 
@@ -114,7 +116,7 @@ describe('Habits Controller', () => {
         },
       ];
 
-      (streakService.getUserStreaks as jest.Mock).mockResolvedValueOnce(streaks);
+      (streakService.getUserStreaks as any).mockResolvedValueOnce(streaks);
 
       // The habit_logs query ends with .order(), which is the awaited call
       db.order.mockResolvedValueOnce({ data: habitLogs, error: null });
@@ -129,7 +131,12 @@ describe('Habits Controller', () => {
         expect.objectContaining({
           success: true,
           data: expect.objectContaining({
-            streaks,
+            streaks: expect.objectContaining({
+              meditation: { current_streak: 7, longest_streak: 14 },
+              cold_shower: { current_streak: 3, longest_streak: 10 },
+              early_wakeup: { current_streak: 0, longest_streak: 5 },
+              exercise: { current_streak: 2, longest_streak: 8 },
+            }),
             heatmap: expect.objectContaining({
               meditation: expect.arrayContaining([
                 expect.objectContaining({ date: '2026-04-01T00:00:00.000Z', completed: true }),
@@ -159,7 +166,7 @@ describe('Habits Controller', () => {
     });
 
     it('returns 500 when habit logs query fails', async () => {
-      (streakService.getUserStreaks as jest.Mock).mockResolvedValueOnce(null);
+      (streakService.getUserStreaks as any).mockResolvedValueOnce(null);
       db.order.mockResolvedValueOnce({
         data: null,
         error: { message: 'db connection lost' },
@@ -184,7 +191,7 @@ describe('Habits Controller', () => {
   // logHabit
   // -----------------------------------------------------------------------
   describe('logHabit', () => {
-    it('inserts a habit log and returns 201', async () => {
+    it('inserts a new habit log when none exists today and returns 201', async () => {
       const savedLog = {
         id: 'h1',
         user_id: 'user-456',
@@ -197,6 +204,9 @@ describe('Habits Controller', () => {
         logged_at: '2026-04-05T00:00:00.000Z',
       };
 
+      // First call: check for existing record — returns null (no entry today)
+      db.maybeSingle.mockResolvedValueOnce({ data: null, error: null });
+      // Second call: insert resolves with saved log
       db.single.mockResolvedValueOnce({ data: savedLog, error: null });
 
       const req = mockReq({
@@ -225,14 +235,50 @@ describe('Habits Controller', () => {
         })
       );
 
-      // Verify upsert was called with the right conflict key
-      expect(db.upsert).toHaveBeenCalledWith(
+      // Verify insert (not upsert) was called
+      expect(db.insert).toHaveBeenCalledWith(
         expect.objectContaining({
           user_id: 'user-456',
           habit_type: 'meditation',
           completed: true,
-        }),
-        expect.objectContaining({ onConflict: 'user_id,habit_type,logged_at' })
+        })
+      );
+    });
+
+    it('updates existing log when one already exists today', async () => {
+      const updatedLog = {
+        id: 'h1',
+        user_id: 'user-456',
+        habit_type: 'meditation',
+        completed: true,
+        duration_minutes: 30,
+        mood_rating: 5,
+        energy_level: 5,
+        notes: null,
+        logged_at: '2026-04-05T00:00:00.000Z',
+      };
+
+      // Existing record found for today
+      db.maybeSingle.mockResolvedValueOnce({ data: { id: 'h1' }, error: null });
+      // Update resolves with updated log
+      db.single.mockResolvedValueOnce({ data: updatedLog, error: null });
+
+      const req = mockReq({
+        body: {
+          habit_type: 'meditation',
+          completed: true,
+          duration_minutes: 30,
+          mood_rating: 5,
+          energy_level: 5,
+        },
+      });
+      const res = mockRes();
+
+      await logHabit(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(201);
+      expect(db.update).toHaveBeenCalledWith(
+        expect.objectContaining({ completed: true, duration_minutes: 30 })
       );
     });
 
@@ -245,7 +291,8 @@ describe('Habits Controller', () => {
       expect(res.status).toHaveBeenCalledWith(401);
     });
 
-    it('returns 500 when the upsert fails', async () => {
+    it('returns 500 when the insert fails', async () => {
+      db.maybeSingle.mockResolvedValueOnce({ data: null, error: null });
       db.single.mockResolvedValueOnce({
         data: null,
         error: { message: 'constraint violation' },
@@ -281,8 +328,8 @@ describe('Habits Controller', () => {
         days_this_month: 20,
       };
 
-      (streakService.calculateStreak as jest.Mock).mockResolvedValueOnce(streak);
-      (streakService.getHabitStats as jest.Mock).mockResolvedValueOnce(stats);
+      (streakService.calculateStreak as any).mockResolvedValueOnce(streak);
+      (streakService.getHabitStats as any).mockResolvedValueOnce(stats);
 
       const req = mockReq({ query: { habit_type: 'meditation' } });
       const res = mockRes();
@@ -312,8 +359,8 @@ describe('Habits Controller', () => {
     });
 
     it('defaults to meditation habit type when none is provided', async () => {
-      (streakService.calculateStreak as jest.Mock).mockResolvedValueOnce(null);
-      (streakService.getHabitStats as jest.Mock).mockResolvedValueOnce(null);
+      (streakService.calculateStreak as any).mockResolvedValueOnce(null);
+      (streakService.getHabitStats as any).mockResolvedValueOnce(null);
 
       const req = mockReq({ query: {} });
       const res = mockRes();

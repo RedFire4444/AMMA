@@ -28,4 +28,8 @@ export const ratePerformanceSchema = z.object({
     .min(1, 'Rating must be at least 1')
     .max(5, 'Rating must be at most 5'),
   notes: z.string().max(1000).optional(),
+  rated_date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'rated_date must be YYYY-MM-DD')
+    .optional(),
 });

@@ -1,6 +1,14 @@
 import { AxiosError } from 'axios';
 import { get, patch } from './api';
 
+export interface UserProfileStats {
+  total_duration_minutes: number;
+  total_sessions: number;
+  longest_session_minutes: number;
+  current_streak: number;
+  longest_streak: number;
+}
+
 export interface UserProfile {
   id?: string;
   display_name?: string;
@@ -16,13 +24,14 @@ export interface UserProfile {
   created_at?: string;
   level?: string;
   subscription_status?: string;
-  stats?: {
-    total_duration_minutes: number;
-    total_sessions: number;
-    longest_session_minutes: number;
-    current_streak: number;
-    longest_streak: number;
-  };
+  // Backend returns computed stats nested under `stats` key
+  stats?: UserProfileStats;
+  // Legacy flat fields (kept for backward compat with any old callers)
+  total_sessions?: number;
+  total_duration_minutes?: number;
+  longest_session_minutes?: number;
+  current_streak?: number;
+  longest_streak?: number;
 }
 
 const isAuthError = (err: unknown): boolean => {
@@ -65,5 +74,9 @@ export const userService = {
       }
       return null;
     }
+  },
+
+  async deleteAccount(): Promise<void> {
+    await import('./api').then(({ del }) => del('/users/me'));
   },
 };

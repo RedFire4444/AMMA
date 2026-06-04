@@ -8,7 +8,7 @@
  */
 
 import { Router } from 'express';
-import { requestOTP, verifyOTP, emailLogin, emailSignup } from '../controllers/auth.controller';
+import { requestOTP, verifyOTP, emailLogin, emailSignup, refreshToken, logout, getSession } from '../controllers/auth.controller';
 import { validate } from '../middleware/validator.middleware';
 import { otpRateLimiter, authRateLimiter } from '../middleware/rateLimiter.middleware';
 import { requestOTPSchema, verifyOTPSchema } from '../validators/auth.validator';
@@ -33,6 +33,11 @@ const emailSignupSchema = z.object({
 
 router.post('/email-login', authRateLimiter, validate(emailLoginSchema), emailLogin);
 router.post('/email-signup', authRateLimiter, validate(emailSignupSchema), emailSignup);
+
+// Token management
+router.post('/refresh', authRateLimiter, refreshToken);
+router.post('/logout', logout);
+router.post('/session', getSession);
 
 // Health check for auth routes
 router.get('/health', (_req, res) => {

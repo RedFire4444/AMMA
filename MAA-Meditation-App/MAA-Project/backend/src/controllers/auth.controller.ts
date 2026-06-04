@@ -75,8 +75,8 @@ export const verifyOTP = async (req: Request, res: Response): Promise<void> => {
 
     res.status(200).json(
       success({
-        accessToken: session.access_token,
-        refreshToken: session.refresh_token,
+        access_token: session.access_token,
+        refresh_token: session.refresh_token,
         user: {
           id: user!.id,
           phone: user!.phone,
@@ -121,8 +121,8 @@ export const emailLogin = async (req: Request, res: Response): Promise<void> => 
 
     res.status(200).json(
       success({
-        accessToken: session.access_token,
-        refreshToken: session.refresh_token,
+        access_token: session.access_token,
+        refresh_token: session.refresh_token,
         user: {
           id: user!.id,
           email: user!.email,
@@ -162,5 +162,108 @@ export const emailSignup = async (req: Request, res: Response): Promise<void> =>
   } catch (err) {
     console.error('emailSignup error:', err);
     res.status(500).json(error('INTERNAL_SERVER_ERROR', 'Signup failed', 500));
+  }
+};
+
+/**
+ * POST /api/auth/refresh
+ * Refresh access token using refresh token
+ */
+export const refreshToken = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { refresh_token } = req.body;
+
+    if (!refresh_token) {
+      res.status(400).json(error('MISSING_REFRESH_TOKEN', 'Refresh token is required', 400));
+      return;
+    }
+
+    const { data, error: supabaseError } = await supabase.auth.refreshSession({
+      refresh_token,
+    });
+
+    if (supabaseError || !data.session) {
+      res.status(401).json(error('REFRESH_FAILED', 'Invalid or expired refresh token', 401));
+      return;
+    }
+
+    res.status(200).json(
+      success({
+        access_token: data.session.access_token,
+        refresh_token: data.session.refresh_token,
+      })
+    );
+  } catch (err) {
+    console.error('refreshToken error:', err);
+    res.status(500).json(error('INTERNAL_SERVER_ERROR', 'Token refresh failed', 500));
+  }
+};
+
+/**
+ * POST /api/auth/logout
+ * Sign out user and invalidate tokens
+ */
+export const logout = async (req: Request, res: Response): Promise<void> => {
+  try {
+    // Get token from Authorization header
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.substring(7);
+      
+      // Set the session for logout
+      await supabase.auth.setSession({
+        access_token: token,
+        refresh_token: req.body.refresh_token || '',
+      });
+    }
+
+    const { error: supabaseError } = await supabase.auth.signOut();
+
+    if (supabaseError) {
+      console.warn('Logout error (non-critical):', supabaseError.message);
+    }
+
+    res.status(200).json(success({ message: 'Logged out successfully' }));
+  } catch (err) {
+    console.error('logout error:', err);
+    res.status(200).json(success({ message: 'Logged out successfully' })); // Always succeed
+  }
+};
+
+/**
+ * POST /api/auth/session
+ * Get current user session info
+ */
+export const getSession = async (req: Request, res: Response): Promise<void> => {
+  try {
+    // Get token from Authorization header
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      res.status(401).json(error('NO_TOKEN', 'Authorization token required', 401));
+      return;
+    }
+
+    const token = authHeader.substring(7);
+    
+    // Verify the token with Supabase
+    const { data, error: supabaseError } = await supabase.auth.getUser(token);
+
+    if (supabaseError || !data.user) {
+      res.status(401).json(error('INVALID_TOKEN', 'Invalid or expired token', 401));
+      return;
+    }
+
+    res.status(200).json(
+      success({
+        user: {
+          id: data.user.id,
+          email: data.user.email,
+          phone: data.user.phone,
+        },
+      })
+    );
+  } catch (err) {
+    console.error('getSession error:', err);
+    res.status(500).json(error('INTERNAL_SERVER_ERROR', 'Session validation failed', 500));
   }
 };

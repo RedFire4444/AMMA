@@ -25,13 +25,13 @@ export const syncYouTubeEvents = async () => {
     const liveResponse = await fetch(
       `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${YOUTUBE_CHANNEL_ID}&eventType=live&type=video&key=${YOUTUBE_API_KEY}`
     );
-    const liveData = await liveResponse.json();
+    const liveData = await liveResponse.json() as any;
     
     // Fetch upcoming streams
     const upcomingResponse = await fetch(
       `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${YOUTUBE_CHANNEL_ID}&eventType=upcoming&type=video&key=${YOUTUBE_API_KEY}`
     );
-    const upcomingData = await upcomingResponse.json();
+    const upcomingData = await upcomingResponse.json() as any;
 
     const items = [...(liveData.items || []), ...(upcomingData.items || [])];
 

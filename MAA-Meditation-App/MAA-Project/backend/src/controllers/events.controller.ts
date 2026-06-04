@@ -235,7 +235,7 @@ export const getStreamUrl = async (req: Request, res: Response): Promise<void> =
  * GET /api/events/live
  * List currently live events
  */
-export const getLiveEvents = async (req: Request, res: Response): Promise<void> => {
+export const getLiveEvents = async (_req: Request, res: Response): Promise<void> => {
   try {
     const { data: events, error: queryError } = await supabase
       .from('events')
@@ -259,7 +259,7 @@ export const getLiveEvents = async (req: Request, res: Response): Promise<void> 
  * GET /api/events/upcoming
  * List upcoming events
  */
-export const getUpcomingEvents = async (req: Request, res: Response): Promise<void> => {
+export const getUpcomingEvents = async (_req: Request, res: Response): Promise<void> => {
   try {
     const [dbEventsResult, scrapedEvents] = await Promise.all([
       supabase

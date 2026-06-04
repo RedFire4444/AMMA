@@ -7,7 +7,7 @@
  * Author: Navnit(Ninjacode911)
  */
 
-import React, { useMemo, useState, useCallback, useRef } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -21,8 +21,6 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MiniPlayer } from '../components/directory/MiniPlayer';
 import YoutubePlayer from 'react-native-youtube-iframe';
-import { meditationService } from '../services/meditation.service';
-
 
 interface ContentItem {
   id: string;
@@ -460,9 +458,6 @@ const DirectoryMain = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  // Track when the current item started playing so we can log watch time on close
-  const watchStartRef = useRef<{ itemId: string; startedAt: string } | null>(null);
-
 
   const { filteredContent, suggestion } = useMemo(() => {
     const inCategory = MOCK_CONTENT.filter(
@@ -530,40 +525,6 @@ const DirectoryMain = () => {
     setRefreshing(true);
     setTimeout(() => setRefreshing(false), 500);
   }, []);
-
-  /**
-   * Called when the MiniPlayer is closed or the YouTube embed is collapsed.
-   * Logs the elapsed watch time as a meditation session (type 'unguided') so
-   * it is counted in the profile's total_duration_minutes.
-   */
-  const logWatchTimeAndClose = useCallback(
-    async (itemId: string | null) => {
-      if (watchStartRef.current && watchStartRef.current.itemId === itemId) {
-        const elapsedSeconds =
-          (Date.now() - new Date(watchStartRef.current.startedAt).getTime()) / 1000;
-        const elapsedMinutes = Math.max(1, Math.round(elapsedSeconds / 60));
-        watchStartRef.current = null;
-        try {
-          await meditationService.logSession({
-            duration_minutes: elapsedMinutes,
-            session_type: 'unguided',
-            started_at: new Date(
-              Date.now() - elapsedSeconds * 1000,
-            ).toISOString(),
-            completed_at: new Date().toISOString(),
-          });
-        } catch (err) {
-          // Best-effort; never block the UI
-          if (__DEV__)
-            console.warn('[Directory] Watch-time log failed:', err);
-        }
-      } else {
-        watchStartRef.current = null;
-      }
-    },
-    [],
-  );
-
 
   return (
     <SafeAreaView style={s.container} edges={['top']}>
@@ -641,20 +602,10 @@ const DirectoryMain = () => {
               style={s.card}
               onPress={() => {
                 if (item.youtubeId) {
-                  // Collapse an already-expanded card and log its watch time
-                  if (expandedId === item.id) {
-                    logWatchTimeAndClose(item.id);
-                    setExpandedId(null);
-                  } else {
-                    // Expanding a new card — collapse + log any previous one
-                    if (expandedId) logWatchTimeAndClose(expandedId);
-                    setExpandedId(item.id);
-                    watchStartRef.current = { itemId: item.id, startedAt: new Date().toISOString() };
-                  }
+                  setExpandedId(expandedId === item.id ? null : item.id);
                 } else {
                   setCurrentPlaying(item);
                   setIsPlaying(true);
-                  watchStartRef.current = { itemId: item.id, startedAt: new Date().toISOString() };
                 }
               }}
               activeOpacity={0.7}
@@ -705,12 +656,7 @@ const DirectoryMain = () => {
           artist={currentPlaying.instructor}
           isPlaying={isPlaying}
           onPlayPause={() => setIsPlaying(!isPlaying)}
-          onClose={() => {
-            logWatchTimeAndClose(currentPlaying?.id ?? null);
-            setCurrentPlaying(null);
-            setIsPlaying(false);
-          }}
-
+          onClose={() => { setCurrentPlaying(null); setIsPlaying(false); }}
           durationSeconds={parseDurationToSeconds(currentPlaying.duration)}
         />
       )}

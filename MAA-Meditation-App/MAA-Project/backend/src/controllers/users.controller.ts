@@ -8,6 +8,7 @@
 
 import { Request, Response } from 'express';
 import { supabase } from '../services/supabase.service';
+import { streakService } from '../services/streak.service';
 import { success, error } from '../utils/apiResponse';
 
 /**
@@ -23,31 +24,14 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const [userResult, sessionsResult, directoryWatchResult, streakResult] = await Promise.all([
-      supabase
-        .from('users')
-        .select('*')
-        .eq('id', userId)
-        .single(),
+    // 1. Fetch or auto-create user profile
+    let { data: userData, error: dbError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', userId)
+      .single();
 
-      supabase
-        .from('meditation_sessions')
-        .select('duration_minutes')
-        .eq('user_id', userId)
-        .eq('status', 'completed'),
-
-      supabase
-        .from('directory_watch_sessions')
-        .select('duration_minutes')
-        .eq('user_id', userId),
-
-      supabase.rpc('calculate_streak', {
-        p_user_id: userId,
-        p_habit_type: 'meditation',
-      }),
-    ]);
-
-    if (userResult.error || !userResult.data) {
+    if (dbError || !userData) {
       console.log(`[User] Profile not found for ${userId}. Auto-creating profile...`);
       const newUserProfile = {
         id: userId,
@@ -69,16 +53,34 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
         return;
       }
 
-      userResult.data = createdUser;
+      userData = createdUser;
     }
 
-    const sessions = sessionsResult.data || [];
+    // 2. Fetch stats and streaks in parallel
+    const [sessionsResult, directoryWatchResult, allStreaksResult] = await Promise.allSettled([
+      supabase
+        .from('meditation_sessions')
+        .select('duration_minutes')
+        .eq('user_id', userId)
+        .eq('status', 'completed'),
+
+      supabase
+        .from('directory_watch_sessions')
+        .select('duration_minutes')
+        .eq('user_id', userId),
+
+      streakService.getUserStreaks(userId),
+    ]);
+
+    // Calculate stats from meditation sessions
+    const sessions = sessionsResult.status === 'fulfilled' && sessionsResult.value.data ? sessionsResult.value.data : [];
     
+    // Calculate stats from directory watch sessions
     let watchSessions: any[] = [];
-    if (directoryWatchResult && !directoryWatchResult.error) {
-      watchSessions = directoryWatchResult.data || [];
-    } else if (directoryWatchResult?.error) {
-      console.warn('[User] Failed to fetch directory watch sessions, table might not exist yet:', directoryWatchResult.error.message);
+    if (directoryWatchResult.status === 'fulfilled' && directoryWatchResult.value.data) {
+      watchSessions = directoryWatchResult.value.data;
+    } else if (directoryWatchResult.status === 'rejected') {
+      console.warn('[User] Failed to fetch directory watch sessions, table might not exist yet:', directoryWatchResult.reason?.message);
     }
 
     const meditationMinutes = sessions.reduce((sum, item) => sum + (item.duration_minutes || 0), 0);
@@ -91,13 +93,31 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
       watchSessions.reduce((max, item) => Math.max(max, item.duration_minutes || 0), 0)
     );
 
-    const streakDataRaw = streakResult.data;
-    const streakData = Array.isArray(streakDataRaw) ? streakDataRaw[0] : streakDataRaw;
-    const currentStreak = streakData?.current_streak ?? 0;
-    const longestStreak = streakData?.longest_streak ?? 0;
+    // Get streaks from all habits
+    let currentStreak = 0;
+    let longestStreak = 0;
 
+    if (allStreaksResult.status === 'fulfilled' && allStreaksResult.value) {
+      const streaks = allStreaksResult.value;
+      
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('[Profile] Streaks data:', JSON.stringify(streaks, null, 2));
+      }
+      
+      currentStreak = streaks.meditation_current_streak || 0;
+      longestStreak = Math.max(
+        streaks.meditation_longest_streak || 0,
+        streaks.exercise_longest_streak || 0,
+        streaks.cold_shower_longest_streak || 0,
+        streaks.early_wakeup_longest_streak || 0
+      );
+    } else if (allStreaksResult.status === 'rejected') {
+      console.error('[Profile] Failed to fetch streaks:', allStreaksResult.reason);
+    }
+
+    // Combine profile with stats
     const profileWithStats = {
-      ...userResult.data,
+      ...userData,
       stats: {
         total_duration_minutes: totalMinutes,
         total_sessions: totalSessions,
@@ -167,5 +187,35 @@ export const updateMe = async (req: Request, res: Response): Promise<void> => {
   } catch (err) {
     console.error('updateMe error:', err);
     res.status(500).json(error('INTERNAL_SERVER_ERROR', 'Failed to update profile', 500));
+  }
+};
+
+/**
+ * DELETE /api/users/me
+ * B2.3 — Delete current user's profile and account
+ */
+export const deleteMe = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      res.status(401).json(error('UNAUTHORIZED', 'Authentication required', 401));
+      return;
+    }
+
+    const { error: dbError } = await supabase
+      .from('users')
+      .delete()
+      .eq('id', userId);
+
+    if (dbError) {
+      res.status(400).json(error('DELETE_FAILED', dbError.message, 400));
+      return;
+    }
+
+    res.status(200).json(success({ message: 'Account deleted successfully' }));
+  } catch (err) {
+    console.error('deleteMe error:', err);
+    res.status(500).json(error('INTERNAL_SERVER_ERROR', 'Failed to delete account', 500));
   }
 };

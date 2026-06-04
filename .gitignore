@@ -1,40 +1,81 @@
-# Dependencies
+# ─── Dependencies ────────────────────────────────────────────────────────────
 node_modules/
 
-# Environment variables
+# ─── Environment variables (machine-local, never commit) ─────────────────────
 .env
 .env.local
 .env.*.local
 
-# Build outputs
+# ─── Android local configuration ─────────────────────────────────────────────
+# Contains machine-specific Android SDK path (sdk.dir) – each dev sets their own
+mobile/android/local.properties
+**/android/local.properties
+
+# Gradle caches and build artefacts
+.gradle/
+**/.gradle/
+**/build/
+*.hprof
+
+# Signing keystores (keep debug.keystore, ignore production)
+*.jks
+*.keystore
+!**/debug.keystore
+
+# Kotlin incremental compilation
+**/.kotlin/
+
+# Native build intermediates
+**/.cxx/
+
+# ─── iOS local configuration ─────────────────────────────────────────────────
+ios/Pods/
+**/.xcode.env.local
+*.xcworkspace
+*.xcuserdata
+DerivedData/
+
+# ─── Firebase / Google services (contain API keys) ───────────────────────────
+google-services.json
+GoogleService-Info.plist
+
+# ─── Build outputs ───────────────────────────────────────────────────────────
 dist/
 build/
 *.tsbuildinfo
+*.jsbundle
 
-# OS files
+# ─── OS artefacts ────────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
 desktop.ini
+ehthumbs.db
 
-# IDE
+# ─── IDE / editor ────────────────────────────────────────────────────────────
 .vscode/
 .idea/
+*.iml
 *.swp
 *.swo
+*.suo
+*.user
 
-# React Native
-ios/Pods/
-*.xcworkspace
-*.xcuserdata
-
-# Debug
+# ─── Logs ────────────────────────────────────────────────────────────────────
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+*.log
 
-# Coverage
+# ─── Testing ─────────────────────────────────────────────────────────────────
 coverage/
+.metro-health-check*
 
-# Local AI assistant config (never push)
+# ─── Fastlane ────────────────────────────────────────────────────────────────
+**/fastlane/report.xml
+**/fastlane/Preview.html
+**/fastlane/screenshots
+**/fastlane/test_output
+
+# ─── Local AI assistant config (never push) ──────────────────────────────────
 CLAUDE.md
 .claude/

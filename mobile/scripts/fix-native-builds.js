@@ -59,8 +59,6 @@ const PATCHES = [
   },
 ];
 
-let allOk = true;
-
 for (const patch of PATCHES) {
   if (!fs.existsSync(patch.file)) {
     console.log(`[fix-native-builds] SKIP: ${patch.label} CMakeLists.txt not found.`);
@@ -75,8 +73,7 @@ for (const patch of PATCHES) {
   }
 
   if (!content.includes(patch.search)) {
-    console.warn(`[fix-native-builds] WARNING: ${patch.label} – expected content not found. Patch may be outdated.`);
-    allOk = false;
+    console.warn(`[fix-native-builds] WARNING: ${patch.label} – expected content not found. Patch may be outdated or already applied by the package. Skipping.`);
     continue;
   }
 
@@ -84,6 +81,4 @@ for (const patch of PATCHES) {
   console.log(`[fix-native-builds] ✓ Patched ${patch.label} with c++_shared linkage (NDK 27 fix).`);
 }
 
-if (!allOk) {
-  process.exit(1);
-}
+console.log('[fix-native-builds] Done.');

@@ -78,9 +78,9 @@ app.get('/api/health', healthHandler);
 app.use('/api', routes);
 app.use(errorHandler);
 
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
   // eslint-disable-next-line no-console
-  console.log(`[Server] Listening on :${PORT} (env=${NODE_ENV})`);
+  console.log(`[Server] Listening on 0.0.0.0:${PORT} (env=${NODE_ENV})`);
   
   // Start background jobs
   startYoutubeSync();

@@ -7,7 +7,7 @@
  * Author: Navnit(Ninjacode911)
  */
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -21,7 +21,7 @@ import {
   Image,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { HabitGrid } from '../components/journey/HabitGrid';
 import { ErrorBanner } from '../components/shared/ErrorBanner';
@@ -68,7 +68,7 @@ const PerformanceBar = ({
   rating: number;
   dayLabel: string;
 }) => {
-  const barHeight = Math.max(rating * 10, 4);
+  const barHeight = Math.max(rating * 20, 4);
   return (
     <View style={s.perfBarWrap}>
       <View
@@ -86,21 +86,7 @@ const JourneyMain = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
-  // Local-only state so the "Log Today" button works even without backend connectivity
-  const [localLogs, setLocalLogs] = useState<Record<string, Record<string, boolean>>>({
-    meditation: {},
-    exercise: {},
-    cold_shower: {},
-    early_wakeup: {},
-  });
-  const [localStreaks, setLocalStreaks] = useState<Record<string, number>>({
-    meditation: 0,
-    exercise: 0,
-    cold_shower: 0,
-    early_wakeup: 0,
-  });
-  // Local-only state so Rate Today works even without backend
-  const [localRatings, setLocalRatings] = useState<Record<string, number>>({});
+  
   const [ratingModalOpen, setRatingModalOpen] = useState(false);
   const [ratedAlertOpen, setRatedAlertOpen] = useState(false);
   const [ratedRatingValue, setRatedRatingValue] = useState(0);
@@ -155,74 +141,51 @@ const JourneyMain = () => {
     }
   }, []);
 
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [loadData])
+  );
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     loadData();
   }, [loadData]);
 
+  const getHabitLogs = useCallback(
+    (habitType: string): Array<{ date: string; completed: boolean }> => {
+      const logsArray = Array.isArray(data?.habitLogs) ? data.habitLogs : [];
+      return logsArray
+        .filter((log) => log && log.habit_type === habitType)
+        .map((log) => ({
+          date: log.logged_at,
+          completed: log.completed,
+        }));
+    },
+    [data],
+  );
+
   const handleLogHabit = useCallback(
     async (habitType: string) => {
       const today = new Date().toISOString().split('T')[0];
-      const alreadyLogged = localLogs[habitType]?.[today] === true;
+      const currentLogs = getHabitLogs(habitType);
+      const alreadyLogged = currentLogs.find((l) => l.date === today)?.completed === true;
 
       if (alreadyLogged) {
         Alert.alert('Already Logged', 'You already logged this habit today.');
         return;
       }
 
-      // Update local state immediately for responsive UX
-      setLocalLogs((prev) => {
-        const next = { ...prev };
-        next[habitType] = { ...next[habitType], [today]: true };
-        return next;
-      });
-      setLocalStreaks((prev) => ({
-        ...prev,
-        [habitType]: (prev[habitType] || 0) + 1,
-      }));
-
-      const habitName = HABITS.find((h) => h.type === habitType)?.name || habitType;
-      Alert.alert('Logged!', `${habitName} logged for today. Keep it up!`);
-
-      // Best-effort backend sync — don't fail if offline
-      habitsService.logHabit(habitType, { completed: true }).catch(() => {
-        // Silent fail — local state already updated
-      });
-    },
-    [localLogs],
-  );
-
-  const getHabitLogs = useCallback(
-    (habitType: string): Array<{ date: string; completed: boolean }> => {
-      const logsArray = Array.isArray(data?.habitLogs) ? data.habitLogs : [];
-
-      const remoteLogs = logsArray
-        .filter((log) => log && log.habit_type === habitType)
-        .map((log) => ({
-          date: log.logged_at,
-          completed: log.completed,
-        }));
-
-      const localMap = localLogs[habitType] || {};
-      const mergedMap = new Map<string, boolean>();
-
-      for (const log of remoteLogs) {
-        mergedMap.set(log.date, log.completed);
+      try {
+        await habitsService.logHabit(habitType, { completed: true });
+        const habitName = HABITS.find((h) => h.type === habitType)?.name || habitType;
+        Alert.alert('Logged!', `${habitName} logged for today. Keep it up!`);
+        await loadData();
+      } catch (err) {
+        Alert.alert('Error', 'Failed to log habit. Please try again.');
       }
-      for (const [dateStr, isCompleted] of Object.entries(localMap)) {
-        mergedMap.set(dateStr, isCompleted);
-      }
-
-      return Array.from(mergedMap.entries()).map(([date, completed]) => ({
-        date,
-        completed,
-      }));
     },
-    [data, localLogs],
+    [getHabitLogs, loadData],
   );
 
   const handleToggleHabitDate = useCallback(
@@ -231,36 +194,18 @@ const JourneyMain = () => {
       const wasCompleted = currentLogs.find((l) => l.date === dateStr)?.completed ?? false;
       const nextCompleted = !wasCompleted;
 
-      // Update local state immediately for instant responsive UI feedback
-      setLocalLogs((prev) => {
-        const next = { ...prev };
-        next[habitType] = { ...next[habitType], [dateStr]: nextCompleted };
-        return next;
-      });
-
-      // Adjust streak count based on toggle
-      setLocalStreaks((prev) => {
-        const currentStreak = prev[habitType] || 0;
-        return {
-          ...prev,
-          [habitType]: nextCompleted ? currentStreak + 1 : Math.max(0, currentStreak - 1),
-        };
-      });
-
-      // Best-effort backend sync — don't fail if offline
       try {
         await habitsService.logHabit(habitType, { completed: nextCompleted, logged_at: dateStr } as any);
+        await loadData();
       } catch {
-        // Silent fail — local state already holds the true value
+        Alert.alert('Error', 'Failed to update habit log. Please try again.');
       }
     },
-    [getHabitLogs],
+    [getHabitLogs, loadData],
   );
 
   const getStreakCount = (habitType: string): number => {
-    const remote = data?.streaks?.[habitType]?.current_streak ?? 0;
-    const local = localStreaks[habitType] ?? 0;
-    return Math.max(remote, local);
+    return data?.streaks?.[habitType]?.current_streak ?? 0;
   };
 
   const getWeekDayLabels = (): string[] => {
@@ -279,9 +224,6 @@ const JourneyMain = () => {
     d.setDate(d.getDate() - (6 - daysAgo));
     const dateStr = d.toISOString().split('T')[0];
     
-    const local = localRatings[dateStr];
-    if (local !== undefined) return local;
-
     const perfArray = Array.isArray(data?.weeklyPerformance) ? data.weeklyPerformance : [];
     if (perfArray.length === 0) return 0;
 
@@ -290,18 +232,47 @@ const JourneyMain = () => {
   };
 
   const handleRateToday = useCallback(
-    (rating: number) => {
-      const today = new Date().toISOString().split('T')[0];
-      setLocalRatings((prev) => ({ ...prev, [today]: rating }));
+    async (rating: number) => {
       setRatingModalOpen(false);
-      setRatedRatingValue(rating);
-      setRatedAlertOpen(true);
-      // Best-effort backend sync — don't fail on offline
-      habitsService.ratePerformance(rating).catch(() => {});
+      try {
+        // Send rating to backend
+        await habitsService.ratePerformance(rating);
+        
+        // Update local state immediately for instant UI feedback
+        const today = new Date().toISOString().split('T')[0];
+        setData((prevData) => {
+          if (!prevData) return prevData;
+          
+          // Create new array without today's entry (if it exists) and add the new rating
+          const existingPerf = Array.isArray(prevData.weeklyPerformance) ? prevData.weeklyPerformance : [];
+          const filteredPerf = existingPerf.filter((p) => p && p.rated_at !== today);
+          const updatedPerf = [
+            ...filteredPerf,
+            {
+              id: `perf-${today}`,
+              user_id: '',
+              rating: rating,
+              rated_at: today,
+            },
+          ];
+          
+          return {
+            ...prevData,
+            weeklyPerformance: updatedPerf,
+          };
+        });
+        
+        setRatedRatingValue(rating);
+        setRatedAlertOpen(true);
+        
+        // Refresh data in background to ensure consistency
+        await loadData();
+      } catch (err) {
+        Alert.alert('Error', 'Failed to rate performance. Please try again.');
+      }
     },
-    [],
+    [loadData],
   );
-
 
   if (loading) {
     return (
@@ -440,10 +411,10 @@ const JourneyMain = () => {
           <View style={s.modalContent}>
             <Text style={s.modalTitle}>Rate Today</Text>
             <Text style={s.modalSubtitle}>
-              How was your practice today? Tap a number from 1 to 10.
+              How was your practice today? Tap a number from 1 to 5.
             </Text>
             <View style={s.ratingGrid}>
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+              {[1, 2, 3, 4, 5].map((n) => (
                 <TouchableOpacity
                   key={n}
                   style={s.ratingChip}
@@ -478,7 +449,7 @@ const JourneyMain = () => {
             </View>
             <Text style={[s.modalTitle, { textAlign: 'center' }]}>Rated!</Text>
             <Text style={s.modalBody}>
-              Today's performance logged as {ratedRatingValue}/10. Keep it up!
+              Today's performance logged as {ratedRatingValue}/5. Keep it up!
             </Text>
             <TouchableOpacity
               onPress={() => setRatedAlertOpen(false)}

@@ -14,7 +14,8 @@
     "test:summary": "node tests/test-summary.js",
     "setup:db": "node scripts/setup-database.js",
     "migrate": "node scripts/setup-database.js",
-    "test:connection": "node scripts/test-connection.js"
+    "test:connection": "node scripts/test-connection.js",
+    "test:render": "node scripts/test-render-backend.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",

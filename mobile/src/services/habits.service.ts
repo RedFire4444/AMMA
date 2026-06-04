@@ -75,7 +75,9 @@ export const habitsService = {
           duration_minutes: entry.duration_minutes,
           mood_rating: null,
           energy_level: null,
-          logged_at: entry.date,
+          // Normalize to YYYY-MM-DD — backend may return full ISO timestamps;
+          // HabitGrid and handleLogHabit compare against 'YYYY-MM-DD' strings.
+          logged_at: entry.date.split('T')[0],
         })),
       );
       return {
@@ -140,7 +142,15 @@ export const habitsService = {
   async getWeeklyPerformance(): Promise<PerformanceRating[]> {
     try {
       const data = await get<any>('/habits/performance/weekly');
-      return data || [];
+      // Backend returns { ratings, weekly_average, days_rated }
+      // Map the raw database fields to PerformanceRating interface
+      const ratings = (data?.ratings) || [];
+      return ratings.map((r: any) => ({
+        id: r.id,
+        user_id: r.user_id,
+        rating: r.productivity_rating,
+        rated_at: r.rated_date,
+      }));
     } catch {
       return [];
     }

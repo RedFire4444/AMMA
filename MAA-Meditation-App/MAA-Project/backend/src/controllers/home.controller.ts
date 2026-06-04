@@ -8,7 +8,7 @@
 
 import { Request, Response } from 'express';
 import { supabase } from '../services/supabase.service';
-import { scraperService } from '../services/scraper.service';
+import { streakService } from '../services/streak.service';
 import { success, error } from '../utils/apiResponse';
 
 /**
@@ -25,6 +25,7 @@ export const getHomeFeed = async (req: Request, res: Response): Promise<void> =>
     }
 
     const today = new Date().toISOString().split('T')[0];
+    const nowIso = new Date().toISOString();
 
     // All 5 queries run in parallel. Selects are trimmed to the columns the
     // mobile client actually renders, which cuts roundtrip payload ~30-50%.
@@ -48,7 +49,14 @@ export const getHomeFeed = async (req: Request, res: Response): Promise<void> =>
         .order('enrollment_count', { ascending: false })
         .limit(5),
 
-      scraperService.getRecentEvents().then(data => ({ data })),
+      supabase
+        .from('events')
+        .select(
+          'id, title, event_date, instructor_name, thumbnail_url, is_live, category',
+        )
+        .gt('event_date', nowIso)
+        .order('event_date', { ascending: true })
+        .limit(3),
 
       supabase
         .from('users')
@@ -56,10 +64,8 @@ export const getHomeFeed = async (req: Request, res: Response): Promise<void> =>
         .eq('id', userId)
         .single(),
 
-      supabase.rpc('calculate_streak', {
-        p_user_id: userId,
-        p_habit_type: 'meditation',
-      }),
+      // Use backend streakService to compute streaks from habit_logs (uses logged_at)
+      (async () => ({ data: await streakService.calculateStreak(userId, 'meditation') }))(),
 
       supabase
         .from('meditation_sessions')
@@ -75,7 +81,8 @@ export const getHomeFeed = async (req: Request, res: Response): Promise<void> =>
       trending_courses: coursesResult.data ?? [],
       upcoming_events: eventsResult.data ?? [],
       user_greeting: userResult.data?.full_name ?? null,
-      streak: streakResult.data ?? 0,
+  // streakResult.data is expected to be { current_streak, longest_streak }
+  streak: (streakResult.data && streakResult.data.current_streak) || 0,
       total_minutes: totalMinutes,
     };
 

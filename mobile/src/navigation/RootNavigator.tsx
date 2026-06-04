@@ -8,7 +8,7 @@ import { useAuthStore } from '../store/authStore';
 import { colors } from '../utils/styles';
 
 export const RootNavigator = () => {
-  const session = useAuthStore((s) => s.session);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const onboardingComplete = useAuthStore((s) => s.onboardingComplete);
   const restoreSession = useAuthStore((s) => s.restoreSession);
   const [isInitializing, setIsInitializing] = useState(true);
@@ -31,7 +31,7 @@ export const RootNavigator = () => {
 
   return (
     <NavigationContainer>
-      {!session ? (
+      {!isAuthenticated ? (
         <AuthNavigator />
       ) : !onboardingComplete ? (
         <OnboardingNavigator />

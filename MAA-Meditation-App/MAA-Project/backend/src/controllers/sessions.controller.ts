@@ -51,7 +51,7 @@ export const createSession = async (req: Request, res: Response): Promise<void> 
         user_id: userId,
         lesson_id: lesson_id ?? null,
         duration_minutes,
-        session_type: session_type === 'free' ? 'unguided' : session_type,
+        session_type,
         status: 'completed',
         progress_percentage: 100,
         mood_before: mood_before ?? null,
@@ -70,22 +70,36 @@ export const createSession = async (req: Request, res: Response): Promise<void> 
 
     // Auto-log a meditation habit entry for streak tracking
     // Use upsert to handle the unique constraint on (user_id, habit_type, DATE(logged_at))
-    const today = new Date().toISOString().split('T')[0];
-    await supabase
+    // Use the completed_at date (not today) to ensure correct date logging
+    const completedDate = new Date(completedAt);
+    const loggedAtDate = completedDate.toISOString().split('T')[0]; // YYYY-MM-DD
+    
+    const habitLogEntry = {
+      user_id: userId,
+      habit_type: 'meditation',
+      completed: true,
+      duration_minutes,
+      mood_rating: mood_after ?? null,
+      notes: notes ?? null,
+      logged_at: `${loggedAtDate}T00:00:00.000Z`,
+    };
+    
+    // Debug logging
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('[Session] Auto-logging habit entry:', JSON.stringify(habitLogEntry, null, 2));
+    }
+    
+    const { data: habitData, error: habitError } = await supabase
       .from('habit_logs')
-      .upsert(
-        {
-          user_id: userId,
-          habit_type: 'meditation',
-          completed: true,
-          duration_minutes,
-          mood_rating: mood_after ?? null,
-          notes: notes ?? null,
-          logged_at: `${today}T00:00:00.000Z`,
-        },
-        { onConflict: 'user_id,habit_type,logged_at' }
-      )
+      .upsert(habitLogEntry, { onConflict: 'user_id,habit_type,logged_at' })
       .select();
+
+    if (habitError) {
+      console.error('[Session] Failed to auto-log habit:', habitError);
+      // Don't fail the session creation if habit logging fails
+    } else if (process.env.NODE_ENV !== 'production') {
+      console.log('[Session] Habit logged successfully:', habitData);
+    }
 
     res.status(201).json(success(session));
   } catch (err) {

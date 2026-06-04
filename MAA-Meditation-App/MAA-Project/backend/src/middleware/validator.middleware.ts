@@ -20,6 +20,18 @@ export const validate = (schema: ZodSchema, source: ValidationSource = 'body') =
       next();
     } catch (err) {
       if (err instanceof ZodError) {
+        // Log detailed debug info so we can inspect why validation failed
+        try {
+          console.warn('Validation failure', {
+            source,
+            headers: req.headers,
+            body: req.body,
+            issues: err.issues.map((i) => ({ path: i.path, message: i.message })),
+          });
+        } catch (logErr) {
+          console.warn('Failed to log validation failure details:', logErr);
+        }
+
         res.status(400).json({
           success: false,
           data: null,

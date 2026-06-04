@@ -1,12 +1,17 @@
 import { create } from 'zustand';
-import { Session, User } from '@supabase/supabase-js';
 import { authService } from '../services/auth.service';
 import { userService } from '../services/user.service';
-import { supabase } from '../services/supabase';
+import { SecureStore } from '../utils/keychain';
+
+interface User {
+  id: string;
+  email?: string;
+  phone?: string;
+}
 
 interface AuthState {
   user: User | null;
-  session: Session | null;
+  isAuthenticated: boolean;
   isLoading: boolean;
   onboardingComplete: boolean;
   requestOTP: (phone: string) => Promise<void>;
@@ -18,9 +23,9 @@ interface AuthState {
   logout: () => Promise<void>;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
-  session: null,
+  isAuthenticated: false,
   isLoading: false,
   onboardingComplete: false,
 
@@ -40,7 +45,16 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ isLoading: true });
     try {
       const data = await authService.verifyOTP(phone, token);
-      if (data?.session) {
+      
+      // Store tokens from backend response
+      if (data.access_token) {
+        await SecureStore.saveToken('auth_token', data.access_token);
+      }
+      if (data.refresh_token) {
+        await SecureStore.saveToken('refresh_token', data.refresh_token);
+      }
+      
+      if (data.user) {
         let onboardingComplete = false;
         try {
           const profile = await userService.getProfile();
@@ -49,8 +63,8 @@ export const useAuthStore = create<AuthState>((set) => ({
           if (__DEV__) console.warn('[Store] Profile fetch during verifyOTP failed:', e);
         }
         set({
-          session: data.session,
-          user: data.user ?? null,
+          user: data.user,
+          isAuthenticated: true,
           onboardingComplete,
         });
       }
@@ -66,7 +80,16 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ isLoading: true });
     try {
       const data = await authService.emailLogin(email, password);
-      if (data?.session) {
+      
+      // Store tokens from backend response
+      if (data.access_token) {
+        await SecureStore.saveToken('auth_token', data.access_token);
+      }
+      if (data.refresh_token) {
+        await SecureStore.saveToken('refresh_token', data.refresh_token);
+      }
+      
+      if (data.user) {
         let onboardingComplete = false;
         try {
           const profile = await userService.getProfile();
@@ -75,8 +98,8 @@ export const useAuthStore = create<AuthState>((set) => ({
           if (__DEV__) console.warn('[Store] Profile fetch during login failed:', e);
         }
         set({
-          session: data.session,
-          user: data.user ?? null,
+          user: data.user,
+          isAuthenticated: true,
           onboardingComplete,
         });
       }
@@ -103,28 +126,43 @@ export const useAuthStore = create<AuthState>((set) => ({
   restoreSession: async () => {
     set({ isLoading: true });
     try {
-      const { data: { session }, error } = await supabase.auth.getSession();
-
-      if (session && !error) {
-        let onboardingComplete = false;
+      const token = await SecureStore.getToken('auth_token');
+      
+      if (token) {
         try {
-          const profile = await userService.getProfile();
-          onboardingComplete = profile?.onboarding_complete ?? false;
-        } catch (e) {
-          if (__DEV__) console.warn('[Store] Profile fetch during restore failed:', e);
+          const sessionData = await authService.getSession();
+          
+          if (sessionData.user) {
+            let onboardingComplete = false;
+            try {
+              const profile = await userService.getProfile();
+              onboardingComplete = profile?.onboarding_complete ?? false;
+            } catch (e) {
+              if (__DEV__) console.warn('[Store] Profile fetch during restore failed:', e);
+            }
+            set({
+              user: sessionData.user,
+              isAuthenticated: true,
+              onboardingComplete,
+            });
+          } else {
+            // Invalid session, clear tokens
+            await SecureStore.deleteToken('auth_token');
+            await SecureStore.deleteToken('refresh_token');
+            set({ user: null, isAuthenticated: false, onboardingComplete: false });
+          }
+        } catch (error) {
+          // Session validation failed, clear tokens
+          await SecureStore.deleteToken('auth_token');
+          await SecureStore.deleteToken('refresh_token');
+          set({ user: null, isAuthenticated: false, onboardingComplete: false });
         }
-        set({
-          session,
-          user: session.user ?? null,
-          onboardingComplete,
-        });
       } else {
-        if (__DEV__ && error) console.warn('[Store] Supabase session error:', error);
-        set({ session: null, user: null, onboardingComplete: false });
+        set({ user: null, isAuthenticated: false, onboardingComplete: false });
       }
     } catch (err) {
       if (__DEV__) console.warn('[Store] Session restoration exception:', err);
-      set({ session: null, user: null, onboardingComplete: false });
+      set({ user: null, isAuthenticated: false, onboardingComplete: false });
     } finally {
       set({ isLoading: false });
     }
@@ -152,7 +190,15 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: async () => {
-    await supabase.auth.signOut();
-    set({ user: null, session: null, onboardingComplete: false });
+    try {
+      await authService.logout();
+    } catch (e) {
+      // Ignore logout errors, still clear local state
+    }
+    
+    // Clear tokens and state
+    await SecureStore.deleteToken('auth_token');
+    await SecureStore.deleteToken('refresh_token');
+    set({ user: null, isAuthenticated: false, onboardingComplete: false });
   },
 }));

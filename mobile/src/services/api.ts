@@ -2,7 +2,7 @@
  * File: api.ts
  *
  * Description: Configures the base API client for the mobile app and provides generic
- * CRUD helper functions for making authenticated requests to the Supabase backend.
+ * CRUD helper functions for making authenticated requests to the backend.
  * Centralizes error handling, request interceptors, and response parsing.
  *
  * Author: Navnit(Ninjacode911)
@@ -10,7 +10,7 @@
 
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { API_BASE_URL } from '@env';
-import { supabase } from './supabase';
+import { SecureStore } from '../utils/keychain';
 
 // ---------------------------------------------------------------------------
 // Base URL is read from mobile/.env (see mobile/.env.example for guidance).
@@ -54,12 +54,11 @@ const apiClient: AxiosInstance = axios.create({
 });
 
 // ---------------------------------------------------------------------------
-// Request interceptor — attach Supabase JWT to every request
+// Request interceptor — attach JWT token from secure storage to every request
 // ---------------------------------------------------------------------------
 apiClient.interceptors.request.use(
   async (config) => {
-    const { data } = await supabase.auth.getSession();
-    const token = data.session?.access_token;
+    const token = await SecureStore.getToken('auth_token');
 
     if (token) {
       config.headers = config.headers ?? {};
@@ -72,29 +71,45 @@ apiClient.interceptors.request.use(
 );
 
 // ---------------------------------------------------------------------------
-// Response interceptor — surface friendly error messages
+// Response interceptor — handle token refresh and auth errors
 // ---------------------------------------------------------------------------
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // If 401 and we haven't retried yet, attempt a session refresh
+    // If 401 and we haven't retried yet, attempt a token refresh
     if (
       error.response?.status === 401 &&
       !originalRequest._retried
     ) {
       originalRequest._retried = true;
 
-      const { data, error: refreshError } = await supabase.auth.refreshSession();
-
-      if (!refreshError && data.session) {
-        originalRequest.headers.Authorization = `Bearer ${data.session.access_token}`;
-        return apiClient(originalRequest);
+      try {
+        const refreshToken = await SecureStore.getToken('refresh_token');
+        if (refreshToken) {
+          const response = await axios.post(`${BASE_URL}/auth/refresh`, {
+            refresh_token: refreshToken
+          });
+          
+          const { access_token, refresh_token: newRefreshToken } = response.data.data;
+          
+          // Store new tokens
+          await SecureStore.saveToken('auth_token', access_token);
+          if (newRefreshToken) {
+            await SecureStore.saveToken('refresh_token', newRefreshToken);
+          }
+          
+          // Retry original request with new token
+          originalRequest.headers.Authorization = `Bearer ${access_token}`;
+          return apiClient(originalRequest);
+        }
+      } catch (refreshError) {
+        // Refresh failed — clear tokens and redirect to login
+        await SecureStore.deleteToken('auth_token');
+        await SecureStore.deleteToken('refresh_token');
+        // You might want to emit an event here to redirect to login
       }
-
-      // Refresh failed — sign user out
-      await supabase.auth.signOut();
     }
 
     return Promise.reject(error);

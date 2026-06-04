@@ -337,7 +337,7 @@ const MeditationTimerScreen = () => {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const isMountedRef = useRef(true);
   const [showCompletion, setShowCompletion] = useState(false);
-  const [isPreviewPaused, setIsPreviewPaused] = useState(true);
+  const [isPreviewPaused, setIsPreviewPaused] = useState(false);
   const [selectedGuidedId, setSelectedGuidedId] = useState<string>('clarity');
   const [selectedBreathingPatternId, setSelectedBreathingPatternId] = useState<string>('box');
   const [showStopModal, setShowStopModal] = useState(false);
@@ -429,7 +429,7 @@ const MeditationTimerScreen = () => {
 
     const isMeditationActive = isRunning || isPaused;
     if (isMeditationActive) {
-      if (isPaused || isPreviewPaused) {
+      if (isPaused) {
         audioService.pause();
       } else if (isRunning) {
         audioService.play(activeKey);
@@ -495,9 +495,7 @@ const MeditationTimerScreen = () => {
     if (isMountedRef.current) setShowCompletion(true);
 
     try {
-      // Round to the nearest whole minute (minimum 1) — the DB column is
-      // INTEGER and has a CHECK (duration_minutes > 0) constraint.
-      const durationMinutes = Math.max(1, Math.round(duration / 60));
+      const durationMinutes = duration / 60;
       // Backend createSession also auto-logs the meditation habit, so
       // we don't separately POST to /habits/log here.
       await meditationService.logSession({
@@ -546,24 +544,8 @@ const MeditationTimerScreen = () => {
     setShowStopModal(true);
   }, []);
 
-  const handleConfirmStop = useCallback(async () => {
+  const handleConfirmStop = useCallback(() => {
     setShowStopModal(false);
-
-    // Save/log the session dynamically if the user meditated for some time before stopping
-    if (elapsedTime > 0 && startedAt) {
-      try {
-        const elapsedMinutes = Math.max(1, Math.round(elapsedTime / 60));
-        await meditationService.logSession({
-          duration_minutes: elapsedMinutes,
-          session_type: sessionType,
-          started_at: startedAt,
-          completed_at: new Date().toISOString(),
-        });
-      } catch (err) {
-        if (__DEV__) console.warn('[MeditationTimer] Session log failed on stop:', err);
-      }
-    }
-
     stop();
     setIsPreviewPaused(false);
     const activeKey = getActiveSoundKey();
@@ -572,7 +554,7 @@ const MeditationTimerScreen = () => {
     } else {
       audioService.stop(); // Strictly stop for guided mode
     }
-  }, [stop, getActiveSoundKey, sessionType, elapsedTime, startedAt]);
+  }, [stop, getActiveSoundKey, sessionType]);
 
   useEffect(() => {
     const unsubscribeBeforeRemove = navigation.addListener('beforeRemove', (e) => {

@@ -1,4 +1,4 @@
-import { get, post, del } from './api';
+import { get, post } from './api';
 
 export interface Event {
   id: string;
@@ -18,10 +18,6 @@ export interface Event {
   max_participants: number | null;
   registration_count: number;
   status: string;
-  youtube_video_id?: string;
-  actual_start_time?: string;
-  viewer_count?: number;
-  booking_url?: string;
 }
 
 export interface EventRegistration {
@@ -61,32 +57,5 @@ export const eventsService = {
   async getStreamUrl(eventId: string): Promise<string | null> {
     const data = await get<any>(`/events/${eventId}/stream`);
     return data?.stream_url || null;
-  },
-
-  async getLiveEvents(): Promise<Event[]> {
-    const data = await get<any>('/events/live');
-    return data || [];
-  },
-
-  async getUpcomingEvents(): Promise<Event[]> {
-    const data = await get<any>('/events/upcoming');
-    return data || [];
-  },
-
-  async setReminder(eventId: string): Promise<void> {
-    await post(`/events/${eventId}/reminder`);
-  },
-
-  async deleteReminder(eventId: string): Promise<void> {
-    await del(`/events/${eventId}/reminder`);
-  },
-
-  async getEventViewers(eventId: string): Promise<number> {
-    const data = await get<any>(`/events/${eventId}/viewers`);
-    return data?.viewers || 0;
-  },
-
-  async pingWatchDuration(eventId: string): Promise<void> {
-    await post(`/events/${eventId}/ping`);
   },
 };

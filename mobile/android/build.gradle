@@ -19,4 +19,7 @@ buildscript {
     }
 }
 
+// Enable build cache
+gradle.startParameter.buildCacheEnabled = true
+
 apply plugin: "com.facebook.react.rootproject"

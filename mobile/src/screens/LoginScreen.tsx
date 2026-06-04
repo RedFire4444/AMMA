@@ -38,7 +38,6 @@ const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const { requestOTP, emailLogin, isLoading } = useAuthStore();
 
   const handleSendOTP = async () => {
@@ -126,26 +125,15 @@ const LoginScreen = () => {
               onChangeText={t => { setEmail(t.trim()); setError(''); }}
             />
             <Text style={[s.label, s.labelSpaced]}>Password</Text>
-            <View style={s.passwordContainer}>
-              <TextInput
-                style={s.passwordInput}
-                placeholder="Enter your password"
-                placeholderTextColor="#9CA3AF"
-                secureTextEntry={!showPassword}
-                value={password}
-                accessibilityLabel="Password"
-                onChangeText={t => { setPassword(t); setError(''); }}
-              />
-              <TouchableOpacity
-                onPress={() => setShowPassword(!showPassword)}
-                style={s.eyeButton}
-                activeOpacity={0.7}
-                accessibilityRole="button"
-                accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
-              >
-                <Text style={[s.eyeIcon, { opacity: showPassword ? 1.0 : 0.4 }]}>👁️</Text>
-              </TouchableOpacity>
-            </View>
+            <TextInput
+              style={s.input}
+              placeholder="Enter your password"
+              placeholderTextColor="#9CA3AF"
+              secureTextEntry
+              value={password}
+              accessibilityLabel="Password"
+              onChangeText={t => { setPassword(t); setError(''); }}
+            />
           </View>
         )}
 
@@ -212,32 +200,6 @@ const s = StyleSheet.create({
   divText: { marginHorizontal: 12, color: colors.gray400, fontSize: 14 },
   googleBtn: { width: '100%', paddingVertical: 16, borderRadius: 12, alignItems: 'center', borderWidth: 1, borderColor: colors.border, backgroundColor: colors.white },
   googleText: { color: colors.gray800, fontWeight: 'bold', fontSize: 16 },
-  passwordContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 12,
-    backgroundColor: colors.white,
-    position: 'relative',
-  },
-  passwordInput: {
-    flex: 1,
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    fontSize: 16,
-    color: colors.gray800,
-  },
-  eyeButton: {
-    position: 'absolute',
-    right: 16,
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  eyeIcon: {
-    fontSize: 20,
-  },
 });
 
 export default LoginScreen;
