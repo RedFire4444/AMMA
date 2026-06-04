@@ -24,6 +24,17 @@ const formatDuration = (seconds: number | null): string => {
   return `${hours}:${String(mins).padStart(2, '0')}:00`;
 };
 
+const FONT_FAMILY = 'Manrope';
+const palette = {
+  primaryContainer: '#EE9F27',
+  accentOrange: '#FF7A00',
+  surface: '#FFFFFF',
+  mainText: '#2F2F2F',
+  secondaryText: '#8A7360',
+  white: '#FFFFFF',
+  cardBorder: '#F7E7C9',
+};
+
 export const ContentCard = ({
   title,
   instructorName: _instructorName,
@@ -90,11 +101,11 @@ export const ContentCard = ({
 const s = StyleSheet.create({
   card: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: palette.surface,
     borderRadius: 12,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: palette.cardBorder,
     overflow: 'hidden',
   },
   thumbnail: {
@@ -116,28 +127,30 @@ const s = StyleSheet.create({
     bottom: 4,
     right: 4,
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    borderRadius: 999,
+    borderRadius: 4,
     paddingHorizontal: 8,
     paddingVertical: 2,
   },
   durationText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '600',
+    fontFamily: FONT_FAMILY,
+    color: palette.white,
+    fontSize: 10,
+    fontWeight: '700',
   },
   proBadge: {
     position: 'absolute',
     top: 4,
     left: 4,
-    backgroundColor: '#40916C',
-    borderRadius: 999,
+    backgroundColor: palette.accentOrange,
+    borderRadius: 4,
     paddingHorizontal: 8,
     paddingVertical: 2,
   },
   proText: {
-    color: '#FFFFFF',
+    fontFamily: FONT_FAMILY,
+    color: palette.white,
     fontSize: 12,
-    fontWeight: 'bold',
+    fontWeight: '700',
   },
   info: {
     flex: 1,
@@ -145,9 +158,10 @@ const s = StyleSheet.create({
     justifyContent: 'space-between',
   },
   title: {
+    fontFamily: FONT_FAMILY,
     fontSize: 14,
     fontWeight: '600',
-    color: '#1A1A2E',
+    color: palette.mainText,
   },
   footer: {
     flexDirection: 'row',
@@ -160,16 +174,18 @@ const s = StyleSheet.create({
     alignItems: 'center',
   },
   viewText: {
+    fontFamily: FONT_FAMILY,
     fontSize: 12,
-    color: '#6B7280',
+    fontWeight: '500',
+    color: palette.secondaryText,
   },
   bookmarkIcon: {
     fontSize: 18,
   },
   bookmarkActive: {
-    color: '#40916C',
+    color: palette.accentOrange,
   },
   bookmarkInactive: {
-    color: '#D1D5DB',
+    color: palette.secondaryText,
   },
 });

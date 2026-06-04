@@ -35,6 +35,22 @@ import { JourneyStackParamList } from '../navigation/types';
 
 type JourneyNav = NativeStackNavigationProp<JourneyStackParamList, 'JourneyMain'>;
 
+const FONT_FAMILY = 'Manrope';
+const palette = {
+  primary: '#EE9F27',
+  primaryDark: '#855400',
+  inversePrimary: '#FFB95C',
+  background: '#FFFDF9',
+  surface: '#FFFFFF',
+  surfaceLow: '#F6F3F2',
+  mainText: '#1B1C1C',
+  secondaryText: '#524435',
+  border: '#F7E7C9',
+  outline: '#857462',
+  streak: '#FF7A00',
+  white: '#FFFFFF',
+};
+
 interface HabitConfig {
   type: string;
   name: string;
@@ -300,7 +316,7 @@ const JourneyMain = () => {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#ED7624"
+            tintColor="#e4884cff"
           />
         }
       >
@@ -324,7 +340,7 @@ const JourneyMain = () => {
         >
           <View style={s.meditationCtaContent}>
             <View style={s.meditationCtaIconWrap}>
-              <Image source={require('../assets/icons/New folder/Yoga.png')} style={s.meditationCtaIconImage} />
+              <Image source={require('../assets/icons/New folder/AmmaMeditation.png')} style={s.meditationCtaIconImage} />
             </View>
             <View style={s.meditationCtaTextWrap}>
               <Text style={s.meditationCtaTitle}>
@@ -471,7 +487,7 @@ export default JourneyMain;
 const s = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF5EE',
+    backgroundColor: palette.background,
   },
   horizontalListPadding: { paddingHorizontal: 24 },
   flex1: {
@@ -481,7 +497,7 @@ const s = StyleSheet.create({
     // paddingBottom is handled dynamically based on safe area bottom inset
   },
   skeletonBlock: {
-    backgroundColor: 'rgba(240, 127, 46, 0.12)',
+    backgroundColor: palette.surfaceLow,
     borderRadius: 12,
     marginHorizontal: 24,
     marginBottom: 16,
@@ -492,7 +508,7 @@ const s = StyleSheet.create({
     paddingBottom: 8,
   },
   skeletonHeaderBar: {
-    backgroundColor: 'rgba(240, 127, 46, 0.12)',
+    backgroundColor: palette.surfaceLow,
     height: 32,
     width: 160,
     borderRadius: 12,
@@ -503,23 +519,25 @@ const s = StyleSheet.create({
     paddingBottom: 8,
   },
   headerTitle: {
+    fontFamily: FONT_FAMILY,
     fontSize: 24,
     fontWeight: '700',
-    color: '#5C250E',
+    color: palette.mainText,
   },
   headerSubtitle: {
+    fontFamily: FONT_FAMILY,
     fontSize: 14,
-    color: '#87553E',
+    color: palette.secondaryText,
     marginTop: 4,
   },
   meditationCta: {
     marginHorizontal: 24,
     marginTop: 16,
     marginBottom: 16,
-    backgroundColor: '#ED7624',
+    backgroundColor: palette.primary,
     borderRadius: 24,
     padding: 24,
-    shadowColor: '#ED7624',
+    shadowColor: palette.primary,
     shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.35,
     shadowRadius: 20,
@@ -530,33 +548,37 @@ const s = StyleSheet.create({
     marginBottom: 24,
   },
   meditationCtaIconWrap: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#FFF5EE',
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: palette.white,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
+    overflow: 'hidden',
   },
   meditationCtaIcon: {
     fontSize: 48,
   },
   meditationCtaIconImage: {
-    width: 52,
-    height: 52,
-    resizeMode: 'contain',
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    resizeMode: 'cover',
   },
   meditationCtaTextWrap: {
     alignItems: 'center',
   },
   meditationCtaTitle: {
-    color: '#FFFFFF',
-    fontWeight: '800',
+    fontFamily: FONT_FAMILY,
+    color: palette.white,
+    fontWeight: '700',
     fontSize: 26,
     marginBottom: 8,
     textAlign: 'center',
   },
   meditationCtaSubtitle: {
+    fontFamily: FONT_FAMILY,
     color: 'rgba(255,255,255,0.9)',
     fontSize: 15,
     textAlign: 'center',
@@ -564,7 +586,7 @@ const s = StyleSheet.create({
     paddingHorizontal: 16,
   },
   meditationCtaPlayWrap: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: palette.white,
     borderRadius: 32,
     width: '100%',
     height: 60,
@@ -573,29 +595,32 @@ const s = StyleSheet.create({
     flexDirection: 'row',
   },
   meditationCtaPlayText: {
-    color: '#ED7624',
+    fontFamily: FONT_FAMILY,
+    color: palette.primary,
     fontSize: 20,
     fontWeight: '800',
     marginLeft: 8,
   },
   perfCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: palette.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(240, 127, 46, 0.12)',
+    borderColor: palette.border,
     marginHorizontal: 24,
     marginBottom: 16,
     padding: 16,
   },
   perfCardTitle: {
+    fontFamily: FONT_FAMILY,
     fontSize: 16,
-    fontWeight: '700',
-    color: '#5C250E',
+    fontWeight: '600',
+    color: palette.mainText,
     marginBottom: 4,
   },
   perfCardSubtitle: {
+    fontFamily: FONT_FAMILY,
     fontSize: 12,
-    color: '#87553E',
+    color: palette.secondaryText,
     marginBottom: 16,
   },
   perfChartRow: {
@@ -603,7 +628,7 @@ const s = StyleSheet.create({
     alignItems: 'flex-end',
     height: 112,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(240, 127, 46, 0.12)',
+    borderBottomColor: palette.border,
     paddingBottom: 8,
   },
   perfBarWrap: {
@@ -612,24 +637,26 @@ const s = StyleSheet.create({
   },
   perfBar: {
     width: 24,
-    backgroundColor: '#ED7624',
+    backgroundColor: palette.primary,
     borderTopLeftRadius: 2,
     borderTopRightRadius: 2,
   },
   perfBarLabel: {
+    fontFamily: FONT_FAMILY,
     fontSize: 12,
-    color: '#87553E',
+    color: palette.secondaryText,
     marginTop: 4,
   },
   rateTodayButton: {
-    backgroundColor: 'rgba(240, 127, 46, 0.1)',
+    backgroundColor: palette.background,
     borderRadius: 8,
     paddingVertical: 10,
     alignItems: 'center',
     marginTop: 12,
   },
   rateTodayText: {
-    color: '#5C250E',
+    fontFamily: FONT_FAMILY,
+    color: palette.primaryDark,
     fontWeight: '600',
     fontSize: 14,
   },
@@ -637,28 +664,31 @@ const s = StyleSheet.create({
     marginHorizontal: 24,
     marginBottom: 16,
     padding: 20,
-    backgroundColor: 'rgba(240, 127, 46, 0.05)',
+    backgroundColor: palette.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(240, 127, 46, 0.15)',
+    borderColor: palette.border,
   },
   affirmationLabel: {
+    fontFamily: FONT_FAMILY,
     fontSize: 12,
     textTransform: 'uppercase',
     letterSpacing: 2,
-    color: '#ED7624',
+    color: palette.primary,
     marginBottom: 12,
     fontWeight: '600',
   },
   affirmationQuote: {
+    fontFamily: FONT_FAMILY,
     fontSize: 16,
-    color: '#5C250E',
+    color: palette.mainText,
     lineHeight: 24,
     fontStyle: 'italic',
   },
   affirmationAuthor: {
+    fontFamily: FONT_FAMILY,
     fontSize: 14,
-    color: '#87553E',
+    color: palette.secondaryText,
     marginTop: 12,
   },
   modalOverlay: {
@@ -669,21 +699,23 @@ const s = StyleSheet.create({
     paddingHorizontal: 24,
   },
   modalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: palette.surface,
     borderRadius: 16,
     padding: 20,
     width: '100%',
     maxWidth: 360,
   },
   modalTitle: {
+    fontFamily: FONT_FAMILY,
     fontSize: 18,
     fontWeight: '700',
-    color: '#5C250E',
+    color: palette.mainText,
     marginBottom: 4,
   },
   modalSubtitle: {
+    fontFamily: FONT_FAMILY,
     fontSize: 13,
-    color: '#87553E',
+    color: palette.secondaryText,
     marginBottom: 16,
     lineHeight: 18,
   },
@@ -697,17 +729,18 @@ const s = StyleSheet.create({
     width: '18%',
     aspectRatio: 1,
     borderRadius: 8,
-    backgroundColor: 'rgba(240, 127, 46, 0.08)',
+    backgroundColor: palette.background,
     borderWidth: 1,
-    borderColor: 'rgba(240, 127, 46, 0.2)',
+    borderColor: palette.border,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 8,
   },
   ratingChipText: {
+    fontFamily: FONT_FAMILY,
     fontSize: 16,
     fontWeight: '700',
-    color: '#5C250E',
+    color: palette.mainText,
   },
   visionPresetGrid: {
     flexDirection: 'row',
@@ -719,9 +752,9 @@ const s = StyleSheet.create({
     width: '31%',
     aspectRatio: 1,
     borderRadius: 12,
-    backgroundColor: 'rgba(240, 127, 46, 0.06)',
+    backgroundColor: palette.background,
     borderWidth: 1,
-    borderColor: 'rgba(240, 127, 46, 0.2)',
+    borderColor: palette.border,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 8,
@@ -731,18 +764,20 @@ const s = StyleSheet.create({
     marginBottom: 4,
   },
   visionPresetCaption: {
+    fontFamily: FONT_FAMILY,
     fontSize: 11,
-    color: '#5C250E',
+    color: palette.mainText,
     fontWeight: '600',
   },
   modalCancel: {
     paddingVertical: 10,
     alignItems: 'center',
     borderRadius: 8,
-    backgroundColor: 'rgba(240, 127, 46, 0.05)',
+    backgroundColor: palette.background,
   },
   modalCancelText: {
-    color: '#87553E',
+    fontFamily: FONT_FAMILY,
+    color: palette.secondaryText,
     fontWeight: '600',
     fontSize: 14,
   },
@@ -750,30 +785,32 @@ const s = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: 'rgba(240, 127, 46, 0.12)',
+    backgroundColor: palette.background,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
   },
   modalCheckIcon: {
     fontSize: 30,
-    color: '#ED7624',
+    color: palette.primary,
   },
   modalBody: {
+    fontFamily: FONT_FAMILY,
     fontSize: 14,
-    color: '#87553E',
+    color: palette.secondaryText,
     textAlign: 'center',
     marginBottom: 24,
     lineHeight: 20,
   },
   modalButton: {
-    backgroundColor: '#ED7624',
+    backgroundColor: palette.primary,
     paddingVertical: 12,
     paddingHorizontal: 32,
     borderRadius: 8,
   },
   modalButtonText: {
-    color: '#FFFFFF',
+    fontFamily: FONT_FAMILY,
+    color: palette.white,
     fontWeight: '700',
   },
 });
