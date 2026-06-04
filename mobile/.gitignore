@@ -78,3 +78,19 @@ yarn-error.log
 .env
 .env.local
 .env.*.local
+
+# Android build artifacts
+android/build/
+android/app/build/
+android/app/.cxx/
+android/build/reports/
+
+# APK / AAB outputs
+*.apk
+*.aab
+
+# Gradle problem reports
+build/reports/
+
+# React Native Codegen (generated, not to be committed)
+android/app/build/generated/
