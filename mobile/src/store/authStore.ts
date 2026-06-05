@@ -23,7 +23,7 @@ interface AuthState {
   logout: () => Promise<void>;
 }
 
-export const useAuthStore = create<AuthState>((set, get) => ({
+export const useAuthStore = create<AuthState>((set, _get) => ({
   user: null,
   isAuthenticated: false,
   isLoading: false,
@@ -151,7 +151,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             await SecureStore.deleteToken('refresh_token');
             set({ user: null, isAuthenticated: false, onboardingComplete: false });
           }
-        } catch (error) {
+        } catch {
           // Session validation failed, clear tokens
           await SecureStore.deleteToken('auth_token');
           await SecureStore.deleteToken('refresh_token');
@@ -192,7 +192,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   logout: async () => {
     try {
       await authService.logout();
-    } catch (e) {
+    } catch {
       // Ignore logout errors, still clear local state
     }
     

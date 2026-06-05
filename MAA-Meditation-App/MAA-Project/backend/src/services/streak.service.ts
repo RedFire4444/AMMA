@@ -40,6 +40,26 @@ interface HabitStatsResult {
  * Fetch all completed unique habit date strings (YYYY-MM-DD) sorted descending
  * for a specific user and habit type.
  */
+/**
+ * Fetch the user's configured timezone from the database.
+ */
+async function getUserTimezone(userId: string): Promise<string> {
+  const { data, error } = await supabase
+    .from('users')
+    .select('timezone')
+    .eq('id', userId)
+    .single();
+
+  if (error || !data) {
+    return 'UTC';
+  }
+  return data.timezone || 'UTC';
+}
+
+/**
+ * Fetch all completed unique habit date strings (YYYY-MM-DD) sorted descending
+ * for a specific user and habit type.
+ */
 async function fetchHabitDates(userId: string, habitType: string): Promise<string[]> {
   const { data, error } = await supabase
     .from('habit_logs')
@@ -62,15 +82,16 @@ async function fetchHabitDates(userId: string, habitType: string): Promise<strin
  * Compute current and longest streak from an array of unique date strings (YYYY-MM-DD)
  * Expects dates sorted descending (most recent first).
  */
-function computeStreaks(dates: string[]): StreakResult {
+function computeStreaks(dates: string[], timezone: string = 'UTC'): StreakResult {
   if (dates.length === 0) {
     return { current_streak: 0, longest_streak: 0 };
   }
 
-  const todayStr = new Date().toISOString().split('T')[0];
-  const yesterdayDate = new Date();
-  yesterdayDate.setUTCDate(yesterdayDate.getUTCDate() - 1);
-  const yesterdayStr = yesterdayDate.toISOString().split('T')[0];
+  const todayTime = new Date();
+  const todayStr = todayTime.toLocaleDateString('en-CA', { timeZone: timezone });
+  
+  const yesterdayTime = new Date(todayTime.getTime() - 24 * 60 * 60 * 1000);
+  const yesterdayStr = yesterdayTime.toLocaleDateString('en-CA', { timeZone: timezone });
 
   // Current streak: count consecutive days backwards from today or yesterday
   let currentStreak = 0;
@@ -116,19 +137,21 @@ export const streakService = {
    * Calculate current and longest streak for a specific habit type.
    */
   async calculateStreak(userId: string, habitType: string): Promise<StreakResult> {
+    const timezone = await getUserTimezone(userId);
     const dates = await fetchHabitDates(userId, habitType);
-    return computeStreaks(dates);
+    return computeStreaks(dates, timezone);
   },
 
   /**
    * Get all four habit streaks for a user in a single parallel call.
    */
   async getUserStreaks(userId: string): Promise<UserStreaksResult> {
+    const timezone = await getUserTimezone(userId);
     const [meditation, cold_shower, early_wakeup, exercise] = await Promise.all([
-      fetchHabitDates(userId, 'meditation').then(computeStreaks),
-      fetchHabitDates(userId, 'cold_shower').then(computeStreaks),
-      fetchHabitDates(userId, 'early_wakeup').then(computeStreaks),
-      fetchHabitDates(userId, 'exercise').then(computeStreaks),
+      fetchHabitDates(userId, 'meditation').then((dates) => computeStreaks(dates, timezone)),
+      fetchHabitDates(userId, 'cold_shower').then((dates) => computeStreaks(dates, timezone)),
+      fetchHabitDates(userId, 'early_wakeup').then((dates) => computeStreaks(dates, timezone)),
+      fetchHabitDates(userId, 'exercise').then((dates) => computeStreaks(dates, timezone)),
     ]);
 
     return {
@@ -151,8 +174,9 @@ export const streakService = {
     habitType: string,
     daysBack: number = 30
   ): Promise<HabitStatsResult> {
+    const timezone = await getUserTimezone(userId);
     const allDates = await fetchHabitDates(userId, habitType);
-    const { current_streak, longest_streak } = computeStreaks(allDates);
+    const { current_streak, longest_streak } = computeStreaks(allDates, timezone);
 
     // Window: last daysBack days
     const sinceDate = new Date();

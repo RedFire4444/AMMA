@@ -337,7 +337,7 @@ const MeditationTimerScreen = () => {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const isMountedRef = useRef(true);
   const [showCompletion, setShowCompletion] = useState(false);
-  const [isPreviewPaused, setIsPreviewPaused] = useState(false);
+  const [isPreviewPaused, setIsPreviewPaused] = useState(true);
   const [selectedGuidedId, setSelectedGuidedId] = useState<string>('clarity');
   const [selectedBreathingPatternId, setSelectedBreathingPatternId] = useState<string>('box');
   const [showStopModal, setShowStopModal] = useState(false);
@@ -346,13 +346,24 @@ const MeditationTimerScreen = () => {
     isMountedRef.current = true;
 
     // Stop audio immediately if screen loses focus/user navigates away
-    const unsubscribe = navigation.addListener('blur', () => {
+    const unsubscribeBlur = navigation.addListener('blur', () => {
       audioService.stop();
+    });
+
+    // Reset preview state to paused/muted when focusing on setup screen
+    const unsubscribeFocus = navigation.addListener('focus', () => {
+      const state = useMeditationStore.getState();
+      const isMeditationActive = state.isRunning || state.isPaused;
+      if (!isMeditationActive) {
+        setIsPreviewPaused(true);
+        audioService.stop();
+      }
     });
 
     return () => {
       isMountedRef.current = false;
-      unsubscribe();
+      unsubscribeBlur();
+      unsubscribeFocus();
       // Always stop audio when screen unmounts
       audioService.stop();
     };
@@ -429,7 +440,7 @@ const MeditationTimerScreen = () => {
 
     const isMeditationActive = isRunning || isPaused;
     if (isMeditationActive) {
-      if (isPaused) {
+      if (isPaused || isPreviewPaused) {
         audioService.pause();
       } else if (isRunning) {
         audioService.play(activeKey);
@@ -544,17 +555,30 @@ const MeditationTimerScreen = () => {
     setShowStopModal(true);
   }, []);
 
-  const handleConfirmStop = useCallback(() => {
+  const handleConfirmStop = useCallback(async () => {
     setShowStopModal(false);
+
+    const currentElapsedTime = elapsedTime;
+    const currentStartedAt = startedAt;
+
     stop();
-    setIsPreviewPaused(false);
-    const activeKey = getActiveSoundKey();
-    if (activeKey && sessionType !== 'guided') {
-      audioService.play(activeKey, true); // Restart preview from start on setup screen
-    } else {
-      audioService.stop(); // Strictly stop for guided mode
+    setIsPreviewPaused(true); // Default to paused when returning to setup screen
+    audioService.stop(); // Stop audio playback
+
+    if (currentStartedAt && currentElapsedTime > 0) {
+      try {
+        const durationMinutes = Math.max(1, Math.round(currentElapsedTime / 60));
+        await meditationService.logSession({
+          duration_minutes: durationMinutes,
+          session_type: sessionType,
+          started_at: currentStartedAt,
+          completed_at: new Date().toISOString(),
+        });
+      } catch (err) {
+        if (__DEV__) console.warn('[MeditationTimer] Failed to log early stopped session:', err);
+      }
     }
-  }, [stop, getActiveSoundKey, sessionType]);
+  }, [stop, sessionType, startedAt, elapsedTime]);
 
   useEffect(() => {
     const unsubscribeBeforeRemove = navigation.addListener('beforeRemove', (e) => {

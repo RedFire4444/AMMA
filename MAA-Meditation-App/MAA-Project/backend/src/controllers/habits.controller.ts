@@ -112,18 +112,19 @@ export const logHabit = async (req: Request, res: Response): Promise<void> => {
       mood_rating,
       energy_level,
       notes,
+      logged_at,
     } = req.body;
 
-    const today = new Date().toISOString().split('T')[0];
+    const targetDate = logged_at ? logged_at.split('T')[0] : new Date().toISOString().split('T')[0];
 
-    // Check if a log already exists for today
+    // Check if a log already exists for the target date
     const { data: existing, error: checkError } = await supabase
       .from('habit_logs')
       .select('id')
       .eq('user_id', userId)
       .eq('habit_type', habit_type)
-      .gte('logged_at', `${today}T00:00:00.000Z`)
-      .lte('logged_at', `${today}T23:59:59.999Z`)
+      .gte('logged_at', `${targetDate}T00:00:00.000Z`)
+      .lte('logged_at', `${targetDate}T23:59:59.999Z`)
       .maybeSingle();
 
     if (checkError) {
@@ -135,7 +136,7 @@ export const logHabit = async (req: Request, res: Response): Promise<void> => {
     let opError;
 
     if (existing) {
-      // Update the existing log for today
+      // Update the existing log for targetDate
       const { data, error: updateErr } = await supabase
         .from('habit_logs')
         .update({
@@ -151,7 +152,7 @@ export const logHabit = async (req: Request, res: Response): Promise<void> => {
       habitLog = data;
       opError = updateErr;
     } else {
-      // Insert a new log for today
+      // Insert a new log for targetDate
       const { data, error: insertErr } = await supabase
         .from('habit_logs')
         .insert({
@@ -162,7 +163,7 @@ export const logHabit = async (req: Request, res: Response): Promise<void> => {
           mood_rating: mood_rating ?? null,
           energy_level: energy_level ?? null,
           notes: notes ?? null,
-          logged_at: `${today}T00:00:00.000Z`,
+          logged_at: `${targetDate}T00:00:00.000Z`,
         })
         .select()
         .single();

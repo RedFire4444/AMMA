@@ -19,6 +19,7 @@ import {
   ScrollView,
   StyleSheet,
   ImageBackground,
+  Image,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
@@ -38,6 +39,7 @@ const LoginScreen = () => {
   const [countryCode] = useState('+91');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const { requestOTP, emailLogin, isLoading } = useAuthStore();
 
@@ -91,7 +93,13 @@ const LoginScreen = () => {
         <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled">
           <View style={s.content}>
             <View style={[s.center, s.headerSection]}>
-              <View style={s.logo}><Text style={s.logoEmoji}>{'\u{1F33A}'}</Text></View>
+              <View style={s.logoContainer}>
+                <Image
+                  source={require('../assets/images/amma-logo-square.png')}
+                  style={s.logoImage}
+                  resizeMode="contain"
+                />
+              </View>
               <Text style={s.title}>Welcome Back</Text>
               <Text style={s.subtitle}>
                 {authMode === 'phone'
@@ -135,15 +143,26 @@ const LoginScreen = () => {
                   onChangeText={t => { setEmail(t.trim()); setError(''); }}
                 />
                 <Text style={[s.label, s.labelSpaced]}>Password</Text>
-                <TextInput
-                  style={s.input}
-                  placeholder="Enter your password"
-                  placeholderTextColor="#9CA3AF"
-                  secureTextEntry
-                  value={password}
-                  accessibilityLabel="Password"
-                  onChangeText={t => { setPassword(t); setError(''); }}
-                />
+                <View style={s.passwordContainer}>
+                  <TextInput
+                    style={s.passwordInput}
+                    placeholder="Enter your password"
+                    placeholderTextColor="#9CA3AF"
+                    secureTextEntry={!showPassword}
+                    value={password}
+                    accessibilityLabel="Password"
+                    onChangeText={t => { setPassword(t); setError(''); }}
+                  />
+                  <TouchableOpacity
+                    onPress={() => setShowPassword(!showPassword)}
+                    style={s.eyeButton}
+                    activeOpacity={0.7}
+                    accessibilityRole="button"
+                    accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    <Text style={[s.eyeIcon, { opacity: showPassword ? 1.0 : 0.4 }]}>👁️</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             )}
 
@@ -188,7 +207,7 @@ const s = StyleSheet.create({
   backgroundImageStyle: { opacity: 1 },
   backgroundOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(20, 10, 4, 0.1)',
+    backgroundColor: 'rgba(20, 10, 4, 0.45)',
   },
   scroll: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: 24, paddingVertical: 32 },
   content: {
@@ -202,15 +221,26 @@ const s = StyleSheet.create({
   toggleRow: { marginTop: 16 },
   btnPrimary: { backgroundColor: colors.primary },
   btnLoading: { backgroundColor: colors.primaryLight },
-  logoEmoji: { fontSize: 36 },
-  logo: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'rgba(237, 118, 36, 0.92)',
+  logoContainer: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: '#F2E5CA',
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 20,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  logoImage: {
+    width: '82%',
+    height: '82%',
   },
   title: {
     fontSize: 30,
@@ -259,6 +289,32 @@ const s = StyleSheet.create({
     paddingVertical: 16,
     fontSize: 16,
     color: colors.gray800,
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.65)',
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    position: 'relative',
+  },
+  passwordInput: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    fontSize: 16,
+    color: colors.gray800,
+  },
+  eyeButton: {
+    position: 'absolute',
+    right: 16,
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  eyeIcon: {
+    fontSize: 18,
   },
   error: {
     color: colors.white,

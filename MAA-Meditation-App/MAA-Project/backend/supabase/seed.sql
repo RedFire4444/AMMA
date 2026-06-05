@@ -134,49 +134,12 @@ VALUES
 ON CONFLICT DO NOTHING;
 
 
--- =====================================================
--- EVENTS (3 upcoming live events)
--- =====================================================
 
-INSERT INTO events (id, title, description, instructor_name, event_date, duration_minutes, category, is_premium, status, thumbnail_url)
-VALUES
-  (
-    'c1b2c3d4-0001-0001-0001-000000000001',
-    'Full Moon Meditation Circle',
-    'Join us for a powerful group meditation under the full moon. We will practice silence, guided visualisation, and mantra chanting. All levels welcome.',
-    'Swami Prakash',
-    NOW() + INTERVAL '3 days',
-    90,
-    'meditation',
-    false,
-    'upcoming',
-    'https://images.unsplash.com/photo-1532693322450-2cb5c511067d?w=800'
-  ),
-  (
-    'c1b2c3d4-0002-0002-0002-000000000002',
-    'Stress-Free Living: A Satsang',
-    'An interactive satsang exploring the Vedantic approach to stress, anxiety, and modern living. Includes Q&A with Guru Ananda.',
-    'Guru Ananda',
-    NOW() + INTERVAL '7 days',
-    120,
-    'satsang',
-    false,
-    'upcoming',
-    'https://images.unsplash.com/photo-1529693662653-9d480530a697?w=800'
-  ),
-  (
-    'c1b2c3d4-0003-0003-0003-000000000003',
-    'Advanced Pranayama Masterclass',
-    'A premium deep-dive into Kumbhaka (breath retention), Bhastrika, and Surya Bhedana techniques. Suitable for practitioners with 6+ months experience.',
-    'Dr. Meera Iyer',
-    NOW() + INTERVAL '14 days',
-    150,
-    'pranayama',
-    true,
-    'upcoming',
-    'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800'
-  )
-ON CONFLICT (id) DO NOTHING;
+-- =====================================================
+-- EVENTS
+-- (No seed events — events are sourced from the live
+--  database and from the web scraper at runtime)
+-- =====================================================
 
 
 -- =====================================================

@@ -1,4 +1,4 @@
-import { get, post } from './api';
+import { get, post, del } from './api';
 
 export interface Event {
   id: string;
@@ -52,6 +52,36 @@ export const eventsService = {
       return !!eventWithReg?.registration || !!eventWithReg?.is_registered;
     } catch {
       return false;
+    }
+  },
+
+  async getLiveEvents(): Promise<Event[]> {
+    try {
+      const data = await get<any>('/events/live');
+      return data || [];
+    } catch {
+      return [];
+    }
+  },
+
+  async getUpcomingEvents(): Promise<Event[]> {
+    try {
+      const data = await get<any>('/events/upcoming');
+      return data || [];
+    } catch {
+      return [];
+    }
+  },
+
+  async setReminder(eventId: string): Promise<void> {
+    await post<void>(`/events/${eventId}/reminder`);
+  },
+
+  async deleteReminder(eventId: string): Promise<void> {
+    try {
+      await del<void>(`/events/${eventId}/reminder`);
+    } catch {
+      // ignore
     }
   },
 

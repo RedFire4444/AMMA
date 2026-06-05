@@ -2,6 +2,19 @@ import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import ProfileMain from '../screens/ProfileMain';
 
+jest.mock('@react-navigation/native', () => {
+  const React = require('react');
+  return {
+    ...jest.requireActual('@react-navigation/native'),
+    useNavigation: () => ({ navigate: jest.fn(), goBack: jest.fn() }),
+    useFocusEffect: (callback: any) => {
+      React.useEffect(() => {
+        callback();
+      }, [callback]);
+    },
+  };
+});
+
 describe('ProfileMain', () => {
   it('renders Edit Profile link', () => {
     const { getByText } = render(<ProfileMain />);
@@ -37,6 +50,18 @@ describe('ProfileMain', () => {
     expect(alertSpy).toHaveBeenCalledWith(
       'Logout',
       'Are you sure you want to logout?',
+      expect.any(Array),
+    );
+    alertSpy.mockRestore();
+  });
+
+  it('shows delete account confirmation alert when Delete Account pressed', () => {
+    const alertSpy = jest.spyOn(require('react-native').Alert, 'alert');
+    const { getByText } = render(<ProfileMain />);
+    fireEvent.press(getByText('Delete Account'));
+    expect(alertSpy).toHaveBeenCalledWith(
+      'Delete Account',
+      expect.stringContaining('permanently delete your account'),
       expect.any(Array),
     );
     alertSpy.mockRestore();

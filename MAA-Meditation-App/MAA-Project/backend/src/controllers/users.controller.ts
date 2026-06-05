@@ -60,13 +60,13 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
     const [sessionsResult, directoryWatchResult, allStreaksResult] = await Promise.allSettled([
       supabase
         .from('meditation_sessions')
-        .select('duration_minutes')
+        .select('duration_minutes, completed_at')
         .eq('user_id', userId)
         .eq('status', 'completed'),
 
       supabase
         .from('directory_watch_sessions')
-        .select('duration_minutes')
+        .select('duration_minutes, created_at')
         .eq('user_id', userId),
 
       streakService.getUserStreaks(userId),
@@ -92,6 +92,32 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
       sessions.reduce((max, item) => Math.max(max, item.duration_minutes || 0), 0),
       watchSessions.reduce((max, item) => Math.max(max, item.duration_minutes || 0), 0)
     );
+
+    // Calculate monthly sessions in user's timezone
+    const userTimezone = userData?.timezone || 'UTC';
+    const today = new Date();
+    const currentMonthPrefix = today.toLocaleDateString('en-CA', { timeZone: userTimezone }).substring(0, 7); // "YYYY-MM"
+
+    const getMonthInTimezone = (dateStr: string, tz: string) => {
+      try {
+        const d = new Date(dateStr);
+        return d.toLocaleDateString('en-CA', { timeZone: tz }).substring(0, 7); // "YYYY-MM"
+      } catch {
+        return '';
+      }
+    };
+
+    const currentMonthSessionsCount = sessions.filter((s) => {
+      if (!s.completed_at) return false;
+      return getMonthInTimezone(s.completed_at, userTimezone) === currentMonthPrefix;
+    }).length;
+
+    const currentMonthWatchSessionsCount = watchSessions.filter((s) => {
+      if (!s.created_at) return false;
+      return getMonthInTimezone(s.created_at, userTimezone) === currentMonthPrefix;
+    }).length;
+
+    const monthlySessions = currentMonthSessionsCount + currentMonthWatchSessionsCount;
 
     // Get streaks from all habits
     let currentStreak = 0;
@@ -124,6 +150,7 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
         longest_session_minutes: longestSession,
         current_streak: currentStreak,
         longest_streak: longestStreak,
+        monthly_sessions: monthlySessions,
       }
     };
 

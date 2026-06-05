@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { StyleSheet, View, Text, Animated, Vibration, Easing } from 'react-native';
 
 interface BreathingPhase {
@@ -52,7 +52,7 @@ export const BreathingGuide: React.FC<BreathingGuideProps> = ({
   const activePhase = pattern.sequence[phaseIndex];
 
   // Helper to trigger circle scaling animation
-  const animateToPhase = (phase: BreathingPhase['phase'], durationSeconds: number) => {
+  const animateToPhase = useCallback((phase: BreathingPhase['phase'], durationSeconds: number) => {
     let targetScale = 1.0;
     if (phase === 'inhale') {
       targetScale = 1.6;
@@ -70,7 +70,7 @@ export const BreathingGuide: React.FC<BreathingGuideProps> = ({
       easing: Easing.out(Easing.cubic),
       useNativeDriver: true,
     }).start();
-  };
+  }, [scaleAnim]);
 
   // Reset breathing state when stopped/started
   useEffect(() => {
@@ -129,7 +129,7 @@ export const BreathingGuide: React.FC<BreathingGuideProps> = ({
         clearInterval(intervalRef.current);
       }
     };
-  }, [isRunning, isPaused, phaseIndex, pattern]);
+  }, [isRunning, isPaused, phaseIndex, pattern, animateToPhase, scaleAnim]);
 
   const activeColor = PHASE_COLORS[activePhase.phase];
 

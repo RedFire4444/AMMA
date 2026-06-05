@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
+import { useRoute, RouteProp } from '@react-navigation/native';
 import YoutubeIframe from 'react-native-youtube-iframe';
 import { HomeStackParamList } from '../../navigation/types';
 import { eventsService, Event } from '../../services/events.service';
@@ -10,7 +10,6 @@ type DetailsRouteProp = RouteProp<HomeStackParamList, 'LiveEventDetails'>;
 
 export default function LiveEventDetails() {
   const route = useRoute<DetailsRouteProp>();
-  const navigation = useNavigation();
   const { eventId } = route.params;
   
   const [event, setEvent] = useState<Event | null>(null);

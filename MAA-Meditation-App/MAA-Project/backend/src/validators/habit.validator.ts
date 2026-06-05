@@ -19,6 +19,7 @@ export const logHabitSchema = z.object({
   mood_rating: z.number().int().min(1).max(10).optional(),
   energy_level: z.number().int().min(1).max(10).optional(),
   notes: z.string().max(1000).optional(),
+  logged_at: z.string().optional(),
 });
 
 export const ratePerformanceSchema = z.object({

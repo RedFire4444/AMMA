@@ -104,7 +104,7 @@ apiClient.interceptors.response.use(
           originalRequest.headers.Authorization = `Bearer ${access_token}`;
           return apiClient(originalRequest);
         }
-      } catch (refreshError) {
+      } catch {
         // Refresh failed — clear tokens and redirect to login
         await SecureStore.deleteToken('auth_token');
         await SecureStore.deleteToken('refresh_token');
