@@ -18,7 +18,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface CourseItem {
   id: string;
@@ -69,6 +69,7 @@ const COURSES_DATA: CourseItem[] = [
 ];
 
 const CoursesMain = () => {
+  const insets = useSafeAreaInsets();
   const handleCoursePress = useCallback((course: CourseItem) => {
     if (course.isDummy) {
       Alert.alert(
@@ -93,7 +94,7 @@ const CoursesMain = () => {
 
       <ScrollView
         style={s.flex1}
-        contentContainerStyle={s.scrollContent}
+        contentContainerStyle={[s.scrollContent, { paddingBottom: insets.bottom + 100 }]}
         showsVerticalScrollIndicator={false}
       >
         {COURSES_DATA.map((course) => (
@@ -141,7 +142,7 @@ const s = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 40,
+    // paddingBottom is calculated dynamically in contentContainerStyle
   },
   titleWrap: {
     paddingHorizontal: 24,
@@ -161,18 +162,17 @@ const s = StyleSheet.create({
   courseCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
-    borderWidth: 2,
-    borderColor: '#f8b888ff',
-    borderBottomWidth: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(240, 127, 46, 0.12)',
     overflow: 'hidden',
     marginHorizontal: 24,
     marginTop: 8,
-    marginBottom: 12,
-    elevation: 8,
-    shadowColor: '#ff0101ff',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
+    marginBottom: 16,
+    elevation: 3,
+    shadowColor: '#5C250E',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
   },
   dummyCard: {
     opacity: 0.9,

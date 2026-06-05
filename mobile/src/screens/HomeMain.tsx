@@ -215,7 +215,6 @@ const HomeMain = () => {
             <Text style={s.quoteAuthor}>— {feed.dailyQuote.author || 'Unknown'}</Text>
           </View>
         )}
-
         {/* Stats Pills */}
         <View style={s.statsRow}>
           <View style={s.statPill}>
@@ -250,9 +249,6 @@ const HomeMain = () => {
                 <Text style={s.liveBadgeHomeText}>LIVE</Text>
               </View>
             </View>
-            <TouchableOpacity onPress={() => navigation.navigate('UpcomingEvents')}>
-              <Text style={s.seeAllText}>Upcoming ➔</Text>
-            </TouchableOpacity>
           </View>
           {liveEvents && liveEvents.length > 0 ? (
             <FlatList
@@ -306,6 +302,45 @@ const HomeMain = () => {
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => {
                 const isNoLive = item.category === 'none';
+                const isNews = item.category === 'news';
+
+                if (isNews) {
+                  // Yatra / news card — image with overlay
+                  return (
+                    <TouchableOpacity
+                      style={s.yatraEventCard}
+                      onPress={() => handleEventPress(item)}
+                      activeOpacity={0.85}
+                    >
+                      <Image
+                        source={{ uri: item.thumbnail_url || 'https://www.amritapuri.org/templates/amritapuri/images/amritapuri-logo.jpg' }}
+                        style={StyleSheet.absoluteFillObject}
+                        resizeMode="cover"
+                      />
+                      <View style={s.yatraEventOverlay} />
+                      <View style={s.yatraEventBadge}>
+                        <Text style={s.yatraEventBadgeText}>
+                          {item.instructor_name || 'YATRA UPDATE'}
+                        </Text>
+                      </View>
+                      <View style={s.yatraEventInfo}>
+                        <Text style={s.yatraEventTitle} numberOfLines={2}>
+                          {item.title}
+                        </Text>
+                        {!!item.event_date && (
+                          <Text style={s.yatraEventDate}>
+                            {new Date(item.event_date).toLocaleDateString('en-IN', {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric',
+                            })}
+                          </Text>
+                        )}
+                      </View>
+                    </TouchableOpacity>
+                  );
+                }
+
                 return (
                   <TouchableOpacity
                     style={[s.eventCard, isNoLive && s.eventCardMuted]}
@@ -592,6 +627,50 @@ const s = StyleSheet.create({
   eventTitle: { color: '#FFFFFF', fontWeight: 'bold', fontSize: 16 },
   eventTitleMuted: { color: 'rgba(255,255,255,0.6)' },
   eventDate: { color: 'rgba(255, 255, 255, 0.7)', fontSize: 12, marginTop: 4 },
+  yatraEventCard: {
+    borderRadius: 12,
+    width: 220,
+    height: 160,
+    marginRight: 12,
+    overflow: 'hidden',
+    justifyContent: 'flex-end',
+    backgroundColor: '#2C1A0E',
+    position: 'relative',
+  },
+  yatraEventOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.42)',
+  },
+  yatraEventBadge: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    backgroundColor: 'rgba(237, 118, 36, 0.92)',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  yatraEventBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 9,
+    fontWeight: 'bold',
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+  },
+  yatraEventInfo: {
+    padding: 12,
+  },
+  yatraEventTitle: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    fontSize: 14,
+    lineHeight: 19,
+  },
+  yatraEventDate: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 11,
+    marginTop: 4,
+  },
   trendingCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 12,

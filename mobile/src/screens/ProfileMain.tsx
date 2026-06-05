@@ -190,7 +190,7 @@ const ProfileMain = () => {
   const totalDuration = profile?.stats ? formatTotalDurationVal(profile.stats.total_duration_minutes) : '0h';
 
   const monthlyProgressVal = profile?.stats 
-    ? `${Math.min(100, Math.round((profile.stats.total_sessions / 10) * 100))}%` 
+    ? `${Math.min(100, Math.round(((profile.stats.monthly_sessions ?? profile.stats.total_sessions) / 10) * 100))}%` 
     : '0%';
 
   return (
@@ -319,11 +319,19 @@ const ProfileMain = () => {
                   {
                     text: 'Delete Forever',
                     style: 'destructive',
-                    onPress: () =>
-                      Alert.alert(
-                        'Account Deletion',
-                        'Account deletion will be processed once backend deletion service is active.',
-                      ),
+                    onPress: async () => {
+                      try {
+                        await userService.deleteAccount();
+                        Alert.alert(
+                          'Account Deleted',
+                          'Your account has been deleted successfully.',
+                          [{ text: 'OK', onPress: logout }]
+                        );
+                      } catch (err: any) {
+                        if (__DEV__) console.warn('[Profile] Account deletion failed:', err);
+                        Alert.alert('Error', `Failed to delete account: ${err.message || err}`);
+                      }
+                    },
                   },
                 ],
               )

@@ -2,6 +2,20 @@ import React from 'react';
 import { render, waitFor } from '@testing-library/react-native';
 import JourneyMain from '../screens/JourneyMain';
 
+jest.mock('@react-navigation/native', () => {
+  const React = require('react');
+  return {
+    ...jest.requireActual('@react-navigation/native'),
+    useNavigation: () => ({ navigate: jest.fn(), goBack: jest.fn() }),
+    useFocusEffect: (callback: any) => {
+      React.useEffect(() => {
+        callback();
+      }, [callback]);
+    },
+  };
+});
+
+
 // Mock all services used by JourneyMain
 jest.mock('../services/habits.service', () => ({
   habitsService: {

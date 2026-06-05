@@ -44,6 +44,9 @@ export const createSession = async (req: Request, res: Response): Promise<void> 
         new Date(completedAt).getTime() - duration_minutes * 60_000,
       ).toISOString();
 
+    // Map 'free' session type to 'unguided' to comply with database check constraint
+    const dbSessionType = session_type === 'free' ? 'unguided' : session_type;
+
     // Create the meditation session
     const { data: session, error: sessionError } = await supabase
       .from('meditation_sessions')
@@ -51,7 +54,7 @@ export const createSession = async (req: Request, res: Response): Promise<void> 
         user_id: userId,
         lesson_id: lesson_id ?? null,
         duration_minutes,
-        session_type,
+        session_type: dbSessionType,
         status: 'completed',
         progress_percentage: 100,
         mood_before: mood_before ?? null,

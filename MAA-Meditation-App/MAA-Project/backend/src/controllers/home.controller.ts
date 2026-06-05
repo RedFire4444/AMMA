@@ -12,6 +12,26 @@ import { streakService } from '../services/streak.service';
 import { scraperService } from '../services/scraper.service';
 import { success, error } from '../utils/apiResponse';
 
+const AMMA_QUOTES = [
+  { quote_text: "Our efforts to remove hatred and indifference from the world begin by trying to remove them from our own mind.", author: "Amma" },
+  { quote_text: "The world should know that a life inspired by love and service to humanity is possible.", author: "Amma" },
+  { quote_text: "May the tree of our lives be rooted in the soil of love, may good deeds be the leaves, kind words be the flowers, and peace be the fruit. May the world flourish as one family, united in love. May we thus be able to create a world in which peace and contentment prevail. This is Amma’s sincere prayer.", author: "Amma" },
+  { quote_text: "It is one of our foremost duties to lovingly care for all living things.", author: "Amma" },
+  { quote_text: "Spirituality starts and ends with compassion.", author: "Amma" },
+  { quote_text: "Love is our true essence. This love has no limitations of caste, creed, color, or religion.", author: "Amma" },
+  { quote_text: "In this universe, it is love that binds everything together. Love is the very foundation, beauty, and fulfillment of life.", author: "Amma" },
+  { quote_text: "When love overflows and is expressed through every word and deed, we call it compassion.", author: "Amma" },
+  { quote_text: "Serving the world with love and cooperation, you will find your own true Self.", author: "Amma" },
+  { quote_text: "Only when goodness awakens within, will one's personality and actions gain beauty and strength.", author: "Amma" },
+  { quote_text: "Look carefully at what is of value in others and respect that.", author: "Amma" },
+  { quote_text: "Only humility will help us grow. The feeling of 'I' and 'mine' obstructs inner growth.", author: "Amma" },
+  { quote_text: "The more you give, the more your heart is filled. Love is a never-ending stream.", author: "Amma" },
+  { quote_text: "When we come to know who we truly are, we will see ourselves in all people.", author: "Amma" },
+  { quote_text: "Happiness is not found in external circumstances but in the depths of your own being.", author: "Amma" },
+  { quote_text: "Don't be discouraged by your incapacity to dispel darkness from the world. Light your own lamp.", author: "Amma" },
+  { quote_text: "Your heart is the temple where God should be enshrined. Your good thoughts are the flowers, your good words the hymns, your good deeds the rituals, and love is the offering.", author: "Amma" }
+];
+
 /**
  * GET /api/home/feed
  * Returns the home screen feed data for the authenticated user
@@ -25,22 +45,15 @@ export const getHomeFeed = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
-    const today = new Date().toISOString().split('T')[0];
     const nowIso = new Date().toISOString();
 
-    // All 5 queries run in parallel. Selects are trimmed to the columns the
-    // mobile client actually renders, which cuts roundtrip payload ~30-50%.
-    // Daily quote: fetch today-or-earlier, newest first, so a single query
-    // covers the "today missing, use latest" fallback without a second trip.
-    const [quoteResult, coursesResult, eventsResult, userResult, streakResult, sessionsResult] = await Promise.all([
-      supabase
-        .from('daily_quotes')
-        .select('quote_text, author, quote_date, category')
-        .lte('quote_date', today)
-        .order('quote_date', { ascending: false })
-        .limit(1)
-        .maybeSingle(),
+    // Select a random Amma quote on every refresh
+    const quoteIndex = Math.floor(Math.random() * AMMA_QUOTES.length);
+    const dailyQuote = AMMA_QUOTES[quoteIndex];
 
+    // All queries run in parallel. Selects are trimmed to the columns the
+    // mobile client actually renders, which cuts roundtrip payload ~30-50%.
+    const [coursesResult, eventsResult, userResult, streakResult, sessionsResult] = await Promise.all([
       supabase
         .from('courses')
         .select(
@@ -84,12 +97,12 @@ export const getHomeFeed = async (req: Request, res: Response): Promise<void> =>
     const totalMinutes = sessionsResult.data?.reduce((sum, item) => sum + (item.duration_minutes || 0), 0) ?? 0;
 
     const feed = {
-      daily_quote: quoteResult.data ?? null,
+      daily_quote: dailyQuote,
       trending_courses: coursesResult.data ?? [],
       upcoming_events: eventsResult.data ?? [],
       user_greeting: userResult.data?.full_name ?? null,
-  // streakResult.data is expected to be { current_streak, longest_streak }
-  streak: (streakResult.data && streakResult.data.current_streak) || 0,
+      // streakResult.data is expected to be { current_streak, longest_streak }
+      streak: (streakResult.data && streakResult.data.current_streak) || 0,
       total_minutes: totalMinutes,
     };
 

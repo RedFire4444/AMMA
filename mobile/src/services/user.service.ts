@@ -7,6 +7,7 @@ export interface UserProfileStats {
   longest_session_minutes: number;
   current_streak: number;
   longest_streak: number;
+  monthly_sessions?: number;
 }
 
 export interface UserProfile {

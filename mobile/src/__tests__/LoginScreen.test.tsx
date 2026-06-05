@@ -53,4 +53,22 @@ describe('LoginScreen', () => {
     fireEvent.press(getByText('Or use phone number instead'));
     expect(getByPlaceholderText('9876543210')).toBeTruthy();
   });
+
+  it('toggles password visibility when the eye icon is pressed', () => {
+    const { getByText, getByLabelText } = render(<LoginScreen />);
+    fireEvent.press(getByText('Or use your email instead'));
+    
+    const passwordInput = getByLabelText('Password');
+    expect(passwordInput.props.secureTextEntry).toBe(true);
+
+    const eyeButton = getByLabelText('Show password');
+    fireEvent.press(eyeButton);
+
+    expect(passwordInput.props.secureTextEntry).toBe(false);
+    expect(getByLabelText('Hide password')).toBeTruthy();
+
+    fireEvent.press(getByLabelText('Hide password'));
+    expect(passwordInput.props.secureTextEntry).toBe(true);
+    expect(getByLabelText('Show password')).toBeTruthy();
+  });
 });
