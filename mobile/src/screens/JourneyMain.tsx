@@ -14,7 +14,6 @@ import {
   ScrollView,
   RefreshControl,
   TouchableOpacity,
-  FlatList,
   Alert,
   Modal,
   StyleSheet,
@@ -197,7 +196,7 @@ const JourneyMain = () => {
         const habitName = HABITS.find((h) => h.type === habitType)?.name || habitType;
         Alert.alert('Logged!', `${habitName} logged for today. Keep it up!`);
         await loadData();
-      } catch (err) {
+      } catch {
         Alert.alert('Error', 'Failed to log habit. Please try again.');
       }
     },
@@ -283,7 +282,7 @@ const JourneyMain = () => {
         
         // Refresh data in background to ensure consistency
         await loadData();
-      } catch (err) {
+      } catch {
         Alert.alert('Error', 'Failed to rate performance. Please try again.');
       }
     },

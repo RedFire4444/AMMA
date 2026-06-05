@@ -578,7 +578,7 @@ const MeditationTimerScreen = () => {
         if (__DEV__) console.warn('[MeditationTimer] Failed to log early stopped session:', err);
       }
     }
-  }, [stop, getActiveSoundKey, sessionType, startedAt, elapsedTime]);
+  }, [stop, sessionType, startedAt, elapsedTime]);
 
   useEffect(() => {
     const unsubscribeBeforeRemove = navigation.addListener('beforeRemove', (e) => {

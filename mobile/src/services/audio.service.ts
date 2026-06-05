@@ -154,7 +154,7 @@ class AudioService {
         }
 
         chime.setVolume(1.0);
-        chime.play((success) => {
+        chime.play((_success) => {
           chime.release();
           this.restoreAmbientVolume();
           resolve();
