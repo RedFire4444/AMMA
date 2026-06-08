@@ -8,10 +8,11 @@
  */
 
 import { Router } from 'express';
-import { requestOTP, verifyOTP, emailLogin, emailSignup, refreshToken, logout, getSession } from '../controllers/auth.controller';
+import { requestOTP, verifyOTP, emailLogin, emailSignup, refreshToken, logout, getSession, googleCallback, googleProfile } from '../controllers/auth.controller';
 import { validate } from '../middleware/validator.middleware';
 import { otpRateLimiter, authRateLimiter } from '../middleware/rateLimiter.middleware';
 import { requestOTPSchema, verifyOTPSchema } from '../validators/auth.validator';
+import { authenticateToken } from '../middleware/auth.middleware';
 import { z } from 'zod';
 
 const router = Router();
@@ -33,6 +34,10 @@ const emailSignupSchema = z.object({
 
 router.post('/email-login', authRateLimiter, validate(emailLoginSchema), emailLogin);
 router.post('/email-signup', authRateLimiter, validate(emailSignupSchema), emailSignup);
+
+// Google Auth
+router.get('/google-callback', googleCallback);
+router.post('/google-profile', authenticateToken, googleProfile);
 
 // Token management
 router.post('/refresh', authRateLimiter, refreshToken);

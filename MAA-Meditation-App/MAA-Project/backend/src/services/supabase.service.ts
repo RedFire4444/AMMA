@@ -13,14 +13,24 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 // Supabase configuration
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseServiceRoleKey) {
+if (!supabaseUrl || !supabaseServiceRoleKey || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables');
 }
 
 // Create Supabase client with SERVICE ROLE key for backend operations
 // This bypasses RLS and should only be used server-side
 const supabase: SupabaseClient = createClient(supabaseUrl, supabaseServiceRoleKey, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false
+  }
+});
+
+// Create Supabase client with ANON key for standard user auth operations
+// This allows GoTrue to track session activity and update last_sign_in_at correctly
+const supabaseAnon: SupabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: false,
     persistSession: false
@@ -98,7 +108,7 @@ export class SupabaseService {
 export const supabaseService = SupabaseService.getInstance();
 
 // Export client for direct access when needed
-export { supabase };
+export { supabase, supabaseAnon };
 
 /**
  * Key Usage Notes:

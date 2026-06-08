@@ -18,6 +18,7 @@ interface AuthState {
   verifyOTP: (phone: string, token: string) => Promise<void>;
   emailLogin: (email: string, password: string) => Promise<void>;
   emailSignup: (email: string, password: string) => Promise<void>;
+  handleGoogleSession: (accessToken: string, refreshToken: string) => Promise<void>;
   restoreSession: () => Promise<void>;
   completeOnboarding: (interests: string[], goalMinutes: number) => Promise<void>;
   logout: () => Promise<void>;
@@ -117,6 +118,53 @@ export const useAuthStore = create<AuthState>((set, _get) => ({
       await authService.emailSignup(email, password);
     } catch (err) {
       if (__DEV__) console.warn('[Store] Email signup failed:', err);
+      throw err;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  handleGoogleSession: async (accessToken: string, refreshToken: string) => {
+    set({ isLoading: true });
+    try {
+      // 1. Store tokens securely on the device
+      await SecureStore.saveToken('auth_token', accessToken);
+      if (refreshToken) {
+        await SecureStore.saveToken('refresh_token', refreshToken);
+      }
+
+      // 2. Fetch the authenticated user's session from the backend
+      const sessionData = await authService.getSession();
+      if (!sessionData?.user) {
+        throw new Error('Failed to retrieve session after Google sign-in.');
+      }
+
+      // 3. Upsert the Google user profile into the database
+      try {
+        await authService.registerGoogleProfile();
+      } catch (e) {
+        if (__DEV__) console.warn('[Store] Google profile upsert failed (non-fatal):', e);
+      }
+
+      // 4. Fetch onboarding status and mark user as authenticated
+      let onboardingComplete = false;
+      try {
+        const profile = await userService.getProfile();
+        onboardingComplete = profile?.onboarding_complete ?? false;
+      } catch (e) {
+        if (__DEV__) console.warn('[Store] Profile fetch during Google session failed:', e);
+      }
+
+      set({
+        user: sessionData.user,
+        isAuthenticated: true,
+        onboardingComplete,
+      });
+    } catch (err) {
+      if (__DEV__) console.warn('[Store] Google session handling failed:', err);
+      // Clean up tokens if something went wrong
+      await SecureStore.deleteToken('auth_token');
+      await SecureStore.deleteToken('refresh_token');
       throw err;
     } finally {
       set({ isLoading: false });

@@ -25,12 +25,18 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import { AuthStackParamList } from '../navigation/types';
 import { useAuthStore } from '../store/authStore';
-import { authService } from '../services/auth.service';
 import { colors } from '../utils/styles';
 
 type AuthMode = 'phone' | 'email';
 type LoginNavigationProp = NativeStackNavigationProp<AuthStackParamList, 'Login'>;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** Minimal inline Google "G" SVG rendered as text — no extra package needed */
+const GoogleIcon = () => (
+  <View style={s.googleIconWrapper}>
+    <Text style={s.googleIconText}>G</Text>
+  </View>
+);
 
 const LoginScreen = () => {
   const navigation = useNavigation<LoginNavigationProp>();
@@ -44,8 +50,8 @@ const LoginScreen = () => {
   const { requestOTP, emailLogin, isLoading } = useAuthStore();
 
   const handleSendOTP = async () => {
-    if (!phoneNumber) { setError('Please enter your phone number'); return; }
-    if (phoneNumber.length !== 10) { setError('Please enter a valid 10-digit phone number'); return; }
+    if (!phoneNumber) { setError('Enter your phone number'); return; }
+    if (phoneNumber.length !== 10) { setError('Enter a valid 10-digit number'); return; }
     setError('');
     try {
       const fullPhone = `${countryCode}${phoneNumber}`;
@@ -58,26 +64,21 @@ const LoginScreen = () => {
   };
 
   const handleEmailLogin = async () => {
-    if (!email) { setError('Please enter your email address'); return; }
-    if (!EMAIL_REGEX.test(email)) { setError('Please enter a valid email address (e.g., name@domain.com)'); return; }
-    if (!password) { setError('Please enter your password'); return; }
+    if (!email) { setError('Enter your email'); return; }
+    if (!EMAIL_REGEX.test(email)) { setError('Invalid email address'); return; }
+    if (!password) { setError('Enter your password'); return; }
     setError('');
     try {
       await emailLogin(email, password);
     } catch (err: unknown) {
       if (__DEV__) console.warn('[Auth] Email Login Error:', err);
-      setError(err instanceof Error ? err.message : 'Login failed. Check your email and password.');
+      setError(err instanceof Error ? err.message : 'Wrong email or password.');
     }
   };
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleLogin = () => {
     setError('');
-    try {
-      await authService.googleLogin();
-    } catch (err: unknown) {
-      if (__DEV__) console.warn('[Auth] Google Login Error:', err);
-      setError(err instanceof Error ? err.message : 'Google sign-in failed.');
-    }
+    navigation.navigate('GoogleAuthWebView');
   };
 
   return (
@@ -92,10 +93,11 @@ const LoginScreen = () => {
       <KeyboardAvoidingView style={s.flex1} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled">
           <View style={s.content}>
+            {/* Logo + heading */}
             <View style={[s.center, s.headerSection]}>
               <View style={s.logoContainer}>
                 <Image
-                  source={require('../assets/images/amma-logo-square.png')}
+                  source={require('../assets/images/app-logo.jpg')}
                   style={s.logoImage}
                   resizeMode="contain"
                 />
@@ -103,14 +105,15 @@ const LoginScreen = () => {
               <Text style={s.title}>Welcome Back</Text>
               <Text style={s.subtitle}>
                 {authMode === 'phone'
-                  ? 'Enter your phone number to receive a secure one-time password.'
-                  : 'Sign in with your email and password.'}
+                  ? "We'll text you a code."
+                  : 'Sign in with email.'}
               </Text>
             </View>
 
+            {/* Input fields */}
             {authMode === 'phone' ? (
               <View style={s.fieldGroup}>
-                <Text style={s.label}>Phone Number</Text>
+                <Text style={s.label}>Phone</Text>
                 <View style={s.phoneRow}>
                   <View style={s.codeBox}><Text style={s.codeText}>{countryCode}</Text></View>
                   <TextInput
@@ -146,7 +149,7 @@ const LoginScreen = () => {
                 <View style={s.passwordContainer}>
                   <TextInput
                     style={s.passwordInput}
-                    placeholder="Enter your password"
+                    placeholder="Password"
                     placeholderTextColor="#9CA3AF"
                     secureTextEntry={!showPassword}
                     value={password}
@@ -168,6 +171,7 @@ const LoginScreen = () => {
 
             {error ? <Text style={s.error}>{error}</Text> : null}
 
+            {/* Primary CTA */}
             <TouchableOpacity
               style={[s.btn, isLoading ? s.btnLoading : s.btnPrimary]}
               onPress={authMode === 'phone' ? handleSendOTP : handleEmailLogin}
@@ -176,23 +180,35 @@ const LoginScreen = () => {
               accessibilityLabel={authMode === 'phone' ? 'Send OTP' : 'Login'}
             >
               {isLoading ? <ActivityIndicator color="white" /> :
-                <Text style={s.btnText}>{authMode === 'phone' ? 'Send OTP' : 'Login'}</Text>}
+                <Text style={s.btnText}>{authMode === 'phone' ? 'Send OTP' : 'Sign In'}</Text>}
             </TouchableOpacity>
 
+            {/* Toggle mode */}
             <TouchableOpacity
               onPress={() => { setError(''); setAuthMode(authMode === 'phone' ? 'email' : 'phone'); }}
               style={[s.center, s.toggleRow]}
               accessibilityRole="button"
             >
-              <Text style={s.toggle}>{authMode === 'phone' ? 'Or use your email instead' : 'Or use phone number instead'}</Text>
+              <Text style={s.toggle}>
+                {authMode === 'phone' ? 'Use email instead' : 'Use phone instead'}
+              </Text>
             </TouchableOpacity>
 
+            {/* Divider */}
             <View style={s.divRow}>
               <View style={s.divLine} /><Text style={s.divText}>OR</Text><View style={s.divLine} />
             </View>
 
-            <TouchableOpacity style={s.googleBtn} onPress={handleGoogleLogin} disabled={isLoading}>
-              <Text style={s.googleText}>Sign in with Google</Text>
+            {/* Google sign-in */}
+            <TouchableOpacity
+              style={s.googleBtn}
+              onPress={handleGoogleLogin}
+              disabled={isLoading}
+              accessibilityRole="button"
+              accessibilityLabel="Continue with Google"
+            >
+              <GoogleIcon />
+              <Text style={s.googleText}>Continue with Google</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -207,7 +223,7 @@ const s = StyleSheet.create({
   backgroundImageStyle: { opacity: 1 },
   backgroundOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(20, 10, 4, 0.45)',
+    backgroundColor: 'rgba(20, 10, 4, 0.1)',
   },
   scroll: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: 24, paddingVertical: 32 },
   content: {
@@ -222,10 +238,10 @@ const s = StyleSheet.create({
   btnPrimary: { backgroundColor: colors.primary },
   btnLoading: { backgroundColor: colors.primaryLight },
   logoContainer: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-    backgroundColor: '#F2E5CA',
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: '#FFFFFF',
     borderWidth: 2,
     borderColor: '#FFFFFF',
     alignItems: 'center',
@@ -239,8 +255,8 @@ const s = StyleSheet.create({
     elevation: 4,
   },
   logoImage: {
-    width: '82%',
-    height: '82%',
+    width: '100%',
+    height: '100%',
   },
   title: {
     fontSize: 30,
@@ -351,11 +367,33 @@ const s = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.65)',
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.75)',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  googleText: { color: colors.gray800, fontWeight: 'bold', fontSize: 16 },
+  googleIconWrapper: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#4285F4',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+  },
+  googleIconText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '800',
+    lineHeight: 16,
+  },
+  googleText: { color: colors.gray800, fontWeight: '700', fontSize: 16 },
 });
 
 export default LoginScreen;

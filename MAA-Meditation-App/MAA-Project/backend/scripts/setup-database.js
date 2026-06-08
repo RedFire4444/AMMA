@@ -43,7 +43,8 @@ const migrations = [
   '021_fix_phase3_issues.sql',
   '022_fix_habit_logs_and_streaks.sql',
   '023_create_directory_watch_sessions.sql',
-  '024_live_events_tables.sql'
+  '024_live_events_tables.sql',
+  '025_add_last_login_at.sql'
 ];
 
 async function runMigrations() {

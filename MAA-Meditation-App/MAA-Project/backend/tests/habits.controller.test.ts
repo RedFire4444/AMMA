@@ -139,10 +139,10 @@ describe('Habits Controller', () => {
             }),
             heatmap: expect.objectContaining({
               meditation: expect.arrayContaining([
-                expect.objectContaining({ date: '2026-04-01T00:00:00.000Z', completed: true }),
+                expect.objectContaining({ date: '2026-04-01', completed: true }),
               ]),
               cold_shower: expect.arrayContaining([
-                expect.objectContaining({ date: '2026-04-02T00:00:00.000Z', completed: true }),
+                expect.objectContaining({ date: '2026-04-02', completed: true }),
               ]),
             }),
           }),

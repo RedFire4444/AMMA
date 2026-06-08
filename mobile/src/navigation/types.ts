@@ -3,6 +3,7 @@ import { NavigatorScreenParams } from '@react-navigation/native';
 export type AuthStackParamList = {
   Login: undefined;
   OTP: { phone: string };
+  GoogleAuthWebView: undefined;
 };
 
 export type OnboardingStackParamList = {

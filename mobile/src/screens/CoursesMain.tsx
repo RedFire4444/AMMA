@@ -11,6 +11,7 @@ import React, { useCallback } from 'react';
 import {
   Alert,
   Image,
+  ImageBackground,
   Linking,
   ScrollView,
   StyleSheet,
@@ -86,7 +87,12 @@ const CoursesMain = () => {
   }, []);
 
   return (
-    <SafeAreaView style={s.safeArea} edges={['top']}>
+    <ImageBackground
+      source={require('../assets/images/journey-background.png')}
+      style={s.bgImage}
+      resizeMode="cover"
+    >
+      <SafeAreaView style={s.safeArea} edges={['top']}>
       <View style={s.titleWrap}>
         <Text style={s.pageTitle}>Courses</Text>
         <Text style={s.pageSubtitle}>Explore Amma meditation guidance</Text>
@@ -122,21 +128,25 @@ const CoursesMain = () => {
               <Text style={s.courseDescription}>
                 {course.description}
               </Text>
-              <Text style={[s.courseAction, course.isDummy && s.dummyAction]}>
+              <Text style={s.courseAction}>
                 {course.actionText}
               </Text>
             </View>
           </TouchableOpacity>
         ))}
       </ScrollView>
-    </SafeAreaView>
+      </SafeAreaView>
+    </ImageBackground>
   );
 };
 
 const s = StyleSheet.create({
+  bgImage: {
+    flex: 1,
+  },
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFF5EE',
+    backgroundColor: 'transparent',
   },
   flex1: {
     flex: 1,
@@ -146,8 +156,8 @@ const s = StyleSheet.create({
   },
   titleWrap: {
     paddingHorizontal: 24,
-    paddingTop: 16,
-    paddingBottom: 16,
+    paddingTop: 8,
+    paddingBottom: 8,
   },
   pageTitle: {
     fontSize: 24,
@@ -161,18 +171,21 @@ const s = StyleSheet.create({
   },
   courseCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(240, 127, 46, 0.12)',
-    overflow: 'hidden',
+    borderRadius: 16,
+    borderTopWidth: 1,
+    borderLeftWidth: 1,
+    borderRightWidth: 3,
+    borderBottomWidth: 4,
+    borderColor: '#8b643eff',
+    overflow: 'visible',
     marginHorizontal: 24,
     marginTop: 8,
-    marginBottom: 16,
-    elevation: 3,
-    shadowColor: '#5C250E',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
+    marginBottom: 20,
+    elevation: 24,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.8,
+    shadowRadius: 20,
   },
   dummyCard: {
     opacity: 0.9,
@@ -181,6 +194,8 @@ const s = StyleSheet.create({
     height: 160,
     overflow: 'hidden',
     backgroundColor: '#87553E',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
   },
   courseImage: {
     width: '100%',

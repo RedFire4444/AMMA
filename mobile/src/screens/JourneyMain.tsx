@@ -18,6 +18,7 @@ import {
   Modal,
   StyleSheet,
   Image,
+  ImageBackground,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -36,7 +37,7 @@ type JourneyNav = NativeStackNavigationProp<JourneyStackParamList, 'JourneyMain'
 
 const FONT_FAMILY = 'Manrope';
 const palette = {
-  primary: '#EE9F27',
+  primary: '#e29751ff',
   primaryDark: '#855400',
   inversePrimary: '#FFB95C',
   background: '#FFFDF9',
@@ -291,22 +292,33 @@ const JourneyMain = () => {
 
   if (loading) {
     return (
-      <SafeAreaView style={s.container} edges={['top']}>
-        <ScrollView style={s.flex1} showsVerticalScrollIndicator={false}>
-          <View style={s.skeletonHeaderWrap}>
-            <View style={s.skeletonHeaderBar} />
-          </View>
-          <SkeletonBlock height={200} />
-          <SkeletonBlock height={200} />
-          <SkeletonBlock height={120} />
-          <SkeletonBlock height={100} />
-        </ScrollView>
-      </SafeAreaView>
+      <ImageBackground
+        source={require('../assets/images/journey-background.png')}
+        style={s.bgImage}
+        resizeMode="cover"
+      >
+        <SafeAreaView style={s.container} edges={['top']}>
+          <ScrollView style={s.flex1} showsVerticalScrollIndicator={false}>
+            <View style={s.skeletonHeaderWrap}>
+              <View style={s.skeletonHeaderBar} />
+            </View>
+            <SkeletonBlock height={200} />
+            <SkeletonBlock height={200} />
+            <SkeletonBlock height={120} />
+            <SkeletonBlock height={100} />
+          </ScrollView>
+        </SafeAreaView>
+      </ImageBackground>
     );
   }
 
   return (
-    <SafeAreaView style={s.container} edges={['top']}>
+    <ImageBackground
+      source={require('../assets/images/journey-background.png')}
+      style={s.bgImage}
+      resizeMode="cover"
+    >
+      <SafeAreaView style={s.container} edges={['top']}>
       <ScrollView
         style={s.flex1}
         contentContainerStyle={[s.scrollContent, { paddingBottom: Math.max(insets.bottom, 10) + 60 }]}
@@ -477,16 +489,20 @@ const JourneyMain = () => {
         </View>
       </Modal>
 
-    </SafeAreaView>
+      </SafeAreaView>
+    </ImageBackground>
   );
 };
 
 export default JourneyMain;
 
 const s = StyleSheet.create({
+  bgImage: {
+    flex: 1,
+  },
   container: {
     flex: 1,
-    backgroundColor: palette.background,
+    backgroundColor: 'transparent',
   },
   horizontalListPadding: { paddingHorizontal: 24 },
   flex1: {
@@ -533,7 +549,7 @@ const s = StyleSheet.create({
     marginHorizontal: 24,
     marginTop: 16,
     marginBottom: 16,
-    backgroundColor: palette.primary,
+    backgroundColor: 'rgba(226, 151, 81, 0.4)',
     borderRadius: 24,
     padding: 24,
     shadowColor: palette.primary,
@@ -675,7 +691,7 @@ const s = StyleSheet.create({
     letterSpacing: 2,
     color: palette.primary,
     marginBottom: 12,
-    fontWeight: '600',
+    fontWeight: 'bold',
   },
   affirmationQuote: {
     fontFamily: FONT_FAMILY,
@@ -683,6 +699,7 @@ const s = StyleSheet.create({
     color: palette.mainText,
     lineHeight: 24,
     fontStyle: 'italic',
+    fontWeight: 'bold',
   },
   affirmationAuthor: {
     fontFamily: FONT_FAMILY,

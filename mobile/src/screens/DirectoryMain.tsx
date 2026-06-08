@@ -17,10 +17,12 @@ import {
   RefreshControl,
   StyleSheet,
   Image,
+  ImageBackground,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MiniPlayer } from '../components/directory/MiniPlayer';
 import YoutubePlayer from 'react-native-youtube-iframe';
+import Svg, { Circle, Line } from 'react-native-svg';
 
 const FONT_FAMILY = 'Manrope';
 const palette = {
@@ -124,16 +126,16 @@ const parseDurationToSeconds = (duration: string): number => {
 
 // Category-driven visual theme so content cards feel distinct without real images
 const CATEGORY_THEME: Record<string, { bg: string; accent: string }> = {
-  chanting:      { bg: '#5C250E', accent: '#87553E' },
-  meditation:    { bg: '#87553E', accent: '#5C250E' },
-  satsang:       { bg: '#C56127', accent: '#ED7624' },
-  talk:          { bg: '#A64B29', accent: '#D97229' },
-  bhajan:        { bg: '#3D1A0D', accent: '#5C250E' },
+  chanting: { bg: '#5C250E', accent: '#87553E' },
+  meditation: { bg: '#87553E', accent: '#5C250E' },
+  satsang: { bg: '#C56127', accent: '#ED7624' },
+  talk: { bg: '#A64B29', accent: '#D97229' },
+  bhajan: { bg: '#3D1A0D', accent: '#5C250E' },
   amritganga_s1: { bg: '#8F3E1E', accent: '#ED7624' },
   amritganga_s2: { bg: '#A64B29', accent: '#FF9F59' },
   amritganga_s3: { bg: '#70280D', accent: '#ED7624' },
   amritganga_s4: { bg: '#B85021', accent: '#87553E' },
-  default:       { bg: '#87553E', accent: '#ED7624' },
+  default: { bg: '#87553E', accent: '#ED7624' },
 };
 const getTheme = (cat: string) => CATEGORY_THEME[cat] || CATEGORY_THEME.default;
 
@@ -543,7 +545,12 @@ const DirectoryMain = () => {
   }, []);
 
   return (
-    <SafeAreaView style={s.container} edges={['top']}>
+    <ImageBackground
+      source={require('../assets/images/journey-background.png')}
+      style={s.bgImage}
+      resizeMode="cover"
+    >
+      <SafeAreaView style={s.container} edges={['top']}>
       {/* Header */}
       <View style={s.header}>
         <Text style={s.headerTitle}>Directory</Text>
@@ -553,7 +560,10 @@ const DirectoryMain = () => {
       {/* Search Bar */}
       <View style={s.searchWrap}>
         <View style={s.searchBar}>
-          <Image source={require('../assets/icons/New folder/Search.png')} style={s.searchIcon} />
+          <Svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF7A00" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={s.searchIcon}>
+            <Circle cx="11" cy="11" r="8" />
+            <Line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </Svg>
           <TextInput
             style={s.searchInput}
             placeholder="Search teachings, bhajans..."
@@ -628,7 +638,7 @@ const DirectoryMain = () => {
             >
               {/* Thumbnail \u2014 category-themed artwork */}
               <ContentThumbnail item={item} />
-  
+
               {/* Info */}
               <View style={s.info}>
                 <Text style={s.cardTitle} numberOfLines={2}>{item.title}</Text>
@@ -677,13 +687,15 @@ const DirectoryMain = () => {
         />
       )}
     </SafeAreaView>
+    </ImageBackground>
   );
 };
 
 export default DirectoryMain;
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: palette.background },
+  bgImage: { flex: 1 },
+  container: { flex: 1, backgroundColor: 'transparent' },
   header: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 4 },
   headerTitle: { fontFamily: FONT_FAMILY, fontSize: 30, fontWeight: '700', color: palette.mainText },
   headerSubtitle: { fontFamily: FONT_FAMILY, fontSize: 14, fontWeight: '500', color: palette.secondaryText, marginTop: 4 },

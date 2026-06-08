@@ -5,8 +5,9 @@ export const authService = {
     return await post('/auth/request-otp', { phone });
   },
 
-  async verifyOTP(phone: string, token: string): Promise<any> {
-    return await post('/auth/verify-otp', { phone, token });
+  async verifyOTP(phone: string, otp: string): Promise<any> {
+    // Backend validator expects field name 'otp' (not 'token')
+    return await post('/auth/verify-otp', { phone, otp });
   },
 
   async emailLogin(email: string, password: string): Promise<any> {
@@ -17,9 +18,15 @@ export const authService = {
     return await post('/auth/email-signup', { email, password });
   },
 
-  async googleLogin(): Promise<any> {
-    // This would need to be implemented in your backend
-    throw new Error('Google login should be implemented through backend OAuth flow');
+  async googleLogin(): Promise<void> {
+    // Google OAuth is handled via the GoogleAuthWebView screen.
+    // The WebView opens the Supabase authorize URL, captures tokens via postMessage,
+    // and calls authStore.handleGoogleSession() directly.
+    // This method is a placeholder for future native SDK integration.
+  },
+
+  async registerGoogleProfile(): Promise<any> {
+    return await post('/auth/google-profile', {});
   },
 
   async updateCredentials(email?: string, password?: string): Promise<any> {
