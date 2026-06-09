@@ -117,15 +117,18 @@ export const logHabit = async (req: Request, res: Response): Promise<void> => {
 
     const targetDate = logged_at ? logged_at.split('T')[0] : new Date().toISOString().split('T')[0];
 
-    // Check if a log already exists for the target date
-    const { data: existing, error: checkError } = await supabase
+    // Check if a log already exists for the target date. Use limit(1)
+    // instead of maybeSingle() so duplicate historical rows do not fail
+    // the request before we can update one of them.
+    const { data: existingRows, error: checkError } = await supabase
       .from('habit_logs')
       .select('id')
       .eq('user_id', userId)
       .eq('habit_type', habit_type)
       .gte('logged_at', `${targetDate}T00:00:00.000Z`)
       .lte('logged_at', `${targetDate}T23:59:59.999Z`)
-      .maybeSingle();
+      .order('logged_at', { ascending: false })
+      .limit(1);
 
     if (checkError) {
       res.status(500).json(error('CHECK_FAILED', checkError.message, 500));
@@ -134,6 +137,8 @@ export const logHabit = async (req: Request, res: Response): Promise<void> => {
 
     let habitLog;
     let opError;
+
+    const existing = existingRows?.[0] ?? null;
 
     if (existing) {
       // Update the existing log for targetDate
@@ -174,6 +179,61 @@ export const logHabit = async (req: Request, res: Response): Promise<void> => {
     if (opError) {
       res.status(500).json(error('LOG_FAILED', opError.message, 500));
       return;
+    }
+
+    // Sync manual meditation habit logs with meditation_sessions table to update Profile stats
+    if (habit_type === 'meditation') {
+      try {
+        const start = `${targetDate}T00:00:00.000Z`;
+        const end = `${targetDate}T23:59:59.999Z`;
+        if (completed) {
+          const { data: existingSessions, error: sessionCheckErr } = await supabase
+            .from('meditation_sessions')
+            .select('id')
+            .eq('user_id', userId)
+            .eq('status', 'completed')
+            .gte('completed_at', start)
+            .lte('completed_at', end)
+            .order('completed_at', { ascending: false })
+            .limit(1);
+
+          if (sessionCheckErr) {
+            console.warn('[HabitLog] Failed to check meditation session:', sessionCheckErr.message);
+          }
+
+          if (!sessionCheckErr && !(existingSessions?.[0])) {
+            const { data: profile } = await supabase
+              .from('users')
+              .select('meditation_goal_minutes')
+              .eq('id', userId)
+              .maybeSingle();
+              
+            const duration = duration_minutes || profile?.meditation_goal_minutes || 10;
+            await supabase
+              .from('meditation_sessions')
+              .insert({
+                user_id: userId,
+                duration_minutes: duration,
+                session_type: 'unguided',
+                status: 'completed',
+                progress_percentage: 100,
+                started_at: `${targetDate}T00:00:00.000Z`,
+                completed_at: `${targetDate}T00:10:00.000Z`,
+              });
+          }
+        } else {
+          // Delete manual meditation session for this day if it exists
+          await supabase
+            .from('meditation_sessions')
+            .delete()
+            .eq('user_id', userId)
+            .eq('session_type', 'unguided')
+            .gte('completed_at', start)
+            .lte('completed_at', end);
+        }
+      } catch (syncErr) {
+        console.warn('[HabitLog] Failed to sync meditation session:', syncErr);
+      }
     }
 
     res.status(201).json(success(habitLog));
@@ -234,15 +294,17 @@ export const checkin = async (req: Request, res: Response): Promise<void> => {
     const today = new Date().toISOString().split('T')[0];
     const habitType = 'meditation';
 
-    // Check if a meditation check-in already exists for today
-    const { data: existing, error: checkError } = await supabase
+    // Check if a meditation check-in already exists for today. Keep this
+    // duplicate-safe for accounts that already have more than one row.
+    const { data: existingRows, error: checkError } = await supabase
       .from('habit_logs')
       .select('id')
       .eq('user_id', userId)
       .eq('habit_type', habitType)
       .gte('logged_at', `${today}T00:00:00.000Z`)
       .lte('logged_at', `${today}T23:59:59.999Z`)
-      .maybeSingle();
+      .order('logged_at', { ascending: false })
+      .limit(1);
 
     if (checkError) {
       res.status(500).json(error('CHECK_FAILED', checkError.message, 500));
@@ -251,6 +313,8 @@ export const checkin = async (req: Request, res: Response): Promise<void> => {
 
     let checkinLog;
     let opError;
+
+    const existing = existingRows?.[0] ?? null;
 
     if (existing) {
       const { data, error: updateErr } = await supabase
@@ -529,23 +593,24 @@ export const ratePerformance = async (req: Request, res: Response): Promise<void
   const end = `${targetDate}T23:59:59.999Z`;
 
       // Check if a performance habit_log exists for this date
-      const { data: existingLog, error: checkErr } = await supabase
+      const { data: existingLogs, error: checkErr } = await supabase
         .from('habit_logs')
         .select('id')
         .eq('user_id', userId)
         .eq('habit_type', 'performance')
         .gte('logged_at', start)
         .lte('logged_at', end)
-        .maybeSingle();
+        .order('logged_at', { ascending: false })
+        .limit(1);
 
       if (checkErr) {
         console.warn('Failed to check existing performance habit_log:', checkErr.message);
-      } else if (existingLog) {
+      } else if (existingLogs?.[0]) {
         // Update existing habit_log to mark completed (keep other fields intact)
         const { data: updatedLog, error: updateLogErr } = await supabase
           .from('habit_logs')
           .update({ completed: true })
-          .eq('id', existingLog.id)
+          .eq('id', existingLogs[0].id)
           .select()
           .single();
         if (updateLogErr) console.warn('Failed to update performance habit_log:', updateLogErr.message);
