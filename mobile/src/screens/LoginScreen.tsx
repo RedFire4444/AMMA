@@ -67,6 +67,7 @@ const LoginScreen = () => {
     if (!email) { setError('Enter your email'); return; }
     if (!EMAIL_REGEX.test(email)) { setError('Invalid email address'); return; }
     if (!password) { setError('Enter your password'); return; }
+    if (password.length < 6) { setError('Password must be at least 6 characters'); return; }
     setError('');
     try {
       await emailLogin(email, password);

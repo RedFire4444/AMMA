@@ -1,4 +1,7 @@
 {
   "private": true,
-  "description": "MAA Meditation App — monorepo root"
+  "description": "MAA Meditation App — monorepo root",
+  "dependencies": {
+    "react-native-responsive-screen": "^1.4.2"
+  }
 }

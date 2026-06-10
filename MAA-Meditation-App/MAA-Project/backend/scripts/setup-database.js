@@ -19,33 +19,10 @@ if (!supabaseUrl || !supabaseServiceKey) {
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-const migrations = [
-  '001_create_users.sql',
-  '002_create_courses.sql',
-  '003_create_lessons.sql',
-  '004_create_enrollments.sql',
-  '005_create_meditation_sessions.sql',
-  '006_create_habit_logs.sql',
-  '007_create_events.sql',
-  '008_create_event_registrations.sql',
-  '009_create_subscriptions.sql',
-  '010_create_payments.sql',
-  '011_create_notifications.sql',
-  '012_create_daily_quotes.sql',
-  '013_create_content_directory.sql',
-  '014_create_rls_policies.sql',
-  '015_create_indexes.sql',
-  '016_create_functions.sql',
-  '017_add_onboarding_fields.sql',
-  '018_create_course_reviews.sql',
-  '019_create_phase2_tables.sql',
-  '020_add_missing_columns.sql',
-  '021_fix_phase3_issues.sql',
-  '022_fix_habit_logs_and_streaks.sql',
-  '023_create_directory_watch_sessions.sql',
-  '024_live_events_tables.sql',
-  '025_add_last_login_at.sql'
-];
+const migrationsDir = path.join(__dirname, '../supabase/migrations');
+const migrations = fs.readdirSync(migrationsDir)
+  .filter(file => file.endsWith('.sql'))
+  .sort();
 
 async function runMigrations() {
   console.log('🚀 Starting database setup...\n');
