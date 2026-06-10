@@ -491,3 +491,73 @@ export const googleProfile = async (req: Request, res: Response): Promise<void> 
     res.status(500).json(error('INTERNAL_SERVER_ERROR', 'Failed to register Google profile', 500));
   }
 };
+
+/**
+ * POST /api/auth/update-credentials
+ * Update user email and/or password via Supabase Auth
+ */
+export const updateCredentials = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email, password } = req.body;
+
+    // Get token from Authorization header
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      res.status(401).json(error('NO_TOKEN', 'Authorization token required', 401));
+      return;
+    }
+
+    const token = authHeader.substring(7);
+    
+    const updates: any = {};
+    if (email) updates.email = email;
+    if (password) updates.password = password;
+
+    if (Object.keys(updates).length === 0) {
+      res.status(400).json(error('NO_UPDATES', 'No credentials provided to update', 400));
+      return;
+    }
+
+    // Call Supabase admin api or user api. Because the user is authenticated, we can use supabaseAnon
+    const { data, error: updateError } = await supabaseAnon.auth.updateUser(updates);
+
+    // If supabaseAnon fails because of no session, we can use the admin API
+    if (updateError) {
+      if (req.user && req.user.id) {
+        // Fallback to admin api
+        const { data: adminData, error: adminError } = await supabase.auth.admin.updateUserById(
+          req.user.id,
+          updates
+        );
+        if (adminError) {
+          res.status(400).json(error('UPDATE_CREDENTIALS_FAILED', adminError.message, 400));
+          return;
+        }
+        
+        if (email) {
+          await supabase.from('users').update({ email }).eq('id', req.user.id);
+        }
+        
+        res.status(200).json(success({ message: 'Credentials updated successfully', user: adminData.user }));
+        return;
+      }
+      
+      res.status(400).json(error('UPDATE_CREDENTIALS_FAILED', updateError.message, 400));
+      return;
+    }
+
+    if (email && req.user) {
+      await supabase.from('users').update({ email }).eq('id', req.user.id);
+    }
+
+    res.status(200).json(
+      success({
+        message: 'Credentials updated successfully',
+        user: data.user
+      })
+    );
+  } catch (err) {
+    console.error('updateCredentials error:', err);
+    res.status(500).json(error('INTERNAL_SERVER_ERROR', 'Failed to update credentials', 500));
+  }
+};

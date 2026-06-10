@@ -12,6 +12,7 @@ import { z } from 'zod';
 
 export const updateUserSchema = z.object({
   full_name: z.string().min(1).max(255).optional(),
+  phone: z.string().max(20).optional(),
   avatar_url: z.string().url().max(2048).optional(),
   date_of_birth: z.string().date().optional(),
   timezone: z.string().max(64).optional(),

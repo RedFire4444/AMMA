@@ -176,13 +176,14 @@ export const updateMe = async (req: Request, res: Response): Promise<void> => {
 
     // Only allow safe fields to be updated (never id, role, created_at)
     const {
-      full_name, avatar_url, date_of_birth, timezone,
+      full_name, phone, avatar_url, date_of_birth, timezone,
       preferred_language, notification_preferences,
       interests, meditation_goal_minutes, onboarding_complete, notification_enabled
     } = req.body;
 
     const updates: Record<string, unknown> = {};
     if (full_name !== undefined) updates.full_name = full_name;
+    if (phone !== undefined) updates.phone = phone;
     if (avatar_url !== undefined) updates.avatar_url = avatar_url;
     if (date_of_birth !== undefined) updates.date_of_birth = date_of_birth;
     if (timezone !== undefined) updates.timezone = timezone;

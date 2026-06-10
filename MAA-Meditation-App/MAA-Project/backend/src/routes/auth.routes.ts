@@ -8,7 +8,7 @@
  */
 
 import { Router } from 'express';
-import { requestOTP, verifyOTP, emailLogin, emailSignup, refreshToken, logout, getSession, googleCallback, googleProfile } from '../controllers/auth.controller';
+import { requestOTP, verifyOTP, emailLogin, emailSignup, refreshToken, logout, getSession, googleCallback, googleProfile, updateCredentials } from '../controllers/auth.controller';
 import { validate } from '../middleware/validator.middleware';
 import { otpRateLimiter, authRateLimiter } from '../middleware/rateLimiter.middleware';
 import { requestOTPSchema, verifyOTPSchema } from '../validators/auth.validator';
@@ -43,6 +43,7 @@ router.post('/google-profile', authenticateToken, googleProfile);
 router.post('/refresh', authRateLimiter, refreshToken);
 router.post('/logout', logout);
 router.post('/session', getSession);
+router.post('/update-credentials', authenticateToken, authRateLimiter, updateCredentials);
 
 // Health check for auth routes
 router.get('/health', (_req, res) => {
