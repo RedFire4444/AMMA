@@ -61,11 +61,16 @@ describe('EventDetailScreen', () => {
     },
   });
 
-  it('shows loading indicator initially', () => {
+  it('shows loading indicator initially', async () => {
     const props = createProps();
-    render(<EventDetailScreen {...(props as any)} />);
+    const { getByText } = render(<EventDetailScreen {...(props as any)} />);
     // Component renders without crashing during loading state
     expect(true).toBe(true);
+    
+    // Wait for data to load to prevent state updates after test completion (which causes timeout/unmounted errors)
+    await waitFor(() => {
+      expect(getByText('Event Details')).toBeTruthy();
+    }, { timeout: 5000 });
   });
 
   it('renders "Event Details" header after data loads', async () => {
