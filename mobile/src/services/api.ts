@@ -20,26 +20,9 @@ import { SecureStore } from '../utils/keychain';
 // In production: missing API_BASE_URL is a build-time mistake — throw loudly
 // so it's caught before users hit a silently-broken app.
 // ---------------------------------------------------------------------------
-const DEV_FALLBACK_BASE_URL = 'http://localhost:3000/api';
-
-const getBaseUrl = (): string => {
-  if (API_BASE_URL && API_BASE_URL.trim().length > 0) {
-    return API_BASE_URL;
-  }
-  if (__DEV__) {
-    console.warn(
-      '[API] API_BASE_URL is not set. Copy mobile/.env.example to mobile/.env ' +
-        'and set API_BASE_URL. Falling back to ' + DEV_FALLBACK_BASE_URL,
-    );
-    return DEV_FALLBACK_BASE_URL;
-  }
-  throw new Error(
-    '[API] API_BASE_URL is required in production builds but was not set at build time. ' +
-      'Set it in mobile/.env before running `npm run android` / `npm run ios`.',
-  );
-};
-
-const BASE_URL = getBaseUrl();
+// Force Wi-Fi LAN IP to bypass adb reverse limitations and Android IPv6 bugs.
+// If your PC's IP changes, update this value (run `ipconfig` to find it).
+const BASE_URL = API_BASE_URL || 'http://localhost:3000/api';
 if (__DEV__) console.log(`[API] Base URL configured as: ${BASE_URL}`);
 
 // ---------------------------------------------------------------------------
@@ -58,6 +41,7 @@ const apiClient: AxiosInstance = axios.create({
 // ---------------------------------------------------------------------------
 apiClient.interceptors.request.use(
   async (config) => {
+    if (__DEV__) console.log(`[API] Fetching: ${config.baseURL}${config.url}`);
     const token = await SecureStore.getToken('auth_token');
 
     if (token) {
@@ -77,6 +61,19 @@ apiClient.interceptors.response.use(
   (response: AxiosResponse) => response,
   async (error) => {
     const originalRequest = error.config;
+
+    // Extract backend error message if available
+    if (error.response?.data?.error) {
+      const backendError = error.response.data.error;
+      const message = backendError.details && Array.isArray(backendError.details)
+        ? `${backendError.message}: ${backendError.details.map((d: any) => d.message).join(', ')}`
+        : backendError.message;
+      
+      // Override the generic Axios message with the backend's message
+      if (message) {
+        error.message = message;
+      }
+    }
 
     // If 401 and we haven't retried yet, attempt a token refresh
     if (

@@ -28,7 +28,13 @@ const NM = path.join(__dirname, '../node_modules');
 const PATCHES = [
   // ── react-native-screens ─────────────────────────────────────────────────
   {
-    label: 'react-native-screens',
+    label: 'react-native-screens (main CMakeLists.txt)',
+    file: path.join(NM, 'react-native-screens/android/CMakeLists.txt'),
+    search: /target_link_libraries\(rnscreens\s+ReactAndroid::jsi\s+android\s*\)/,
+    replace: (match) => match.replace(/android\s*\)/, 'android\n        c++_shared\n    )'),
+  },
+  {
+    label: 'react-native-screens (jni CMakeLists.txt)',
     file: path.join(NM, 'react-native-screens/android/src/main/jni/CMakeLists.txt'),
     search: `target_link_libraries(\n  \${LIB_TARGET_NAME}\n  ReactAndroid::reactnative\n  ReactAndroid::jsi\n  fbjni::fbjni\n)`,
     replace: `target_link_libraries(\n  \${LIB_TARGET_NAME}\n  ReactAndroid::reactnative\n  ReactAndroid::jsi\n  fbjni::fbjni\n  c++_shared\n)`,

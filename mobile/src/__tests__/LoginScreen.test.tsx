@@ -26,37 +26,37 @@ describe('LoginScreen', () => {
 
   it('shows email toggle link', () => {
     const { getByText } = render(<LoginScreen />);
-    expect(getByText('Or use your email instead')).toBeTruthy();
+    expect(getByText('Use email instead')).toBeTruthy();
   });
 
   it('shows Google Sign-In button', () => {
     const { getByText } = render(<LoginScreen />);
-    expect(getByText('Sign in with Google')).toBeTruthy();
+    expect(getByText('Continue with Google')).toBeTruthy();
   });
 
   it('shows error when phone is empty and Send OTP pressed', () => {
     const { getByText } = render(<LoginScreen />);
     fireEvent.press(getByText('Send OTP'));
-    expect(getByText('Please enter your phone number')).toBeTruthy();
+    expect(getByText('Enter your phone number')).toBeTruthy();
   });
 
   it('toggles to email mode when link pressed', () => {
     const { getByText, getByPlaceholderText } = render(<LoginScreen />);
-    fireEvent.press(getByText('Or use your email instead'));
+    fireEvent.press(getByText('Use email instead'));
     expect(getByPlaceholderText('you@example.com')).toBeTruthy();
-    expect(getByText('Login')).toBeTruthy();
+    expect(getByText('Sign In')).toBeTruthy();
   });
 
   it('toggles back to phone mode', () => {
     const { getByText, getByPlaceholderText } = render(<LoginScreen />);
-    fireEvent.press(getByText('Or use your email instead'));
-    fireEvent.press(getByText('Or use phone number instead'));
+    fireEvent.press(getByText('Use email instead'));
+    fireEvent.press(getByText('Use phone instead'));
     expect(getByPlaceholderText('9876543210')).toBeTruthy();
   });
 
   it('toggles password visibility when the eye icon is pressed', () => {
     const { getByText, getByLabelText } = render(<LoginScreen />);
-    fireEvent.press(getByText('Or use your email instead'));
+    fireEvent.press(getByText('Use email instead'));
     
     const passwordInput = getByLabelText('Password');
     expect(passwordInput.props.secureTextEntry).toBe(true);
