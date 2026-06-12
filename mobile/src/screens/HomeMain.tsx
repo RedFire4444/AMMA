@@ -18,6 +18,7 @@ import {
   Alert,
   StyleSheet,
   Image,
+  ImageBackground,
   Linking,
   Modal,
   TextInput,
@@ -172,8 +173,13 @@ const HomeMain = () => {
     }
   };
   return (
-    <SafeAreaView style={s.safeArea} edges={['top']}>
-      <ScrollView
+    <ImageBackground
+      source={require('../assets/images/journey-background.png')}
+      style={s.bgImage}
+      resizeMode="cover"
+    >
+      <SafeAreaView style={s.safeArea} edges={['top']}>
+        <ScrollView
         style={s.flex1}
         showsVerticalScrollIndicator={false}
         refreshControl={
@@ -522,12 +528,14 @@ const HomeMain = () => {
           />
         </SafeAreaView>
       </Modal>
-    </SafeAreaView>
+      </SafeAreaView>
+    </ImageBackground>
   );
 };
 
 const s = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#FFF5EE' },
+  bgImage: { flex: 1 },
+  safeArea: { flex: 1, backgroundColor: 'transparent' },
   flex1: { flex: 1 },
   statPillSpaced: { marginLeft: 12 },
   horizontalListPadding: { paddingHorizontal: 24 },
@@ -722,7 +730,7 @@ const s = StyleSheet.create({
     marginTop: 12,
     marginBottom: 8,
     padding: 20,
-    backgroundColor: 'rgba(240, 127, 46, 0.05)',
+    backgroundColor: 'rgba(255, 255, 255, 0.6)',
     borderRadius: 12,
     borderWidth: 1,
     borderColor: 'rgba(240, 127, 46, 0.2)',

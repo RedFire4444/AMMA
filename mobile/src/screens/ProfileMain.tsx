@@ -15,6 +15,7 @@ import {
   TouchableOpacity,
   Alert,
   StyleSheet,
+  ImageBackground,
   Modal,
   TextInput,
 } from 'react-native';
@@ -194,8 +195,14 @@ const ProfileMain = () => {
     : '0%';
 
   return (
-    <SafeAreaView style={s.safeArea} edges={['top']}>
-      <ScrollView
+    <ImageBackground
+      source={require('../assets/images/journey-background.png')}
+      style={s.bgImage}
+      resizeMode="cover"
+    >
+      <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(255, 255, 255, 0.6)' }]} />
+      <SafeAreaView style={s.safeArea} edges={['top']}>
+        <ScrollView
         style={s.flex1}
         contentContainerStyle={s.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -435,14 +442,18 @@ const ProfileMain = () => {
           </View>
         </View>
       </Modal>
-    </SafeAreaView>
+      </SafeAreaView>
+    </ImageBackground>
   );
 };
 
 const s = StyleSheet.create({
+  bgImage: {
+    flex: 1,
+  },
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFF5EE',
+    backgroundColor: 'transparent',
   },
   flex1: {
     flex: 1,
