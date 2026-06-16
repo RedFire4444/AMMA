@@ -14,7 +14,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   onboardingComplete: boolean;
-  requestOTP: (phone: string) => Promise<void>;
+  requestOTP: (phone: string, purpose?: 'login' | 'signup') => Promise<void>;
   verifyOTP: (phone: string, token: string) => Promise<void>;
   emailLogin: (email: string, password: string) => Promise<void>;
   emailSignup: (email: string, password: string) => Promise<void>;
@@ -30,10 +30,10 @@ export const useAuthStore = create<AuthState>((set, _get) => ({
   isLoading: false,
   onboardingComplete: false,
 
-  requestOTP: async (phone: string) => {
+  requestOTP: async (phone: string, purpose: 'login' | 'signup' = 'login') => {
     set({ isLoading: true });
     try {
-      await authService.requestOTP(phone);
+      await authService.requestOTP(phone, purpose);
     } catch (err) {
       if (__DEV__) console.warn('[Store] OTP request failed:', err);
       throw err;

@@ -55,8 +55,8 @@ const LoginScreen = () => {
     setError('');
     try {
       const fullPhone = `${countryCode}${phoneNumber}`;
-      await requestOTP(fullPhone);
-      navigation.navigate('OTP', { phone: fullPhone });
+      await requestOTP(fullPhone, 'login');
+      navigation.navigate('OTP', { phone: fullPhone, purpose: 'login' });
     } catch (err: unknown) {
       if (__DEV__) console.warn('[Auth] OTP Request Error:', err);
       setError(err instanceof Error ? err.message : 'Failed to send OTP.');
@@ -211,6 +211,17 @@ const LoginScreen = () => {
               <GoogleIcon />
               <Text style={s.googleText}>Continue with Google</Text>
             </TouchableOpacity>
+
+            {/* Register Link */}
+            <View style={[s.center, s.registerRow]}>
+              <Text style={s.registerText}>Don't have an account? </Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('Register')}
+                accessibilityRole="button"
+              >
+                <Text style={s.registerLink}>Sign Up</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -236,6 +247,7 @@ const s = StyleSheet.create({
   fieldGroup: { marginBottom: 20 },
   labelSpaced: { marginTop: 16 },
   toggleRow: { marginTop: 16 },
+  registerRow: { marginTop: 20, flexDirection: 'row' },
   btnPrimary: { backgroundColor: colors.primary },
   btnLoading: { backgroundColor: colors.primaryLight },
   logoContainer: {
@@ -395,6 +407,22 @@ const s = StyleSheet.create({
     lineHeight: 16,
   },
   googleText: { color: colors.gray800, fontWeight: '700', fontSize: 16 },
+  registerText: {
+    fontSize: 14,
+    color: colors.white,
+    textShadowColor: 'rgba(0, 0, 0, 0.7)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
+  },
+  registerLink: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.white,
+    textDecorationLine: 'underline',
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
+  },
 });
 
 export default LoginScreen;

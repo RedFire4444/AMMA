@@ -35,7 +35,7 @@ async function runMigrations() {
       continue;
     }
 
-    const sql = fs.readFileSync(migrationPath, 'utf8');
+    const sql = fs.readFileSync(migrationPath, 'utf8').replace(/^\uFEFF/, '');
     
     if (!sql.trim()) {
       console.log(`⚠️  Skipping ${migration} (empty file)`);

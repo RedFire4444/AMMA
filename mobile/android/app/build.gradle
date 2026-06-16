@@ -92,6 +92,8 @@ android {
         externalNativeBuild {
             cmake {
                 arguments "-DANDROID_STL=c++_shared", "-DCMAKE_SHARED_LINKER_FLAGS=-lc++_shared"
+                cFlags "-Wno-deprecated-declarations"
+                cppFlags "-Wno-deprecated-declarations"
             }
         }
     }

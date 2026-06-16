@@ -31,7 +31,7 @@ const RESEND_TIMER = 30;
 type Props = NativeStackScreenProps<AuthStackParamList, 'OTP'>;
 
 const OTPScreen = ({ route }: Props) => {
-  const { phone } = route.params;
+  const { phone, purpose } = route.params;
   const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(''));
   const [timer, setTimer] = useState(RESEND_TIMER);
   const [error, setError] = useState('');
@@ -103,7 +103,7 @@ const OTPScreen = ({ route }: Props) => {
   const handleResend = async () => {
     if (timer > 0) return;
     try {
-      await requestOTP(phone);
+      await requestOTP(phone, purpose);
       setTimer(RESEND_TIMER);
       setError('');
     } catch (err: unknown) {

@@ -10,7 +10,8 @@
 import { z } from 'zod';
 
 export const requestOTPSchema = z.object({
-  phone: z.string().regex(/^\+?[1-9]\d{9,14}$/, 'Invalid phone number')
+  phone: z.string().regex(/^\+?[1-9]\d{9,14}$/, 'Invalid phone number'),
+  purpose: z.enum(['login', 'signup']).optional(),
 });
 
 export const verifyOTPSchema = z.object({

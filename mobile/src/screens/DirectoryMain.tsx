@@ -22,7 +22,6 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MiniPlayer } from '../components/directory/MiniPlayer';
 import YoutubePlayer from 'react-native-youtube-iframe';
-import Svg, { Circle, Line } from 'react-native-svg';
 
 const FONT_FAMILY = 'Manrope';
 const palette = {
@@ -560,10 +559,7 @@ const DirectoryMain = () => {
       {/* Search Bar */}
       <View style={s.searchWrap}>
         <View style={s.searchBar}>
-          <Svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF7A00" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={s.searchIcon}>
-            <Circle cx="11" cy="11" r="8" />
-            <Line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </Svg>
+          <Text style={s.searchIcon}>🔍</Text>
           <TextInput
             style={s.searchInput}
             placeholder="Search teachings, bhajans..."

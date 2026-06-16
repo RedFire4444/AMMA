@@ -2,7 +2,8 @@ import { NavigatorScreenParams } from '@react-navigation/native';
 
 export type AuthStackParamList = {
   Login: undefined;
-  OTP: { phone: string };
+  Register: undefined;
+  OTP: { phone: string; purpose: 'login' | 'signup' };
   GoogleAuthWebView: undefined;
 };
 

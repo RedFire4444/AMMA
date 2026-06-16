@@ -11,6 +11,45 @@ import { supabase } from '../services/supabase.service';
 import { streakService } from '../services/streak.service';
 import { success, error } from '../utils/apiResponse';
 
+type AccountDeletionTarget = {
+  table: string;
+  column: string;
+};
+
+const ACCOUNT_DELETION_TARGETS: AccountDeletionTarget[] = [
+  { table: 'habit_logs', column: 'user_id' },
+  { table: 'performance_ratings', column: 'user_id' },
+  { table: 'vision_board', column: 'user_id' },
+  { table: 'bookmarks', column: 'user_id' },
+  { table: 'course_reviews', column: 'user_id' },
+  { table: 'event_views', column: 'user_id' },
+  { table: 'event_reminders', column: 'user_id' },
+  { table: 'meditation_sessions', column: 'user_id' },
+  { table: 'directory_watch_sessions', column: 'user_id' },
+  { table: 'payments', column: 'user_id' },
+  { table: 'notifications', column: 'user_id' },
+  { table: 'user_progress', column: 'user_id' },
+  { table: 'enrollments', column: 'user_id' },
+  { table: 'event_registrations', column: 'user_id' },
+  { table: 'subscriptions', column: 'user_id' },
+  { table: 'user_habits', column: 'user_id' },
+];
+
+const isMissingTableError = (dbError: { code?: string; message?: string } | null): boolean => {
+  if (!dbError) {
+    return false;
+  }
+
+  const message = dbError.message ?? '';
+
+  return (
+    dbError.code === '42P01' ||
+    dbError.code === 'PGRST205' ||
+    /relation .* does not exist/i.test(message) ||
+    /could not find the table .* in the schema cache/i.test(message)
+  );
+};
+
 /**
  * GET /api/users/me
  * B2.1 — Get current user's profile + stats
@@ -24,36 +63,16 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // 1. Fetch or auto-create user profile
-    let { data: userData, error: dbError } = await supabase
+    // 1. Fetch the user's profile
+    const { data: userData, error: dbError } = await supabase
       .from('users')
       .select('*')
       .eq('id', userId)
       .single();
 
     if (dbError || !userData) {
-      console.log(`[User] Profile not found for ${userId}. Auto-creating profile...`);
-      const newUserProfile = {
-        id: userId,
-        email: req.user?.email || null,
-        phone: req.user?.phone || null,
-        auth_provider: req.user?.email ? 'email' : 'phone',
-        updated_at: new Date().toISOString(),
-      };
-
-      const { data: createdUser, error: createError } = await supabase
-        .from('users')
-        .insert(newUserProfile)
-        .select()
-        .single();
-
-      if (createError) {
-        console.error('[User] Failed to auto-create user profile:', createError);
-        res.status(404).json(error('USER_NOT_FOUND', 'User profile not found and could not be created', 404));
-        return;
-      }
-
-      userData = createdUser;
+      res.status(404).json(error('USER_NOT_FOUND', 'User profile not found', 404));
+      return;
     }
 
     // 2. Fetch stats and streaks in parallel
@@ -231,16 +250,53 @@ export const deleteMe = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    console.log(`[DeleteAccount] Starting account deletion for user: ${userId}`);
+
+    // Step 1: Delete user from Supabase Auth first so login cannot recreate the account.
+    const { error: authError } = await supabase.auth.admin.deleteUser(userId);
+
+    if (authError) {
+      console.error('[DeleteAccount] Failed to delete auth user:', authError);
+      res.status(500).json(error('DELETE_FAILED', `Failed to delete auth account: ${authError.message}`, 500));
+      return;
+    }
+
+    console.log(`[DeleteAccount] Auth user deleted successfully: ${userId}`);
+
+    // Step 2: Delete all related user data, including streak and habit history rows.
+    const deletionFailures: string[] = [];
+    for (const target of ACCOUNT_DELETION_TARGETS) {
+      const { error: deleteError } = await supabase
+        .from(target.table)
+        .delete()
+        .eq(target.column, userId);
+
+      if (deleteError && !isMissingTableError(deleteError)) {
+        deletionFailures.push(`${target.table}: ${deleteError.message}`);
+      }
+    }
+
+    // Step 3: Delete the user profile row. Database cascades handle any remaining child rows.
     const { error: dbError } = await supabase
       .from('users')
       .delete()
       .eq('id', userId);
 
     if (dbError) {
-      res.status(400).json(error('DELETE_FAILED', dbError.message, 400));
+      console.error('[DeleteAccount] Failed to delete user profile:', dbError);
+      res.status(500).json(error('DELETE_FAILED', `Auth removed but profile deletion failed: ${dbError.message}`, 500));
       return;
     }
 
+    if (deletionFailures.length > 0) {
+      console.error('[DeleteAccount] Failed to delete some related data:', deletionFailures);
+      res.status(500).json(
+        error('DELETE_FAILED', `Account auth removed, but some related data could not be deleted: ${deletionFailures.join('; ')}`, 500)
+      );
+      return;
+    }
+
+    console.log(`[DeleteAccount] User profile and related data deleted successfully: ${userId}`);
     res.status(200).json(success({ message: 'Account deleted successfully' }));
   } catch (err) {
     console.error('deleteMe error:', err);

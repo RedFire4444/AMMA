@@ -1,7 +1,7 @@
-﻿-- =====================================================
+-- =====================================================
 -- Migration 022: Fix habit logs unique constraint and streak function signatures
 -- Restore original correct signatures matching streak.service.ts
-And add UNIQUE constraint for onConflict support in upsert
+-- And add UNIQUE constraint for onConflict support in upsert
 -- =====================================================
 
 -- 1. Add UNIQUE constraint to habit_logs to support ON CONFLICT (user_id, habit_type, logged_at)

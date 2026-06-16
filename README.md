@@ -368,7 +368,6 @@ npm run dev                    # http://localhost:3001
 cd mobile
 npx react-native start        # Metro bundler
 npx react-native run-android  # or run-ios
-```
 
 ### Running Tests
 

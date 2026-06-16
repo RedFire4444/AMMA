@@ -16,15 +16,21 @@ import { success, error } from '../utils/apiResponse';
  */
 export const requestOTP = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { phone } = req.body;
+    const { phone, purpose } = req.body;
+    const otpPurpose = purpose === 'signup' ? 'signup' : 'login';
 
     if (!phone || phone.length < 10) {
       res.status(400).json(error('INVALID_PHONE', 'Please provide a valid phone number', 400));
       return;
     }
 
-    const { error: supabaseError } = await supabaseAnon.auth.signInWithOtp({ phone });
-    console.log(`[Auth] signInWithOtp called for ${phone}`);
+    const { error: supabaseError } = await supabaseAnon.auth.signInWithOtp({
+      phone,
+      options: {
+        shouldCreateUser: otpPurpose === 'signup',
+      },
+    });
+    console.log(`[Auth] signInWithOtp called for ${phone} (${otpPurpose})`);
 
     if (supabaseError) {
       console.error(`[Auth] Supabase OTP error for ${phone}:`, {
@@ -104,51 +110,15 @@ export const emailLogin = async (req: Request, res: Response): Promise<void> => 
   try {
     const { email, password } = req.body;
 
-    let { data, error: supabaseError } = await supabaseAnon.auth.signInWithPassword({
+    const { data, error: supabaseError } = await supabaseAnon.auth.signInWithPassword({
       email,
       password,
     });
 
     if (supabaseError) {
       console.log(`[Auth] signInWithPassword failed:`, supabaseError.message);
-      
-      // If login fails, try to sign up the user automatically via Admin API
-      console.log(`[Auth] Attempting auto-signup via admin API...`);
-      const { error: adminError } = await supabase.auth.admin.createUser({
-        email,
-        password,
-        email_confirm: true,
-      });
-
-      if (adminError) {
-        console.log(`[Auth] Admin auto-signup failed:`, adminError.message);
-        
-        const errMsg = adminError.message.toLowerCase();
-        // If they are already registered, it means they just typed the wrong password
-        if (errMsg.includes('already registered') || 
-            errMsg.includes('already exists')) {
-          res.status(401).json(error('LOGIN_FAILED', 'Invalid email or password', 401));
-          return;
-        }
-        res.status(400).json(error('LOGIN_FAILED', adminError.message, 400));
-        return;
-      }
-
-      console.log(`[Auth] Admin auto-signup succeeded for new user. Retrying login...`);
-      // Since they are now successfully signed up and confirmed, retry the signInWithPassword
-      const retryResponse = await supabaseAnon.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (retryResponse.error) {
-        console.log(`[Auth] Retry login failed:`, retryResponse.error.message);
-        res.status(401).json(error('LOGIN_FAILED', retryResponse.error.message, 401));
-        return;
-      }
-
-      data = retryResponse.data;
-      supabaseError = null;
+      res.status(401).json(error('LOGIN_FAILED', 'Invalid email or password', 401));
+      return;
     }
 
     if (!data.session) {
@@ -507,8 +477,6 @@ export const updateCredentials = async (req: Request, res: Response): Promise<vo
       return;
     }
 
-    const token = authHeader.substring(7);
-    
     const updates: any = {};
     if (email) updates.email = email;
     if (password) updates.password = password;

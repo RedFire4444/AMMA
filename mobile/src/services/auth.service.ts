@@ -1,8 +1,8 @@
 import { post } from './api';
 
 export const authService = {
-  async requestOTP(phone: string): Promise<any> {
-    return await post('/auth/request-otp', { phone });
+  async requestOTP(phone: string, purpose: 'login' | 'signup' = 'login'): Promise<any> {
+    return await post('/auth/request-otp', { phone, purpose });
   },
 
   async verifyOTP(phone: string, otp: string): Promise<any> {
