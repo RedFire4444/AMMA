@@ -22,7 +22,8 @@ import { SecureStore } from '../utils/keychain';
 // ---------------------------------------------------------------------------
 // Force Wi-Fi LAN IP to bypass adb reverse limitations and Android IPv6 bugs.
 // If your PC's IP changes, update this value (run `ipconfig` to find it).
-const BASE_URL = API_BASE_URL || 'http://localhost:3000/api';
+const RENDER_API_BASE_URL = 'https://amma-vljt.onrender.com/api';
+const BASE_URL = API_BASE_URL || RENDER_API_BASE_URL;
 if (__DEV__) console.log(`[API] Base URL configured as: ${BASE_URL}`);
 
 // ---------------------------------------------------------------------------

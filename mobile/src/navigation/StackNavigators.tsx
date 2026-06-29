@@ -9,6 +9,7 @@ import MeditationTimerScreen from '../screens/MeditationTimerScreen';
 import DirectoryMain from '../screens/DirectoryMain';
 import EventDetailScreen from '../screens/EventDetailScreen';
 import ProfileMain from '../screens/ProfileMain';
+import TermsPrivacyScreen from '../screens/TermsPrivacyScreen';
 import PaywallScreen from '../screens/PaywallScreen';
 import SubscriptionScreen from '../screens/SubscriptionScreen';
 import {
@@ -62,5 +63,6 @@ export const ProfileStack = () => (
     <Profile.Screen name="ProfileMain" component={ProfileMain} />
     <Profile.Screen name="Paywall" component={PaywallScreen} />
     <Profile.Screen name="Subscription" component={SubscriptionScreen} />
+    <Profile.Screen name="TermsPrivacy" component={TermsPrivacyScreen} />
   </Profile.Navigator>
 );

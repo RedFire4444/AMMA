@@ -266,7 +266,16 @@ const RegisterScreen = () => {
             {/* Terms and Conditions */}
             <TouchableOpacity
               style={s.checkboxRow}
-              onPress={() => setAcceptedTerms(!acceptedTerms)}
+              onPress={() => {
+                Alert.alert(
+                  'Terms & Conditions',
+                  'By creating an account, you agree to our Terms of Service and Privacy Policy.',
+                  [
+                    { text: 'View Terms', onPress: () => navigation.navigate('TermsPrivacy') },
+                    { text: 'OK', style: 'cancel', onPress: () => setAcceptedTerms(true) },
+                  ]
+                );
+              }}
               accessibilityRole="checkbox"
               accessibilityState={{ checked: acceptedTerms }}
             >

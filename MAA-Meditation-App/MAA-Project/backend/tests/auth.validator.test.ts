@@ -15,6 +15,8 @@ describe('Auth Validators (Zod schemas)', () => {
       const validPhones = [
         { phone: '+1234567890' },
         { phone: '12345678901' },
+        { phone: '+1234567890', purpose: 'login' },
+        { phone: '+1234567890', purpose: 'signup' },
       ];
       validPhones.forEach((data) => {
         expect(() => requestOTPSchema.parse(data)).not.toThrow();
@@ -26,6 +28,7 @@ describe('Auth Validators (Zod schemas)', () => {
         { phone: '12345' }, // too short
         { phone: '+1234567890123456' }, // too long
         { phone: 'abcdefghij' }, // letters
+        { phone: '+1234567890', purpose: 'other' },
         {}, // missing field
       ];
       invalidPhones.forEach((data) => {

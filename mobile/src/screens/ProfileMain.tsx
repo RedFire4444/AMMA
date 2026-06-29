@@ -27,6 +27,7 @@ import { userService, UserProfile } from '../services/user.service';
 import { authService } from '../services/auth.service';
 import { ProfileStackParamList } from '../navigation/types';
 import { colors } from '../utils/styles';
+import TermsPrivacyScreen from './TermsPrivacyScreen';
 
 type ProfileNavProp = NativeStackNavigationProp<ProfileStackParamList, 'ProfileMain'>;
 
@@ -78,6 +79,10 @@ const ProfileMain = () => {
     setEditPassword('');
     setShowEditPassword(false);
     setEditModalOpen(true);
+  };
+
+  const handleTermsPrivacyPress = () => {
+    navigation.navigate('TermsPrivacy');
   };
 
   const handleSaveProfile = async () => {
@@ -297,12 +302,7 @@ const ProfileMain = () => {
           />
           <SettingsRow
             label="Terms & Privacy"
-            onPress={() =>
-              Alert.alert(
-                'Terms & Privacy',
-                'View our Terms of Service and Privacy Policy at:\n\nmaaapp.com/terms\nmaaapp.com/privacy',
-              )
-            }
+            onPress={handleTermsPrivacyPress}
           />
           <SettingsRow
             label="Helpdesk"
@@ -446,6 +446,8 @@ const ProfileMain = () => {
     </ImageBackground>
   );
 };
+
+export default ProfileMain;
 
 const s = StyleSheet.create({
   bgImage: {
@@ -715,5 +717,3 @@ const s = StyleSheet.create({
     fontSize: 18,
   },
 });
-
-export default ProfileMain;

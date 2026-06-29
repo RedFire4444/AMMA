@@ -39,6 +39,7 @@ export type ProfileStackParamList = {
   ProfileMain: undefined;
   Paywall: undefined;
   Subscription: undefined;
+  TermsPrivacy: undefined;
 };
 
 export type MainTabParamList = {

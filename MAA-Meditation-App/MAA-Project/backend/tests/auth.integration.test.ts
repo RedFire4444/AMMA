@@ -75,7 +75,27 @@ describe('Auth Integration Tests', () => {
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data.message).toContain('+1234567890');
-      expect(supabaseAnon.auth.signInWithOtp).toHaveBeenCalledWith({ phone: '+1234567890' });
+      expect(supabaseAnon.auth.signInWithOtp).toHaveBeenCalledWith({
+        phone: '+1234567890',
+        options: { shouldCreateUser: false },
+      });
+    });
+
+    it('should allow OTP signup requests to create a new user', async () => {
+      (supabaseAnon.auth.signInWithOtp as jest.Mock).mockResolvedValueOnce({
+        data: {},
+        error: null,
+      });
+
+      const res = await request(app)
+        .post('/api/auth/request-otp')
+        .send({ phone: '+1234567890', purpose: 'signup' });
+
+      expect(res.status).toBe(200);
+      expect(supabaseAnon.auth.signInWithOtp).toHaveBeenCalledWith({
+        phone: '+1234567890',
+        options: { shouldCreateUser: true },
+      });
     });
 
     it('should reject invalid phone number due to validation middleware', async () => {
@@ -150,6 +170,24 @@ describe('Auth Integration Tests', () => {
       expect(res.status).toBe(401);
       expect(res.body.success).toBe(false);
       expect(res.body.error.message).toContain('Invalid or expired OTP');
+      expect(supabase.from).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('POST /api/auth/email-login', () => {
+    it('should return 401 when email login fails instead of auto-signing up', async () => {
+      (supabaseAnon.auth.signInWithPassword as jest.Mock).mockResolvedValueOnce({
+        data: { user: null, session: null },
+        error: { message: 'Invalid login credentials' },
+      });
+
+      const res = await request(app)
+        .post('/api/auth/email-login')
+        .send({ email: 'user@example.com', password: 'secret123' });
+
+      expect(res.status).toBe(401);
+      expect(res.body.success).toBe(false);
+      expect(res.body.error.message).toContain('Invalid email or password');
       expect(supabase.from).not.toHaveBeenCalled();
     });
   });
